@@ -452,8 +452,33 @@ function renderCheckoutSidebar(){
 }
 function selPay(el){document.querySelectorAll('.pay-opt').forEach(o=>o.classList.remove('selected'));el.classList.add('selected');el.querySelector('input').checked=true;document.getElementById('card-fields').style.display=el.textContent.includes('Card')?'block':'none'}
 function placeOrder(){
+  const user = getCurrentUser();
+  if(!user) return;
   const btn=document.getElementById('place-order-btn');btn.textContent='Processing…';btn.disabled=true;
-  setTimeout(()=>{cart=[];updateBadge();btn.textContent='Place Order';btn.disabled=false;toast('Order placed! Thank you 🎉','info');go('account');setTimeout(()=>showTab('orders'),300)},1800);
+  
+  setTimeout(()=>{
+    // Generate Order
+    const sub=cart.reduce((s,i)=>s+(i.price*i.qty),0);
+    const newOrder = {
+       id: '#LUM-' + Math.floor(Math.random() * 10000).toString().padStart(4, '0'),
+       date: new Date().toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'}),
+       items: cart.map(i => `${i.name} (x${i.qty})`).join(', '),
+       total: sub + (sub >= 1500 ? 0 : 150)
+    };
+    
+    // Save to user
+    if(!user.orders) user.orders = [];
+    user.orders.push(newOrder);
+    const users = getUsers();
+    users[user.email] = user;
+    saveUsers(users);
+    
+    // Reset and redirect
+    cart=[]; updateBadge(); btn.textContent='Place Order'; btn.disabled=false; 
+    toast('Order placed! Thank you 🎉','info');
+    go('account');
+    setTimeout(()=>showTab('orders'),300);
+  }, 1800);
 }
 
 /* ═══════════════ BOOKING ═══════════════ */
@@ -465,8 +490,32 @@ function bkNext(step){
   [1,2,3].forEach(s=>{document.getElementById('bk-'+s).classList.toggle('hide',s!==step);const bs=document.getElementById('bks-'+s);bs.classList.toggle('active',s===step);bs.classList.toggle('done',s<step)});
 }
 function confirmBk(){
+  const user = getCurrentUser();
+  if(!user) return;
   const btn=document.getElementById('confirm-bk-btn');btn.textContent='Confirming…';btn.disabled=true;
-  setTimeout(()=>{btn.textContent='Confirm Appointment';btn.disabled=false;toast('Appointment confirmed! 🎉','info');go('account');setTimeout(()=>showTab('bookings'),300);bkSvc='';bkSvcPrice='';document.querySelectorAll('.svc-opt').forEach(o=>o.classList.remove('selected'));bkNext(1)},1500);
+  
+  setTimeout(()=>{
+    // Generate Booking
+    const date = document.getElementById('bk-date').value || new Date().toLocaleDateString();
+    const time = document.getElementById('bk-time').value;
+    const icon = bkSvc.split(' ')[0]; // extracts the emoji
+    const serviceName = bkSvc.replace(/^[^ ]+ /, ''); // extracts the name
+    
+    // Save to User
+    if(!user.bookings) user.bookings = [];
+    user.bookings.push({ icon, service: serviceName, date, time });
+    const users = getUsers();
+    users[user.email] = user;
+    saveUsers(users);
+  
+    btn.textContent='Confirm Appointment';btn.disabled=false;
+    toast('Appointment confirmed! 🎉','info');
+    go('account');
+    setTimeout(()=>showTab('bookings'),300);
+    bkSvc='';bkSvcPrice='';
+    document.querySelectorAll('.svc-opt').forEach(o=>o.classList.remove('selected'));
+    bkNext(1);
+  },1500);
 }
 function toggleAccDrop(){const d=document.getElementById('acc-dropdown');const o=document.getElementById('acc-drop-overlay');const open=d.classList.toggle('open');o.classList.toggle('open',open)}
 function closeAccDrop(){document.getElementById('acc-dropdown').classList.remove('open');document.getElementById('acc-drop-overlay').classList.remove('open')}
@@ -509,18 +558,16 @@ function registerUser(){
   if(password.length<8){toast('Password must be at least 8 characters.','error');return;}
   const users=getUsers();
   if(users[email]){toast('An account with this email already exists.','error');return;}
-  users[email]={first,last,email,password,phone:'',birthday:''};
+  
+  // Create empty arrays for a brand new user
+  users[email]={first, last, email, password, phone:'', birthday:'', orders:[], bookings:[], payments:[], addresses:[]};
   saveUsers(users);
   setCurrentUser(email);
   updateAccountUI();
   toast('Account created successfully!','info');
   go('account');
 }
-function logout(){
-  clearCurrentUser();
-  toast('You have been logged out.','info');
-  go('login');
-}
+
 function updateAccountUI(){
   const user=getCurrentUser();
   if(!user) return;
@@ -538,6 +585,97 @@ function updateAccountUI(){
   if(profileEmail) profileEmail.value = user.email;
   if(profilePhone) profilePhone.value = user.phone || '';
   if(profileBirthday) profileBirthday.value = user.birthday || '';
+  
+  // Trigger dynamic data render
+  renderDynamicAccountData(user);
+}
+
+// NEW FUNCTION: Overwrites hardcoded HTML with actual user data
+function renderDynamicAccountData(user) {
+  const orders = user.orders || [];
+  const bookings = user.bookings || [];
+  const payments = user.payments || [];
+  const addresses = user.addresses || [];
+
+  // Update Stats
+  const dashStats = document.querySelector('.dash-stats');
+  if(dashStats) {
+    dashStats.innerHTML = `
+      <div class="ds"><div class="ds-num">${orders.length}</div><div class="ds-lbl">Total Orders</div></div>
+      <div class="ds"><div class="ds-num">${bookings.length}</div><div class="ds-lbl">Upcoming Bookings</div></div>
+      <div class="ds"><div class="ds-num">0</div><div class="ds-lbl">Wishlist Items</div></div>
+    `;
+  }
+
+  // Update Orders Table
+  const ordersTbody = document.querySelector('#tab-orders tbody');
+  const dashTbody = document.querySelector('#tab-dashboard tbody');
+  
+  if(orders.length === 0) {
+    if(ordersTbody) ordersTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted)">No orders found.</td></tr>';
+    if(dashTbody) dashTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted)">No recent orders.</td></tr>';
+  } else {
+    const rows = orders.map(o => `
+      <tr>
+        <td style="font-weight: 500">${o.id}</td>
+        <td>${o.date}</td>
+        <td>${o.items}</td>
+        <td style="color: var(--terra)">₱${o.total.toLocaleString()}</td>
+        <td><span class="sp sp-proc">Processing</span></td>
+        <td><button class="detail-btn" onclick="toast('Order is being prepared', 'info')">Status</button></td>
+      </tr>
+    `).reverse().join('');
+    if(ordersTbody) ordersTbody.innerHTML = rows;
+    
+    const dashRows = orders.slice(-2).reverse().map(o => `
+      <tr>
+        <td style="font-weight: 500">${o.id}</td>
+        <td>${o.date}</td>
+        <td style="color: var(--terra)">₱${o.total.toLocaleString()}</td>
+        <td><span class="sp sp-proc">Processing</span></td>
+        <td></td>
+      </tr>
+    `).join('');
+    if(dashTbody) dashTbody.innerHTML = dashRows;
+  }
+
+  // Update Bookings
+  const bookingsTab = document.getElementById('tab-bookings');
+  if(bookingsTab) {
+    if(bookings.length === 0) {
+       bookingsTab.innerHTML = `
+          <div class="acc-pg-title">My Bookings</div>
+          <div style="text-align:center;padding:40px 20px;color:var(--muted)">
+             <div style="font-size:32px;margin-bottom:12px">📅</div>
+             <p style="margin-bottom:16px">You have no upcoming bookings.</p>
+             <button class="btn btn-primary" onclick="go('booking')">+ Book New Appointment</button>
+          </div>
+       `;
+    } else {
+       const bkCards = bookings.map(b => `
+          <div class="bk-card">
+            <div class="bk-icon">${b.icon}</div>
+            <div class="bk-info">
+              <div class="bk-name">${b.service}</div>
+              <div class="bk-meta">${b.date} · ${b.time}</div>
+            </div>
+            <span class="sp sp-proc">Upcoming</span>
+            <div class="bk-acts"><button class="btn btn-ghost btn-sm" onclick="toast('Booking cancelled', 'error')">Cancel</button></div>
+          </div>
+       `).reverse().join('');
+       bookingsTab.innerHTML = `<div class="acc-pg-title">My Bookings</div><h4 style="font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px;">Upcoming</h4>${bkCards}<br><button class="btn btn-primary" onclick="go('booking')">+ Book New Appointment</button>`;
+    }
+  }
+
+  // Clear hardcoded payments and addresses
+  const paymentTab = document.getElementById('tab-payment');
+  if(paymentTab && payments.length === 0) {
+     paymentTab.innerHTML = `<div class="acc-pg-title">Payment Methods</div><div style="padding:30px;text-align:center;color:var(--muted);border:1px dashed var(--pink-soft);border-radius:var(--r);margin-bottom:20px;">No payment methods saved.</div><br><div style="background: var(--cream); padding: 24px; border-radius: var(--r); max-width: 420px; border: 1px solid var(--border);"><div style="font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 16px;">Add New Card</div><div class="fg"><label class="flabel">Card Number</label><input type="text" class="finput" placeholder="1234 5678 9012 3456"></div><div class="frow"><div class="fg"><label class="flabel">Expiry</label><input type="text" class="finput" placeholder="MM/YY"></div><div class="fg"><label class="flabel">CVV</label><input type="text" class="finput" placeholder="123"></div></div><div class="fg"><label class="flabel">Cardholder Name</label><input type="text" class="finput" placeholder="Sofia Reyes"></div><button class="btn btn-primary btn-full" onclick="toast('Card added successfully!', 'info')">Add Card</button></div>`;
+  }
+  const addressesTab = document.getElementById('tab-addresses');
+  if(addressesTab && addresses.length === 0) {
+     addressesTab.innerHTML = `<div class="acc-pg-title">My Addresses</div><div style="padding:30px;text-align:center;color:var(--muted);border:1px dashed var(--pink-soft);border-radius:var(--r);margin-bottom:20px;">No addresses saved.</div><br><div style="background: var(--cream); padding: 24px; border-radius: var(--r); max-width: 480px; border: 1px solid var(--border);"><div style="font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 16px;">Add New Address</div><div class="fg"><label class="flabel">Full Name</label><input type="text" class="finput" placeholder="Sofia Reyes"></div><div class="fg"><label class="flabel">Street Address</label><input type="text" class="finput" placeholder="Street, unit/floor"></div><div class="frow"><div class="fg"><label class="flabel">City</label><input type="text" class="finput" placeholder="Quezon City"></div><div class="fg"><label class="flabel">Postal Code</label><input type="text" class="finput" placeholder="1100"></div></div><div class="fg"><label class="flabel">Phone</label><input type="tel" class="finput" placeholder="+63 9XX XXX XXXX"></div><button class="btn btn-primary btn-full" onclick="toast('Address saved!', 'info')">Add Address</button></div>`;
+  }
 }
 function saveProfileChanges(){
   const user=getCurrentUser();
@@ -560,23 +698,7 @@ function showTab(tab){document.querySelectorAll('.acc-pg').forEach(p=>p.classLis
 function renderWishlist(){
   const el=document.getElementById('wishlist-grid');
   if(!el) return;
-  el.innerHTML = products.slice(0,6).map(p => {
-    const bdg = p.badge ? `<span class="pc-badge badge-${p.badge}">${p.badge}</span>` : '';
-    return `
-    <div class="pc" onclick="openPdp(${p.id})">
-      <div class="pc-img">
-        ${bdg}${p.img ? `<img src="${p.img}" alt="${p.name}">` : ''}
-        <div class="pc-actions">
-          <button class="pca-cart" onclick="event.stopPropagation();quickAdd(${p.id})">Add to Cart</button>
-          <button class="pca-wish" onclick="event.stopPropagation();this.closest('.pc').remove();toast('Removed from wishlist','error')">✕</button>
-        </div>
-      </div>
-      <div class="pc-info">
-        <div class="pc-name">${p.name}</div>
-        <div class="pc-price-row"><span class="pc-price">₱${p.price.toLocaleString()}</span></div>
-      </div>
-    </div>
-  `;}).join('');
+  el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted)">Your wishlist is empty. Browse our products to add some!</div>';
 }
 
 /* ═══════════════ TOAST ═══════════════ */
