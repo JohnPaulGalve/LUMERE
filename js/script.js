@@ -106,9 +106,14 @@ const navIds={home:'nl-home',products:'nl-products',services:'nl-services',booki
 function go(page){
   const currentUser = getCurrentUser();
   
-  // NEW: Require login for Account, Checkout, and Booking pages
+  // Require login for Account, Checkout, and Booking pages
   if((page==='account' || page==='checkout' || page==='booking') && !currentUser){
-    toast('Please sign in to continue with your transaction.','error');
+    // Show a different message depending on what they clicked
+    if(page === 'account') {
+      toast('Please sign in to access your account.', 'error');
+    } else {
+      toast('Please sign in to continue with your transaction.', 'error');
+    }
     page='login';
   }
   
