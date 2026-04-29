@@ -717,7 +717,7 @@ function renderDynamicAccountData(user) {
      } else {
         html += payments.map((p, index) => `<div class="pay-card"><div class="pay-icon">${p.icon || '💳'}</div><div class="pay-info"><div class="pay-name">${p.name}</div>${index === 0 ? '<div class="pay-default">Default</div>' : ''}</div><div class="pay-acts">${index !== 0 ? `<button class="btn btn-ghost btn-sm" onclick="setAsDefault('payments', ${p.id})">Make Default</button>` : ''}<button class="btn btn-ghost btn-sm" onclick="removePayment(${p.id})">Remove</button></div></div>`).join('');
      }
-     html += `<br><div style="background: var(--cream); padding: 24px; border-radius: var(--r); max-width: 420px; border: 1px solid var(--border);">
+    html += `<br><div style="background: var(--cream); padding: 24px; border-radius: var(--r); max-width: 420px; border: 1px solid var(--border);">
        <div style="font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 16px;">Add New Payment</div>
        <div class="fg"><label class="flabel">Method</label>
          <select id="new-pay-type" class="finput" onchange="togglePayFields()">
@@ -727,11 +727,17 @@ function renderDynamicAccountData(user) {
        </div>
        <div id="pay-card-fields">
          <div class="fg"><label class="flabel">Bank Name</label><input type="text" id="new-bank-name" class="finput" placeholder="BDO, BPI, UnionBank..."></div>
-         <div class="fg"><label class="flabel">Card Number</label><input type="text" id="new-card-num" class="finput" placeholder="1234 5678 9012 3456"></div>
+         <div class="fg"><label class="flabel">Card Number</label>
+           <!-- STRICT DIGITS ONLY & 16 MAX LENGTH -->
+           <input type="text" id="new-card-num" class="finput" placeholder="16-digit card number" maxlength="16" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+         </div>
        </div>
        <div id="pay-gcash-fields" style="display:none;">
          <div class="fg"><label class="flabel">GCash Name</label><input type="text" id="new-gcash-name" class="finput" placeholder="Juan Dela Cruz"></div>
-         <div class="fg"><label class="flabel">GCash Number</label><input type="tel" id="new-gcash-num" class="finput" placeholder="09XX XXX XXXX"></div>
+         <div class="fg"><label class="flabel">GCash Number</label>
+           <!-- STRICT DIGITS ONLY & 11 MAX LENGTH -->
+           <input type="tel" id="new-gcash-num" class="finput" placeholder="09XXXXXXXXX" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+         </div>
        </div>
        <button class="btn btn-primary btn-full" onclick="addPayment()" style="margin-top: 8px;">Save Payment Method</button>
      </div>`;
@@ -855,13 +861,27 @@ function addPayment() {
   
   if(type === 'card') {
     const bank = document.getElementById('new-bank-name').value.trim();
-    const num = document.getElementById('new-card-num').value.slice(-4);
-    if(!bank || !num) { toast('Please enter Bank Name and Card Number', 'error'); return; }
+    const rawNum = document.getElementById('new-card-num').value.trim();
+    
+    if(!bank || !rawNum) { toast('Please enter Bank Name and Card Number', 'error'); return; }
+    // Enforce length for cards (usually 16 digits, but we'll accept at least 13 to be safe)
+    if(rawNum.length < 13) { toast('Please enter a valid card number', 'error'); return; }
+    
+    const num = rawNum.slice(-4);
     user.payments.push({ id: Date.now(), name: `${bank} ending in ${num}`, icon: '💳' });
+    
   } else {
     const gname = document.getElementById('new-gcash-name').value.trim();
-    const gnum = document.getElementById('new-gcash-num').value.slice(-4);
-    if(!gname || !gnum) { toast('Please enter GCash Name and Number', 'error'); return; }
+    const rawGnum = document.getElementById('new-gcash-num').value.trim();
+    
+    if(!gname || !rawGnum) { toast('Please enter GCash Name and Number', 'error'); return; }
+    // Enforce exact GCash formatting (11 digits, starts with 09)
+    if(rawGnum.length !== 11 || !rawGnum.startsWith('09')) { 
+      toast('Enter a valid 11-digit GCash number starting with 09', 'error'); 
+      return; 
+    }
+    
+    const gnum = rawGnum.slice(-4);
     user.payments.push({ id: Date.now(), name: `GCash ending in ${gnum}`, icon: '📱' });
   }
   
