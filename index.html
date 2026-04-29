@@ -1,0 +1,2935 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lumière — Salon & Beauty</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/stylesheet.css" />
+  </head>
+  <body>
+    <!-- ══════════════ NAV ══════════════ -->
+    <nav class="nav" id="main-nav">
+      <div class="nav-inner">
+        <div>
+          <img
+            class="logo"
+            onclick="go('home')"
+            width="68"
+            src="images/lumiere logo.jpg"
+            alt="logo"
+          />
+        </div>
+        <ul class="nav-links">
+          <li>
+            <span class="nl" id="nl-home" onclick="go('home')">Home</span>
+          </li>
+          <li>
+            <span class="nl" id="nl-products" onclick="go('products')"
+              >Products</span
+            >
+          </li>
+          <li>
+            <span class="nl" id="nl-services" onclick="go('services')"
+              >Services</span
+            >
+          </li>
+
+          <li>
+            <span class="nl" id="nl-account" onclick="go('account')"
+              >My Account</span
+            >
+          </li>
+        </ul>
+        <div class="nav-right">
+          <div class="nav-search-wrap">
+            <input
+              id="nav-q"
+              type="text"
+              placeholder="Search…"
+              onkeydown="if (event.key === 'Enter') navSearch();"
+            />
+            <button onclick="navSearch()">
+              <svg
+                viewBox="0 0 24 24"
+                width="14"
+                height="14"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="cart-wrap">
+            <button class="icon-btn" onclick="toggleCart()" title="Cart">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <path d="M16 10a4 4 0 0 1-8 0" />
+              </svg>
+            </button>
+            <span class="cart-badge" id="cart-badge">0</span>
+          </div>
+          <div class="burger" id="burger" onclick="toggleMob()">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Mobile menu -->
+    <div class="mob-menu" id="mob-menu">
+      <div class="mob-search">
+        <input
+          id="mob-q"
+          type="text"
+          placeholder="Search products or services…"
+          onkeydown="if (event.key === 'Enter') mobSearch();"
+        /><button class="btn btn-primary btn-sm" onclick="mobSearch()">
+          Go
+        </button>
+      </div>
+      <div
+        class="mob-link"
+        onclick="
+          go('home');
+          closeMob();
+        "
+      >
+        Home
+      </div>
+      <div
+        class="mob-link"
+        onclick="
+          go('products');
+          closeMob();
+        "
+      >
+        Products
+      </div>
+      <div
+        class="mob-link"
+        onclick="
+          go('services');
+          closeMob();
+        "
+      >
+        Services
+      </div>
+      <div
+        class="mob-link"
+        onclick="
+          go('booking');
+          closeMob();
+        "
+      >
+        Book Appointment
+      </div>
+      <div
+        class="mob-link"
+        onclick="
+          go('account');
+          closeMob();
+        "
+      >
+        My Account
+      </div>
+      <div
+        class="mob-link"
+        onclick="
+          toggleCart();
+          closeMob();
+        "
+      >
+        Cart
+      </div>
+      <div class="mob-actions">
+        <button
+          class="btn btn-primary btn-full btn-lg"
+          onclick="
+            go('booking');
+            closeMob();
+          "
+        >
+          Book Now
+        </button>
+        <button
+          class="btn btn-outline btn-full btn-lg"
+          onclick="
+            go('products');
+            closeMob();
+          "
+        >
+          Shop Now
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+     HOME PAGE
+     Nodes: Hero/Banner, Shop Now CTA, Book Service CTA,
+     Best Deals, Best Sellers, Featured Products,
+     Featured Services, Reviews, Footer
+══════════════════════════════════════════ -->
+    <div id="page-home" class="page active">
+      <!-- Hero / Banner -->
+      <section class="hero">
+        <div class="hero-l">
+          <div class="hero-tag fu">Premium Salon &amp; Beauty</div>
+          <h1 class="hero-h1 fu d1">Reveal your<br /><em>finest self</em></h1>
+          <p class="hero-p fu d2">
+            Curated skincare, haircare &amp; makeup — paired with expert salon
+            services in a serene, luxurious setting.
+          </p>
+          <div class="hero-btns fu d3">
+            <!-- Shop Now CTA -->
+            <button class="btn btn-primary btn-lg" onclick="go('products')">
+              Shop Now
+            </button>
+            <!-- Book Service CTA -->
+            <button class="btn btn-outline btn-lg" onclick="go('booking')">
+              Book a Service
+            </button>
+          </div>
+          <div class="hero-stats fu d3">
+            <div>
+              <div class="hs-num">20+</div>
+              <div class="hs-lbl">Products</div>
+            </div>
+            <div>
+              <div class="hs-num">5K+</div>
+              <div class="hs-lbl">Clients</div>
+            </div>
+            <div>
+              <div class="hs-num">98%</div>
+              <div class="hs-lbl">Satisfaction</div>
+            </div>
+          </div>
+        </div>
+        <div class="hero-r">
+          <div class="hero-r-inner"><div class="hero-big">✦</div></div>
+          <div class="hero-float hf1">
+            <div class="hf-num">4.9★</div>
+            <div class="hf-lbl">Avg. Rating</div>
+          </div>
+          <div class="hero-float hf2">
+            <div class="hf-num">₱350</div>
+            <div class="hf-lbl">Services from</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Promo/Deals strip -->
+      <div class="promo-bar">
+        <div class="promo-track">
+          <div class="pi">
+            <span class="pb pb-sale">Sale</span
+            ><span class="pt"
+              ><strong>Up to 40% off</strong> Skincare Essentials</span
+            >
+          </div>
+          <div class="pi">
+            <span class="pb pb-new">New</span
+            ><span class="pt"
+              ><strong>Summer Glow</strong> Collection arrived</span
+            >
+          </div>
+          <div class="pi">
+            <span class="pb pb-free">Free</span
+            ><span class="pt"
+              >Free shipping on orders <strong>₱1,500+</strong></span
+            >
+          </div>
+          <div class="pi">
+            <span class="pb pb-sale">Book</span
+            ><span class="pt"
+              ><strong>First Facial</strong> — 20% off your first visit</span
+            >
+          </div>
+          <div class="pi">
+            <span class="pb pb-new">Tip</span
+            ><span class="pt"
+              >Earn <strong>reward points</strong> on every purchase</span
+            >
+          </div>
+          <!-- duplicate for loop -->
+          <div class="pi">
+            <span class="pb pb-sale">Sale</span
+            ><span class="pt"
+              ><strong>Up to 40% off</strong> Skincare Essentials</span
+            >
+          </div>
+          <div class="pi">
+            <span class="pb pb-new">New</span
+            ><span class="pt"
+              ><strong>Summer Glow</strong> Collection arrived</span
+            >
+          </div>
+          <div class="pi">
+            <span class="pb pb-free">Free</span
+            ><span class="pt"
+              >Free shipping on orders <strong>₱1,500+</strong></span
+            >
+          </div>
+          <div class="pi">
+            <span class="pb pb-sale">Book</span
+            ><span class="pt"
+              ><strong>First Facial</strong> — 20% off your first visit</span
+            >
+          </div>
+          <div class="pi">
+            <span class="pb pb-new">Tip</span
+            ><span class="pt"
+              >Earn <strong>reward points</strong> on every purchase</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Best Deals -->
+      <section class="sec" style="background: var(--ink); padding: 44px 0">
+        <div class="wrap">
+          <div class="sec-hdr-row">
+            <div>
+              <div class="eyebrow" style="color: var(--gold)">Limited Time</div>
+              <h2 class="sec-title" style="color: #fff">Best <em>Deals</em></h2>
+            </div>
+            <button class="btn btn-gold btn-sm" onclick="go('products')">
+              View All →
+            </button>
+          </div>
+          <div class="pg" id="deals-grid"></div>
+        </div>
+      </section>
+
+      <!-- Featured Services -->
+      <section class="sec" style="padding-left: 0; padding-right: 0">
+        <div class="wrap sec-hdr">
+          <div class="eyebrow">Expert Treatments</div>
+          <h2 class="sec-title">Featured <em>Services</em></h2>
+        </div>
+        <div class="svc-grid">
+          <div
+            class="svc-card"
+            onclick="
+              go('services');
+              showPanel('hair');
+            "
+          >
+            <div class="svc-bg bg1"></div>
+            <div class="svc-ov"></div>
+            <div class="svc-ct">
+              <span class="svc-emoji">✂️</span>
+              <div class="svc-name">Hair</div>
+              <div class="svc-sub">Cuts, color, treatments &amp; blowouts.</div>
+              <span class="svc-cta">Book Now →</span>
+            </div>
+          </div>
+          <div
+            class="svc-card"
+            onclick="
+              go('services');
+              showPanel('facial');
+            "
+          >
+            <div class="svc-bg bg2"></div>
+            <div class="svc-ov"></div>
+            <div class="svc-ct">
+              <span class="svc-emoji">🌸</span>
+              <div class="svc-name">Facial</div>
+              <div class="svc-sub">
+                Deep cleansing &amp; brightening facials.
+              </div>
+              <span class="svc-cta">Book Now →</span>
+            </div>
+          </div>
+          <div
+            class="svc-card"
+            onclick="
+              go('services');
+              showPanel('nails');
+            "
+          >
+            <div class="svc-bg bg3"></div>
+            <div class="svc-ov"></div>
+            <div class="svc-ct">
+              <span class="svc-emoji">💅</span>
+              <div class="svc-name">Nails</div>
+              <div class="svc-sub">Manicure, pedicure, gel &amp; nail art.</div>
+              <span class="svc-cta">Book Now →</span>
+            </div>
+          </div>
+          <div
+            class="svc-card"
+            onclick="
+              go('services');
+              showPanel('spa');
+            "
+          >
+            <div class="svc-bg bg4"></div>
+            <div class="svc-ov"></div>
+            <div class="svc-ct">
+              <span class="svc-emoji">🧖</span>
+              <div class="svc-name">Spa</div>
+              <div class="svc-sub">
+                Full-body wraps &amp; massage therapies.
+              </div>
+              <span class="svc-cta">Book Now →</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Best Sellers -->
+      <section class="sec" style="background: var(--cream)">
+        <div class="wrap">
+          <div class="sec-hdr-row">
+            <div>
+              <div class="eyebrow">Top Picks</div>
+              <h2 class="sec-title">Best <em>Sellers</em></h2>
+            </div>
+            <button class="btn btn-ghost btn-sm" onclick="go('products')">
+              View All →
+            </button>
+          </div>
+          <div class="pg" id="home-bestsellers"></div>
+        </div>
+      </section>
+
+      <!-- Featured Products -->
+      <section class="sec">
+        <div class="wrap">
+          <div class="sec-hdr-row">
+            <div>
+              <div class="eyebrow">Just In</div>
+              <h2 class="sec-title">Featured <em>Products</em></h2>
+            </div>
+            <button class="btn btn-ghost btn-sm" onclick="go('products')">
+              View All →
+            </button>
+          </div>
+          <div class="pg" id="home-featured"></div>
+        </div>
+      </section>
+
+      <!-- Reviews -->
+      <section class="sec" style="background: var(--cream)">
+        <div class="wrap">
+          <div class="sec-hdr">
+            <div class="eyebrow">Happy Clients</div>
+            <h2 class="sec-title">Our <em>Reviews</em></h2>
+          </div>
+          <div class="rev-grid">
+            <div class="rev-card">
+              <div class="rev-stars">★★★★★</div>
+              <p class="rev-text">
+                "Absolutely in love with my facial treatment. My skin has never
+                looked this radiant. The staff were so professional and
+                welcoming — I'll be back every month!"
+              </p>
+              <div class="rev-author">
+                <div class="rev-av">👩</div>
+                <div>
+                  <div class="rev-name">Sofia Reyes</div>
+                  <div class="rev-meta">March 2025</div>
+                  <div class="rev-verified">✓ Verified Client</div>
+                </div>
+              </div>
+            </div>
+            <div class="rev-card">
+              <div class="rev-stars">★★★★★</div>
+              <p class="rev-text">
+                "The haircare products arrived beautifully packaged and the
+                results are incredible. My hair feels healthier than ever.
+                Already ordered again!"
+              </p>
+              <div class="rev-author">
+                <div class="rev-av">👱‍♀️</div>
+                <div>
+                  <div class="rev-name">Camille Torres</div>
+                  <div class="rev-meta">February 2025</div>
+                  <div class="rev-verified">✓ Verified Purchase</div>
+                </div>
+              </div>
+            </div>
+            <div class="rev-card">
+              <div class="rev-stars">★★★★★</div>
+              <p class="rev-text">
+                "Booking my nail appointment online was so easy. The nail art is
+                incredibly detailed. This is my go-to salon now!"
+              </p>
+              <div class="rev-author">
+                <div class="rev-av">🧕</div>
+                <div>
+                  <div class="rev-name">Anisa Mendoza</div>
+                  <div class="rev-meta">January 2025</div>
+                  <div class="rev-verified">✓ Verified Client</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <div class="wrap">
+          <div class="footer-grid">
+            <div>
+              <div class="f-logo">Lumi<span>è</span>re</div>
+              <p class="f-desc">
+                Premium salon services and beauty cosmetics, crafted for those
+                who believe beauty is an art worth investing in.
+              </p>
+              <div class="f-social">
+                <div class="f-soc">f</div>
+                <div class="f-soc">ig</div>
+                <div class="f-soc">tt</div>
+                <div class="f-soc">yt</div>
+              </div>
+            </div>
+            <div>
+              <div class="f-col-title">Company</div>
+              <div class="f-links">
+                <span class="f-link" onclick="go('about')">About Us</span
+                ><span class="f-link">Careers</span
+                ><span class="f-link">Press</span>
+              </div>
+            </div>
+            <div>
+              <div class="f-col-title">Help</div>
+              <div class="f-links">
+                <span class="f-link" onclick="go('contact')">Contact Us</span
+                ><span class="f-link" onclick="go('faqs')">FAQs</span
+                ><span class="f-link" onclick="go('policies')">Policies</span
+                ><span class="f-link">Returns</span>
+              </div>
+            </div>
+            <div>
+              <div class="f-col-title">Quick Links</div>
+              <div class="f-links">
+                <span class="f-link" onclick="go('products')">All Products</span
+                ><span class="f-link" onclick="go('services')">Services</span
+                ><span class="f-link" onclick="go('booking')"
+                  >Book Appointment</span
+                ><span class="f-link" onclick="go('account')">My Account</span>
+              </div>
+            </div>
+          </div>
+          <div class="footer-bot">
+            <span class="f-copy"
+              >© 2025 Lumière Beauty. All rights reserved.</span
+            >
+            <div class="f-bot-links">
+              <span class="f-bot-link" onclick="go('policies')">Privacy</span>
+              <span class="f-bot-link" onclick="go('policies')">Terms</span>
+              <span class="f-bot-link" onclick="go('faqs')">FAQs</span>
+              <span
+                class="f-bot-link"
+                onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+                >↑ Back to Top</span
+              >
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+     SEARCH PAGE
+     Nodes: Search Input, Suggestions, Results (Products + Services),
+     Filter, Sort, Clear
+══════════════════════════════════════════ -->
+    <div id="page-search" class="page">
+      <div class="search-hero">
+        <h1>
+          Find what you
+          <em style="font-style: italic; color: var(--gold)">love</em>
+        </h1>
+        <!-- Search Input -->
+        <div class="search-box">
+          <input
+            type="text"
+            id="s-input"
+            placeholder="Search products, services, brands…"
+            oninput="doSearch()"
+          />
+          <button onclick="doSearch()">Search</button>
+        </div>
+        <!-- Suggestions -->
+        <div class="search-chips">
+          <span class="s-chip" onclick="qs('Serum')">Serum</span>
+          <span class="s-chip" onclick="qs('Moisturizer')">Moisturizer</span>
+          <span class="s-chip" onclick="qs('Lipstick')">Lipstick</span>
+          <span class="s-chip" onclick="qs('Hair')">Hair</span>
+          <span class="s-chip" onclick="qs('Sunscreen')">Sunscreen</span>
+          <span class="s-chip" onclick="qs('Facial')">Facial</span>
+          <span class="s-chip" onclick="qs('Foundation')">Foundation</span>
+        </div>
+      </div>
+      <div class="wrap search-body">
+        <!-- Filter + Sort + Clear tools -->
+        <div class="s-toolbar">
+          <div class="f-chip active" onclick="sFilter('all', this)">All</div>
+          <div class="f-chip" onclick="sFilter('products', this)">Products</div>
+          <div class="f-chip" onclick="sFilter('services', this)">Services</div>
+          <select class="sort-select" id="s-sort" onchange="doSearch()">
+            <option value="default">Sort: Relevance</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="name">Name A–Z</option>
+          </select>
+          <span class="s-count" id="s-count"></span>
+          <!-- Clear -->
+          <button class="s-clear" onclick="clearSearch()">✕ Clear</button>
+        </div>
+        <!-- Results: Products -->
+        <div id="sr-products-wrap">
+          <div class="search-section-label hide" id="sr-prod-label">
+            Products
+          </div>
+          <div class="pg search-results-products" id="sr-products"></div>
+        </div>
+        <!-- Results: Services -->
+        <div id="sr-services-wrap">
+          <div class="search-section-label hide" id="sr-svc-label">
+            Services
+          </div>
+          <div class="search-results-services" id="sr-services"></div>
+        </div>
+        <div class="no-res hide" id="s-empty">
+          <div class="no-res-icon">🔍</div>
+          <h3>No results found</h3>
+          <p>Try different keywords or browse our categories below.</p>
+          <button class="btn btn-primary" onclick="go('products')">
+            Browse Products
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+     PRODUCTS PAGE
+     Categories: Skincare (Moisturizers, Serums, Sunscreen),
+     Makeup (Foundation, Lipstick, Eye Makeup),
+     Haircare (Shampoo, Conditioner, Hair Tools, +more)
+     Flow: Product Listing → Product Details
+══════════════════════════════════════════ -->
+    <div id="page-products" class="page">
+      <div class="prod-banner">
+        <div class="eyebrow">Explore</div>
+        <h1>
+          Our
+          <em style="font-style: italic; color: var(--terra)">Collection</em>
+        </h1>
+        <p style="color: var(--muted); font-size: 15px; margin-top: 6px">
+          Skincare, makeup, haircare &amp; more
+        </p>
+      </div>
+      <!-- Sub-category tabs -->
+      <div class="cat-tabs" id="cat-tabs">
+        <div
+          class="ct active"
+          onclick="subCatFilter('all', this)"
+          data-subcat="all"
+        >
+          All Products
+        </div>
+        <div
+          class="ct"
+          onclick="subCatFilter('moisturizers', this)"
+          data-subcat="moisturizers"
+        >
+          Moisturizers
+        </div>
+        <div
+          class="ct"
+          onclick="subCatFilter('foundation', this)"
+          data-subcat="foundation"
+        >
+          Foundation
+        </div>
+        <div
+          class="ct"
+          onclick="subCatFilter('shampoo', this)"
+          data-subcat="shampoo"
+        >
+          Shampoo
+        </div>
+        <div
+          class="ct"
+          onclick="subCatFilter('serums', this)"
+          data-subcat="serums"
+        >
+          Serums
+        </div>
+        <div
+          class="ct"
+          onclick="subCatFilter('lipstick', this)"
+          data-subcat="lipstick"
+        >
+          Lipstick
+        </div>
+        <div
+          class="ct"
+          onclick="subCatFilter('conditioner', this)"
+          data-subcat="conditioner"
+        >
+          Conditioner
+        </div>
+        <div
+          class="ct"
+          onclick="subCatFilter('eye makeup', this)"
+          data-subcat="eye makeup"
+        >
+          Eye Makeup
+        </div>
+        <div
+          class="ct"
+          onclick="subCatFilter('hair tools', this)"
+          data-subcat="hair tools"
+        >
+          Hair Tools
+        </div>
+        <div class="ct" onclick="toggleMoreMenu(this)" data-subcat="more">
+          More ▼
+        </div>
+      </div>
+      <!-- More subcategories dropdown -->
+      <div
+        class="more-menu"
+        id="more-menu"
+        style="
+          display: none;
+          position: absolute;
+          background: white;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          padding: 8px;
+          z-index: 100;
+          min-width: 150px;
+        "
+      >
+        <div
+          onclick="
+            subCatFilter('sunscreen', event.target);
+            toggleMoreMenu();
+          "
+          style="padding: 8px; cursor: pointer; hover-background: #f0f0f0"
+        >
+          Sunscreen
+        </div>
+      </div>
+      <div class="wrap">
+        <div class="prod-layout">
+          <!-- Filter sidebar -->
+          <aside class="filter-panel">
+            <div class="fb" id="price-list">
+              <div class="fb-title">Price Range</div>
+              <div class="fg" style="margin-bottom: 12px">
+                <label class="flabel">Min Price</label>
+                <input
+                  id="min-price"
+                  type="number"
+                  class="finput"
+                  placeholder="0"
+                  min="0"
+                />
+              </div>
+              <div class="fg" style="margin-bottom: 12px">
+                <label class="flabel">Max Price</label>
+                <input
+                  id="max-price"
+                  type="number"
+                  class="finput"
+                  placeholder="5000"
+                  min="0"
+                />
+              </div>
+            </div>
+            <div class="fb">
+              <div class="fb-title">Rating</div>
+              <select id="min-rating" class="finput" style="margin-top: 8px">
+                <option value="">All ratings</option>
+                <option value="5">5 stars & up</option>
+                <option value="4">4 stars & up</option>
+                <option value="3">3 stars & up</option>
+                <option value="2">2 stars & up</option>
+                <option value="1">1 star & up</option>
+              </select>
+            </div>
+            <span class="filter-clear" onclick="clearFilters()"
+              >✕ Clear filters</span
+            >
+          </aside>
+          <div>
+            <div class="prod-count" id="prod-count">Showing 25 products</div>
+            <div class="pg" id="prod-grid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+     PRODUCT DETAIL PAGE
+     Nodes: Description, Reviews, Related Items, Add to Cart, Buy Now
+══════════════════════════════════════════ -->
+    <div id="page-pdp" class="page">
+      <div class="wrap">
+        <div class="bc">
+          <a onclick="go('home')">Home</a><span class="bc-sep">/</span
+          ><a onclick="go('products')">Products</a><span class="bc-sep">/</span
+          ><span id="pdp-bc-name">Product</span>
+        </div>
+        <div class="pdp-grid">
+          <div class="pdp-imgs">
+            <div class="pdp-main" id="pdp-main-img">💧</div>
+          </div>
+          <div class="pdp-info">
+            <div class="pc-cat" id="pdp-cat">Skincare</div>
+            <h1 id="pdp-name">Product Name</h1>
+            <div class="pdp-brand" id="pdp-brand">Brand</div>
+            <div class="pdp-stars">
+              <span style="color: var(--gold)">★★★★★</span
+              ><span
+                style="font-size: 13px; color: var(--muted); margin-left: 5px"
+                >4.9 (42 reviews)</span
+              >
+            </div>
+            <div class="pdp-price">
+              <span id="pdp-price">₱0</span
+              ><span class="pdp-orig hide" id="pdp-orig"></span>
+            </div>
+            <p class="pdp-desc" id="pdp-desc">Description.</p>
+            <div class="qty-row">
+              <div class="qty-ctrl">
+                <button class="qb" onclick="adjQty(-1)">−</button>
+                <input
+                  class="qn"
+                  id="pdp-qty"
+                  type="number"
+                  value="1"
+                  min="1"
+                  max="99"
+                  readonly
+                />
+                <button class="qb" onclick="adjQty(1)">+</button>
+              </div>
+              <span style="font-size: 12px; color: var(--muted)"
+                >✓ In stock</span
+              >
+            </div>
+            <div class="pdp-btns">
+              <!-- Add to Cart CTA -->
+              <button
+                class="btn btn-primary btn-full btn-lg"
+                id="pdp-atc"
+                onclick="pdpAddCart()"
+              >
+                Add to Cart
+              </button>
+              <!-- Buy Now CTA -->
+              <button
+                class="btn btn-secondary btn-full btn-lg"
+                onclick="pdpBuyNow()"
+              >
+                Buy Now
+              </button>
+              <button
+                class="btn btn-ghost btn-full"
+                onclick="toast('Added to wishlist ♡', 'info')"
+              >
+                ♡ Save to Wishlist
+              </button>
+            </div>
+            <div class="pdp-perks">
+              <span class="perk">✓ Free shipping ₱1,500+</span>
+              <span class="perk">✓ Easy returns</span>
+              <span class="perk">✓ Authentic</span>
+            </div>
+            <!-- Description accordion -->
+            <div class="acc">
+              <div class="acc-item open">
+                <div class="acc-hdr" onclick="toggleAcc(this)">
+                  Description <span class="acc-arr">▾</span>
+                </div>
+                <div class="acc-body">
+                  <div class="acc-content" id="pdp-desc-full">
+                    Full product description.
+                  </div>
+                </div>
+              </div>
+              <div class="acc-item">
+                <div class="acc-hdr" onclick="toggleAcc(this)">
+                  How to Use <span class="acc-arr">▾</span>
+                </div>
+                <div class="acc-body">
+                  <div class="acc-content">
+                    Apply a small amount to clean skin morning and evening.
+                    Gently massage in circular motions until absorbed. Follow
+                    with moisturizer and SPF in the morning.
+                  </div>
+                </div>
+              </div>
+              <div class="acc-item">
+                <div class="acc-hdr" onclick="toggleAcc(this)">
+                  Ingredients <span class="acc-arr">▾</span>
+                </div>
+                <div class="acc-body">
+                  <div class="acc-content">
+                    Aqua, Ascorbic Acid (20%), Niacinamide, Ferulic Acid,
+                    Hyaluronic Acid, Vitamin E, Panthenol, Allantoin. Free from
+                    parabens, sulfates and artificial fragrance.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Reviews -->
+        <div class="sec-sm" style="border-top: 1px solid var(--border)">
+          <div class="eyebrow">Product Reviews</div>
+          <h2 class="sec-title" style="margin-bottom: 28px">
+            What <em>Clients Say</em>
+          </h2>
+          <div class="rev-grid">
+            <div class="rev-card">
+              <div class="rev-stars">★★★★★</div>
+              <p class="rev-text">
+                "This serum transformed my skin in just 3 weeks. The glow is
+                unreal!"
+              </p>
+              <div class="rev-author">
+                <div class="rev-av">👩</div>
+                <div>
+                  <div class="rev-name">Mae Santos</div>
+                  <div class="rev-verified">✓ Verified Purchase</div>
+                </div>
+              </div>
+            </div>
+            <div class="rev-card">
+              <div class="rev-stars">★★★★★</div>
+              <p class="rev-text">
+                "Lightweight and absorbs instantly. Best product I've ever
+                used."
+              </p>
+              <div class="rev-author">
+                <div class="rev-av">👱‍♀️</div>
+                <div>
+                  <div class="rev-name">Claire Lim</div>
+                  <div class="rev-verified">✓ Verified Purchase</div>
+                </div>
+              </div>
+            </div>
+            <div class="rev-card">
+              <div class="rev-stars">★★★★☆</div>
+              <p class="rev-text">
+                "Faded my hyperpigmentation noticeably. Highly recommend!"
+              </p>
+              <div class="rev-author">
+                <div class="rev-av">🧕</div>
+                <div>
+                  <div class="rev-name">Dina Cruz</div>
+                  <div class="rev-verified">✓ Verified Purchase</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Related Items -->
+        <div class="sec-sm" style="border-top: 1px solid var(--border)">
+          <div class="eyebrow">You May Also Like</div>
+          <h2 class="sec-title" style="margin-bottom: 28px">
+            Related <em>Items</em>
+          </h2>
+          <div class="pg" id="pdp-related"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+     SERVICES PAGE
+     Categories: Hair, Facial, Nails, Spa
+     Flow: Service Details → Book Appointment → Confirm
+══════════════════════════════════════════ -->
+    <div id="page-services" class="page">
+      <div class="svc-banner">
+        <div class="eyebrow" style="color: #000000">Expert Treatments</div>
+        <h1>
+          Our <em style="font-style: italic; color: var(--gold)">Services</em>
+        </h1>
+        <p>Certified beauty professionals. Premium products. Serene setting.</p>
+      </div>
+      <div class="svc-tabs">
+        <div class="stab active" id="st-hair" onclick="showPanel('hair')">
+          <span class="stab-em">✂️</span>Hair
+        </div>
+        <div class="stab" id="st-facial" onclick="showPanel('facial')">
+          <span class="stab-em">🌸</span>Facial
+        </div>
+        <div class="stab" id="st-nails" onclick="showPanel('nails')">
+          <span class="stab-em">💅</span>Nails
+        </div>
+        <div class="stab" id="st-spa" onclick="showPanel('spa')">
+          <span class="stab-em">🧖</span>Spa
+        </div>
+      </div>
+      <div class="wrap">
+        <!-- Service Details: Hair -->
+        <div class="svc-panel active" id="panel-hair">
+          <div class="svc-panel-grid">
+            <div class="svc-panel-info">
+              <h2>✂️ Hair Services</h2>
+              <p>
+                From precision cuts to vivid color transformations, our expert
+                stylists bring your vision to life using premium, salon-grade
+                products.
+              </p>
+              <div class="svc-menu">
+                <div class="svc-mi">
+                  <div>
+                    <div class="smi-n">Haircut &amp; Styling</div>
+                    <div class="smi-d">Any length · 45–60 min</div>
+                  </div>
+                  <div class="smi-p">from ₱350</div>
+                </div>
+                <div class="svc-mi">
+                  <div>
+                    <div class="smi-n">Hair Coloring</div>
+                    <div class="smi-d">
+                      Single color or highlights · 90–120 min
+                    </div>
+                  </div>
+                  <div class="smi-p">from ₱1,200</div>
+                </div>
+                <div class="svc-mi">
+                  <div>
+                    <div class="smi-n">Keratin Treatment</div>
+                    <div class="smi-d">
+                      Smoothing &amp; frizz control · 120–180 min
+                    </div>
+                  </div>
+                  <div class="smi-p">from ₱2,500</div>
+                </div>
+                <div class="svc-mi">
+                  <div>
+                    <div class="smi-n">Hair Spa</div>
+                    <div class="smi-d">Deep conditioning · 60 min</div>
+                  </div>
+                  <div class="smi-p">from ₱800</div>
+                </div>
+                <div class="svc-mi">
+                  <div>
+                    <div class="smi-n">Scalp Treatment</div>
+                    <div class="smi-d">
+                      Hydrating &amp; dandruff control · 45 min
+                    </div>
+                  </div>
+                  <div class="smi-p">from ₱650</div>
+                </div>
+              </div>
+              <!-- Book Appointment CTA (sitemap node) -->
+              <button
+                class="btn btn-primary btn-lg"
+                onclick="
+                  go('booking');
+                  selectBkSvc('✂️ Hair', 'from ₱350');
+                "
+              >
+                Book Appointment
+              </button>
+            </div>
+            <div class="svc-visual">✂️</div>
+          </div>
+        </div>
+        <!-- Facial -->
+        <div class="svc-panel" id="panel-facial">
+          <div class="svc-panel-grid">
+            <div class="svc-panel-info">
+              <h2>🌸 Facial Treatments</h2>
+              <p>
+                Our certified estheticians use medical-grade products and
+                advanced techniques to deliver deeply effective, results-driven
+                facials.
+              </p>
+              <div class="svc-menu">
+                <div class="svc-mi">
+                  <div>
+                    <div class="smi-n">Classic Deep Cleanse</div>
+                    <div class="smi-d">All skin types · 60 min</div>
+                  </div>
+                  <div class="smi-p">from ₱600</div>
+                </div>
+                <div class="svc-mi">
+                  <div>
+                    <div class="smi-n">Brightening Vitamin C</div>
+                    <div class="smi-d">Dull &amp; uneven skin · 75 min</div>
+                  </div>
+                  <div class="smi-p">from ₱950</div>
+                </div>
+                <div class="svc-mi">
+                  <div>
+                    <div class="smi-n">Anti-Aging Collagen</div>
+                    <div class="smi-d">Mature skin · 90 min</div>
+                  </div>
+                  <div class="smi-p">from ₱1,400</div>
+                </div>
+                <div class="svc-mi">
+                  <div>
+                    <div class="smi-n">Hydration Boost</div>
+                    <div class="smi-d">Dry &amp; sensitive skin · 60 min</div>
+                  </div>
+                  <div class="smi-p">from ₱800</div>
+                </div>
+                <div class="svc-mi">
+                  <div>
+                    <div class="smi-n">Acne Control</div>
+                    <div class="smi-d">Oily &amp; acne-prone · 75 min</div>
+                  </div>
+                  <div class="smi-p">from ₱750</div>
+                </div>
+              </div>
+              <button
+                class="btn btn-primary btn-lg"
+                onclick="
+                  go('booking');
+                  selectBkSvc('🌸 Facial', 'from ₱600');
+                "
+              >
+                Book Appointment
+              </button>
+            </div>
+            <div class="svc-visual">🌸</div>
+          </div>
+        </div>
+        <!-- Nails -->
+        <div class="svc-panel" id="panel-nails">
+          <div class="svc-panel-grid">
+            <div class="svc-panel-info">
+              <h2>💅 Nail Services</h2>
+              <p>
+                Precision nail artistry using top-tier gel, acrylic and natural
+                systems — for nails that are beautiful and long-lasting.
+              </p>
+              <div class="svc-menu">
+                <div class="svc-mi">
+                  <div>
+                    <div class="smi-n">Classic Manicure</div>
+                    <div class="smi-d">Shape, buff &amp; polish · 30 min</div>
+                  </div>
+                  <div class="smi-p">from ₱250</div>
+                </div>
+                <div class="svc-mi">
+                  <div>
+                    <div class="smi-n">Gel Manicure</div>
+                    <div class="smi-d">Long-lasting gel · 45 min</div>
+                  </div>
+                  <div class="smi-p">from ₱550</div>
+                </div>
+                <div class="svc-mi">
+                  <div>
+                    <div class="smi-n">Pedicure &amp; Foot Spa</div>
+                    <div class="smi-d">Relaxing foot treatment · 60 min</div>
+                  </div>
+                  <div class="smi-p">from ₱400</div>
+                </div>
+                <div class="svc-mi">
+                  <div>
+                    <div class="smi-n">Nail Art Design</div>
+                    <div class="smi-d">Custom designs · 20–30 min add-on</div>
+                  </div>
+                  <div class="smi-p">from ₱150/nail</div>
+                </div>
+                <div class="svc-mi">
+                  <div>
+                    <div class="smi-n">Nail Extensions</div>
+                    <div class="smi-d">Acrylic or gel · 90 min</div>
+                  </div>
+                  <div class="smi-p">from ₱900</div>
+                </div>
+              </div>
+              <button
+                class="btn btn-primary btn-lg"
+                onclick="
+                  go('booking');
+                  selectBkSvc('💅 Nails', 'from ₱250');
+                "
+              >
+                Book Appointment
+              </button>
+            </div>
+            <div class="svc-visual">💅</div>
+          </div>
+        </div>
+        <!-- Spa -->
+        <div class="svc-panel" id="panel-spa">
+          <div class="svc-panel-grid">
+            <div class="svc-panel-info">
+              <h2>🧖 Spa &amp; Wellness</h2>
+              <p>
+                Indulge in holistic body treatments designed to relax,
+                rejuvenate and restore your inner glow.
+              </p>
+              <div class="svc-menu">
+                <div class="svc-mi">
+                  <div>
+                    <div class="smi-n">Swedish Massage</div>
+                    <div class="smi-d">Full body · 60–90 min</div>
+                  </div>
+                  <div class="smi-p">from ₱1,200</div>
+                </div>
+                <div class="svc-mi">
+                  <div>
+                    <div class="smi-n">Aromatherapy</div>
+                    <div class="smi-d">Essential oils · 90 min</div>
+                  </div>
+                  <div class="smi-p">from ₱1,500</div>
+                </div>
+                <div class="svc-mi">
+                  <div>
+                    <div class="smi-n">Body Scrub &amp; Wrap</div>
+                    <div class="smi-d">Exfoliate &amp; nourish · 75 min</div>
+                  </div>
+                  <div class="smi-p">from ₱1,800</div>
+                </div>
+                <div class="svc-mi">
+                  <div>
+                    <div class="smi-n">Hot Stone Therapy</div>
+                    <div class="smi-d">Deep muscle relief · 90 min</div>
+                  </div>
+                  <div class="smi-p">from ₱1,600</div>
+                </div>
+              </div>
+              <button
+                class="btn btn-primary btn-lg"
+                onclick="
+                  go('booking');
+                  selectBkSvc('🧖 Spa', 'from ₱1,200');
+                "
+              >
+                Book Appointment
+              </button>
+            </div>
+            <div class="svc-visual">🧖</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+     ACCOUNT — LOGIN
+     Nodes: Email, Password, Forgot Password, Sign In
+══════════════════════════════════════════ -->
+    <div id="page-login" class="page">
+      <div class="auth-wrap">
+        <div class="auth-card">
+          <h2>Welcome back</h2>
+          <p>Sign in to your Lumière account</p>
+          <!-- Email -->
+          <div class="fg">
+            <label class="flabel">Email Address</label
+            ><input
+              id="login-email"
+              type="email"
+              class="finput"
+              placeholder="you@example.com"
+            />
+          </div>
+          <!-- Password -->
+          <div class="fg">
+            <label class="flabel">Password</label>
+            <input
+              id="login-password"
+              type="password"
+              class="finput"
+              placeholder="••••••••"
+            />
+            <div style="text-align: right; margin-top: 4px">
+              <a
+                style="font-size: 12px; color: var(--terra); cursor: pointer"
+                onclick="
+                  toast(
+                    'Please enter your registered email and password.',
+                    'info',
+                  )
+                "
+                >Forgot password?</a
+              >
+            </div>
+          </div>
+          <!-- Sign In CTA -->
+          <button
+            class="btn btn-primary btn-full btn-lg"
+            onclick="loginUser()"
+            style="margin-top: 6px"
+          >
+            Sign In
+          </button>
+          <div class="auth-footer">
+            Don't have an account? <a onclick="go('register')">Register →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+     ACCOUNT — REGISTER
+     Nodes: First Name, Last Name, Email Address, Password, Create Account
+══════════════════════════════════════════ -->
+    <div id="page-register" class="page">
+      <div class="auth-wrap">
+        <div class="auth-card">
+          <h2>Create Account</h2>
+          <p>Join Lumière for exclusive offers &amp; beauty rewards</p>
+          <!-- First Name + Last Name -->
+          <div class="frow">
+            <div class="fg">
+              <label class="flabel">First Name</label
+              ><input
+                id="register-first"
+                type="text"
+                class="finput"
+                placeholder="Sofia"
+              />
+            </div>
+            <div class="fg">
+              <label class="flabel">Last Name</label
+              ><input
+                id="register-last"
+                type="text"
+                class="finput"
+                placeholder="Reyes"
+              />
+            </div>
+          </div>
+          <!-- Email Address -->
+          <div class="fg">
+            <label class="flabel">Email Address</label
+            ><input
+              id="register-email"
+              type="email"
+              class="finput"
+              placeholder="you@example.com"
+            />
+          </div>
+          <!-- Password -->
+          <div class="fg">
+            <label class="flabel">Password</label
+            ><input
+              id="register-password"
+              type="password"
+              class="finput"
+              placeholder="Min. 8 characters"
+            />
+            <div class="fhint">
+              Use 8+ characters with a mix of letters &amp; numbers.
+            </div>
+          </div>
+          <!-- Create Account CTA -->
+          <button
+            class="btn btn-primary btn-full btn-lg"
+            onclick="registerUser()"
+            style="margin-top: 6px"
+          >
+            Create Account
+          </button>
+          <div class="auth-footer">
+            Already have an account? <a onclick="go('login')">Sign In →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+     MY ACCOUNT (Logged In)
+     Dashboard · Orders (Order Details, Order Status, Re-order)
+     Addresses (Add, Edit) · Payment Methods (Add Card, Remove Card)
+     Account Details · Edit Profile · Change Password
+     Bookings (Upcoming, Past Bookings, Cancel Booking)
+     Wishlist (Saved Products, Add to Cart, Remove Item, Logout)
+══════════════════════════════════════════ -->
+    <div id="page-account" class="page">
+      <div class="acc-layout">
+        <aside class="acc-sidebar">
+          <div class="acc-prof">
+            <div class="acc-av" id="acc-av">👩</div>
+            <div class="acc-uname" id="acc-uname">Guest</div>
+            <div class="acc-email" id="acc-email">guest@lumiere.com</div>
+          </div>
+          <nav class="acc-nav">
+            <div
+              class="ani active"
+              id="an-dashboard"
+              onclick="showTab('dashboard')"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <rect x="3" y="3" width="7" height="7" />
+                <rect x="14" y="3" width="7" height="7" />
+                <rect x="14" y="14" width="7" height="7" />
+                <rect x="3" y="14" width="7" height="7" /></svg
+              >Dashboard
+            </div>
+            <div class="ani" id="an-orders" onclick="showTab('orders')">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <path
+                  d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                />
+                <polyline points="14 2 14 8 20 8" /></svg
+              >Orders
+            </div>
+            <div class="ani" id="an-bookings" onclick="showTab('bookings')">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" /></svg
+              >Bookings
+            </div>
+            <div class="ani" id="an-wishlist" onclick="showTab('wishlist')">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                /></svg
+              >Wishlist
+            </div>
+            <div class="ani" id="an-payment" onclick="showTab('payment')">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <rect x="1" y="4" width="22" height="16" rx="2" />
+                <line x1="1" y1="10" x2="23" y2="10" /></svg
+              >Payment Methods
+            </div>
+            <div class="ani" id="an-addresses" onclick="showTab('addresses')">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" /></svg
+              >Addresses
+            </div>
+            <div class="acc-sep"></div>
+            <div class="ani" id="an-profile" onclick="showTab('profile')">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" /></svg
+              >Edit Profile
+            </div>
+            <!-- Logout -->
+            <div class="ani" onclick="logout()">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" /></svg
+              >Logout
+            </div>
+          </nav>
+        </aside>
+        <main class="acc-main">
+          <!-- Dashboard -->
+          <div class="acc-pg active" id="tab-dashboard">
+            <div class="acc-pg-title">Dashboard</div>
+            <div class="dash-stats">
+              <div class="ds">
+                <div class="ds-num">7</div>
+                <div class="ds-lbl">Total Orders</div>
+              </div>
+              <div class="ds">
+                <div class="ds-num">2</div>
+                <div class="ds-lbl">Upcoming Bookings</div>
+              </div>
+              <div class="ds">
+                <div class="ds-num">4</div>
+                <div class="ds-lbl">Wishlist Items</div>
+              </div>
+            </div>
+            <h3
+              style="
+                font-family: &quot;Cormorant Garamond&quot;, serif;
+                font-size: 20px;
+                font-weight: 400;
+                margin-bottom: 14px;
+              "
+            >
+              Recent Orders
+            </h3>
+            <table class="otbl">
+              <thead>
+                <tr>
+                  <th>Order</th>
+                  <th>Date</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="font-weight: 500">#LUM-0024</td>
+                  <td>Mar 18, 2025</td>
+                  <td style="color: var(--terra)">₱1,890</td>
+                  <td><span class="sp sp-done">Delivered</span></td>
+                  <td>
+                    <button
+                      class="reorder-btn"
+                      onclick="toast('Items added to cart!', 'info')"
+                    >
+                      Re-order
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="font-weight: 500">#LUM-0023</td>
+                  <td>Mar 10, 2025</td>
+                  <td style="color: var(--terra)">₱740</td>
+                  <td><span class="sp sp-ship">Shipped</span></td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+            <br /><button
+              class="btn btn-ghost btn-sm"
+              onclick="showTab('orders')"
+            >
+              View All Orders →
+            </button>
+          </div>
+
+          <!-- Orders: Order Details, Order Status, Re-order -->
+          <div class="acc-pg" id="tab-orders">
+            <div class="acc-pg-title">My Orders</div>
+            <table class="otbl">
+              <thead>
+                <tr>
+                  <th>Order #</th>
+                  <th>Date</th>
+                  <th>Items</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="font-weight: 500">#LUM-0024</td>
+                  <td>Mar 18, 2025</td>
+                  <td>Vitamin C Serum, Moisturizer</td>
+                  <td style="color: var(--terra)">₱1,890</td>
+                  <td><span class="sp sp-done">Delivered</span></td>
+                  <td style="display: flex; gap: 6px">
+                    <button
+                      class="detail-btn"
+                      onclick="
+                        toast(
+                          'Order details: 2 items, delivered Mar 20',
+                          'info',
+                        )
+                      "
+                    >
+                      Details</button
+                    ><button
+                      class="reorder-btn"
+                      onclick="toast('Items added to cart!', 'info')"
+                    >
+                      Re-order
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="font-weight: 500">#LUM-0023</td>
+                  <td>Mar 10, 2025</td>
+                  <td>Hair Mask Intensive</td>
+                  <td style="color: var(--terra)">₱740</td>
+                  <td><span class="sp sp-ship">Shipped</span></td>
+                  <td>
+                    <button
+                      class="detail-btn"
+                      onclick="
+                        toast(
+                          'Order status: In transit, arriving Mar 14',
+                          'info',
+                        )
+                      "
+                    >
+                      Track
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="font-weight: 500">#LUM-0022</td>
+                  <td>Feb 28, 2025</td>
+                  <td>Matte Lipstick Set</td>
+                  <td style="color: var(--terra)">₱560</td>
+                  <td><span class="sp sp-done">Delivered</span></td>
+                  <td>
+                    <button
+                      class="reorder-btn"
+                      onclick="toast('Items added to cart!', 'info')"
+                    >
+                      Re-order
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="font-weight: 500">#LUM-0021</td>
+                  <td>Feb 14, 2025</td>
+                  <td>Sunscreen SPF50, Toner</td>
+                  <td style="color: var(--terra)">₱1,220</td>
+                  <td><span class="sp sp-proc">Processing</span></td>
+                  <td>
+                    <button
+                      class="detail-btn"
+                      onclick="toast('Order is being prepared', 'info')"
+                    >
+                      Status
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Bookings: Upcoming, Past Bookings, Cancel Booking -->
+          <div class="acc-pg" id="tab-bookings">
+            <div class="acc-pg-title">My Bookings</div>
+            <h4
+              style="
+                font-size: 12px;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                color: var(--muted);
+                margin-bottom: 12px;
+              "
+            >
+              Upcoming
+            </h4>
+            <div class="bk-card">
+              <div class="bk-icon">✂️</div>
+              <div class="bk-info">
+                <div class="bk-name">Hair Coloring &amp; Highlights</div>
+                <div class="bk-meta">Apr 5, 2025 · 2:00 PM · Stylist: Ana</div>
+              </div>
+              <span class="sp sp-proc">Upcoming</span>
+              <!-- Cancel Booking CTA -->
+              <div class="bk-acts">
+                <button
+                  class="btn btn-ghost btn-sm"
+                  onclick="toast('Booking cancelled', 'error')"
+                >
+                  Cancel Booking
+                </button>
+              </div>
+            </div>
+            <div class="bk-card">
+              <div class="bk-icon">🌸</div>
+              <div class="bk-info">
+                <div class="bk-name">Brightening Facial</div>
+                <div class="bk-meta">
+                  Apr 12, 2025 · 10:00 AM · Therapist: Maria
+                </div>
+              </div>
+              <span class="sp sp-proc">Upcoming</span>
+              <div class="bk-acts">
+                <button
+                  class="btn btn-ghost btn-sm"
+                  onclick="toast('Booking cancelled', 'error')"
+                >
+                  Cancel Booking
+                </button>
+              </div>
+            </div>
+            <h4
+              style="
+                font-size: 12px;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                color: var(--muted);
+                margin: 20px 0 12px;
+              "
+            >
+              Past Bookings
+            </h4>
+            <div class="bk-card">
+              <div class="bk-icon">💅</div>
+              <div class="bk-info">
+                <div class="bk-name">Gel Manicure &amp; Pedicure</div>
+                <div class="bk-meta">Mar 20, 2025 · 3:30 PM</div>
+              </div>
+              <span class="sp sp-done">Completed</span>
+              <div class="bk-acts">
+                <button class="btn btn-ghost btn-sm" onclick="go('booking')">
+                  Rebook
+                </button>
+              </div>
+            </div>
+            <div class="bk-card">
+              <div class="bk-icon">🧖</div>
+              <div class="bk-info">
+                <div class="bk-name">Swedish Massage</div>
+                <div class="bk-meta">Mar 5, 2025 · 11:00 AM</div>
+              </div>
+              <span class="sp sp-done">Completed</span>
+            </div>
+            <br /><button class="btn btn-primary" onclick="go('booking')">
+              + Book New Appointment
+            </button>
+          </div>
+
+          <!-- Wishlist: Saved Products, Add to Cart, Remove Item -->
+          <div class="acc-pg" id="tab-wishlist">
+            <div class="acc-pg-title">Wishlist</div>
+            <div class="wishlist-grid" id="wishlist-grid"></div>
+          </div>
+
+          <!-- Payment Methods: Add Card, Remove Card -->
+          <div class="acc-pg" id="tab-payment">
+            <div class="acc-pg-title">Payment Methods</div>
+            <div class="pay-card">
+              <div class="pay-icon">💳</div>
+              <div class="pay-info">
+                <div class="pay-name">Visa ending in 4242</div>
+                <div class="pay-meta">Expires 08/27</div>
+                <div class="pay-default">Default</div>
+              </div>
+              <div class="pay-acts">
+                <!-- Remove Card -->
+                <button
+                  class="btn btn-ghost btn-sm"
+                  onclick="toast('Card removed', 'error')"
+                >
+                  Remove Card
+                </button>
+              </div>
+            </div>
+            <div class="pay-card">
+              <div class="pay-icon">💳</div>
+              <div class="pay-info">
+                <div class="pay-name">Mastercard ending in 8810</div>
+                <div class="pay-meta">Expires 12/26</div>
+              </div>
+              <div class="pay-acts">
+                <button
+                  class="btn btn-ghost btn-sm"
+                  onclick="toast('Card removed', 'error')"
+                >
+                  Remove Card
+                </button>
+              </div>
+            </div>
+            <!-- Add Card -->
+            <br />
+            <div
+              style="
+                background: var(--cream);
+                padding: 24px;
+                border-radius: var(--r);
+                max-width: 420px;
+                border: 1px solid var(--border);
+              "
+            >
+              <div
+                style="
+                  font-size: 13px;
+                  font-weight: 500;
+                  color: var(--ink);
+                  margin-bottom: 16px;
+                "
+              >
+                Add New Card
+              </div>
+              <div class="fg">
+                <label class="flabel">Card Number</label
+                ><input
+                  type="text"
+                  class="finput"
+                  placeholder="1234 5678 9012 3456"
+                />
+              </div>
+              <div class="frow">
+                <div class="fg">
+                  <label class="flabel">Expiry</label
+                  ><input type="text" class="finput" placeholder="MM/YY" />
+                </div>
+                <div class="fg">
+                  <label class="flabel">CVV</label
+                  ><input type="text" class="finput" placeholder="123" />
+                </div>
+              </div>
+              <div class="fg">
+                <label class="flabel">Cardholder Name</label
+                ><input type="text" class="finput" placeholder="Sofia Reyes" />
+              </div>
+              <button
+                class="btn btn-primary btn-full"
+                onclick="toast('Card added successfully!', 'info')"
+              >
+                Add Card
+              </button>
+            </div>
+          </div>
+
+          <!-- Addresses: Add Address, Edit Address -->
+          <div class="acc-pg" id="tab-addresses">
+            <div class="acc-pg-title">My Addresses</div>
+            <div class="addr-card">
+              <div class="addr-default">Default Address</div>
+              <div class="addr-text">
+                Sofia Reyes<br />123 Sampaguita St., Diliman<br />Quezon City,
+                Metro Manila 1100<br />+63 912 345 6789
+              </div>
+              <div class="addr-acts">
+                <!-- Edit Address -->
+                <button
+                  class="btn btn-ghost btn-sm"
+                  onclick="toast('Edit address form opened', 'info')"
+                >
+                  Edit Address
+                </button>
+                <button
+                  class="btn btn-ghost btn-sm"
+                  onclick="toast('Address removed', 'error')"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+            <!-- Add Address -->
+            <br />
+            <div
+              style="
+                background: var(--cream);
+                padding: 24px;
+                border-radius: var(--r);
+                max-width: 480px;
+                border: 1px solid var(--border);
+              "
+            >
+              <div
+                style="
+                  font-size: 13px;
+                  font-weight: 500;
+                  color: var(--ink);
+                  margin-bottom: 16px;
+                "
+              >
+                Add New Address
+              </div>
+              <div class="fg">
+                <label class="flabel">Full Name</label
+                ><input type="text" class="finput" placeholder="Sofia Reyes" />
+              </div>
+              <div class="fg">
+                <label class="flabel">Street Address</label
+                ><input
+                  type="text"
+                  class="finput"
+                  placeholder="Street, unit/floor"
+                />
+              </div>
+              <div class="frow">
+                <div class="fg">
+                  <label class="flabel">City</label
+                  ><input
+                    type="text"
+                    class="finput"
+                    placeholder="Quezon City"
+                  />
+                </div>
+                <div class="fg">
+                  <label class="flabel">Postal Code</label
+                  ><input type="text" class="finput" placeholder="1100" />
+                </div>
+              </div>
+              <div class="fg">
+                <label class="flabel">Phone</label
+                ><input
+                  type="tel"
+                  class="finput"
+                  placeholder="+63 9XX XXX XXXX"
+                />
+              </div>
+              <button
+                class="btn btn-primary btn-full"
+                onclick="toast('Address saved!', 'info')"
+              >
+                Add Address
+              </button>
+            </div>
+          </div>
+
+          <!-- Account Details / Edit Profile / Change Password -->
+          <div class="acc-pg" id="tab-profile">
+            <div class="acc-pg-title">Account Details</div>
+            <div
+              style="
+                max-width: 500px;
+                background: var(--cream);
+                padding: 28px;
+                border-radius: var(--r);
+              "
+            >
+              <div
+                style="
+                  font-size: 12px;
+                  letter-spacing: 0.12em;
+                  text-transform: uppercase;
+                  color: var(--muted);
+                  margin-bottom: 16px;
+                  padding-bottom: 8px;
+                  border-bottom: 1px solid var(--border);
+                "
+              >
+                Edit Profile
+              </div>
+              <div class="frow">
+                <div class="fg">
+                  <label class="flabel">First Name</label
+                  ><input
+                    id="profile-first"
+                    type="text"
+                    class="finput"
+                    value=""
+                  />
+                </div>
+                <div class="fg">
+                  <label class="flabel">Last Name</label
+                  ><input
+                    id="profile-last"
+                    type="text"
+                    class="finput"
+                    value=""
+                  />
+                </div>
+              </div>
+              <div class="fg">
+                <label class="flabel">Email</label
+                ><input
+                  id="profile-email"
+                  type="email"
+                  class="finput"
+                  value=""
+                  disabled
+                />
+              </div>
+              <div class="fg">
+                <label class="flabel">Phone</label
+                ><input
+                  id="profile-phone"
+                  type="tel"
+                  class="finput"
+                  placeholder="+63 9XX XXX XXXX"
+                />
+              </div>
+              <div class="fg">
+                <label class="flabel">Birthday</label
+                ><input id="profile-birthday" type="date" class="finput" />
+              </div>
+              <div
+                style="
+                  border-top: 1px solid var(--border);
+                  padding-top: 18px;
+                  margin-top: 4px;
+                "
+              >
+                <div
+                  style="
+                    font-size: 12px;
+                    letter-spacing: 0.12em;
+                    text-transform: uppercase;
+                    color: var(--muted);
+                    margin-bottom: 14px;
+                  "
+                >
+                  Change Password
+                </div>
+                <div class="fg">
+                  <label class="flabel">Current Password</label
+                  ><input
+                    type="password"
+                    class="finput"
+                    placeholder="••••••••"
+                  />
+                </div>
+                <div class="fg">
+                  <label class="flabel">New Password</label
+                  ><input
+                    type="password"
+                    class="finput"
+                    placeholder="Min. 8 characters"
+                  />
+                </div>
+                <div class="fg">
+                  <label class="flabel">Confirm New Password</label
+                  ><input
+                    type="password"
+                    class="finput"
+                    placeholder="Repeat new password"
+                  />
+                </div>
+              </div>
+              <button
+                class="btn btn-primary btn-full"
+                onclick="saveProfileChanges()"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+     CART PAGE (Your Cart Page)
+     Nodes: Product, Price, Quantity, Estimated Total, Checkout
+══════════════════════════════════════════ -->
+    <div id="page-cart" class="page">
+      <div class="wrap">
+        <div class="bc">
+          <a onclick="go('home')">Home</a><span class="bc-sep">/</span
+          ><span>Your Cart</span>
+        </div>
+        <h1
+          style="
+            font-family: &quot;Cormorant Garamond&quot;, serif;
+            font-size: 42px;
+            font-weight: 300;
+            margin-bottom: 28px;
+          "
+        >
+          Your Cart
+        </h1>
+        <div class="cart-page-layout">
+          <div>
+            <!-- Cart items table header -->
+            <div class="cpi-hdr">
+              <span>Product</span><span>Price</span><span>Quantity</span
+              ><span>Subtotal</span><span></span>
+            </div>
+            <div id="cart-page-items">
+              <div
+                style="
+                  text-align: center;
+                  padding: 56px 20px;
+                  color: var(--muted);
+                "
+              >
+                <div style="font-size: 40px; margin-bottom: 12px">🛍</div>
+                <div
+                  style="
+                    font-family: &quot;Cormorant Garamond&quot;, serif;
+                    font-size: 24px;
+                    font-weight: 300;
+                    margin-bottom: 8px;
+                  "
+                >
+                  Your cart is empty
+                </div>
+                <button
+                  class="btn btn-primary"
+                  onclick="go('products')"
+                  style="margin-top: 8px"
+                >
+                  Start Shopping
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- Cart Summary -->
+          <div class="cart-page-summary">
+            <div class="cps-title">Estimated Total</div>
+            <div class="cps-row">
+              <span>Subtotal</span><span id="cp-sub">₱0</span>
+            </div>
+            <div class="cps-row">
+              <span>Shipping</span><span id="cp-ship">₱150</span>
+            </div>
+            <div class="cps-row total">
+              <span>Total</span><span id="cp-total">₱150</span>
+            </div>
+            <div class="promo-input-row" style="margin-top: 16px">
+              <input class="promo-input" type="text" placeholder="Promo code" />
+              <button
+                class="btn btn-secondary btn-sm"
+                onclick="toast('Promo code applied!', 'info')"
+              >
+                Apply
+              </button>
+            </div>
+            <button
+              class="btn btn-primary btn-full btn-lg"
+              onclick="go('checkout')"
+              style="margin-bottom: 8px"
+            >
+              Checkout →
+            </button>
+            <div class="continue-shop" onclick="go('products')">
+              ← Continue Shopping
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+     CHECKOUT
+     Flow: Billing → Shipping → Payment → Order Summary → Place Order
+══════════════════════════════════════════ -->
+    <div id="page-checkout" class="page">
+      <div class="wrap" style="padding-top: 32px">
+        <div class="bc">
+          <a onclick="go('home')">Home</a><span class="bc-sep">/</span
+          ><a onclick="go('cart')">Cart</a><span class="bc-sep">/</span
+          ><span>Checkout</span>
+        </div>
+        <!-- Steps: Billing, Shipping, Payment, Order Summary -->
+        <div class="checkout-steps">
+          <div class="cs-step active" id="cos-1">
+            <div class="cs-dot">1</div>
+            <div class="cs-lbl">Billing</div>
+          </div>
+          <div class="cs-step" id="cos-2">
+            <div class="cs-dot">2</div>
+            <div class="cs-lbl">Shipping</div>
+          </div>
+          <div class="cs-step" id="cos-3">
+            <div class="cs-dot">3</div>
+            <div class="cs-lbl">Payment</div>
+          </div>
+          <div class="cs-step" id="cos-4">
+            <div class="cs-dot">4</div>
+            <div class="cs-lbl">Review</div>
+          </div>
+        </div>
+        <div class="checkout-layout">
+          <div>
+            <!-- Step 1: Billing -->
+            <div id="co-step-1">
+              <h2
+                style="
+                  font-family: &quot;Cormorant Garamond&quot;, serif;
+                  font-size: 32px;
+                  font-weight: 300;
+                  margin-bottom: 24px;
+                "
+              >
+                Billing Details
+              </h2>
+              <div class="frow">
+                <div class="fg">
+                  <label class="flabel">First Name</label
+                  ><input type="text" class="finput" placeholder="Sofia" />
+                </div>
+                <div class="fg">
+                  <label class="flabel">Last Name</label
+                  ><input type="text" class="finput" placeholder="Reyes" />
+                </div>
+              </div>
+              <div class="fg">
+                <label class="flabel">Email Address</label
+                ><input
+                  type="email"
+                  class="finput"
+                  placeholder="you@example.com"
+                />
+              </div>
+              <div class="fg">
+                <label class="flabel">Phone Number</label
+                ><input
+                  type="tel"
+                  class="finput"
+                  placeholder="+63 9XX XXX XXXX"
+                />
+              </div>
+              <div class="co-step-btns">
+                <button class="btn btn-primary btn-lg" onclick="coNext(2)">
+                  Continue to Shipping →
+                </button>
+              </div>
+            </div>
+            <!-- Step 2: Shipping -->
+            <div id="co-step-2" class="hide">
+              <h2
+                style="
+                  font-family: &quot;Cormorant Garamond&quot;, serif;
+                  font-size: 32px;
+                  font-weight: 300;
+                  margin-bottom: 24px;
+                "
+              >
+                Shipping Address
+              </h2>
+              <div class="fg">
+                <label class="flabel">Street Address</label
+                ><input
+                  type="text"
+                  class="finput"
+                  placeholder="Street address, unit/floor"
+                />
+              </div>
+              <div class="frow">
+                <div class="fg">
+                  <label class="flabel">City</label
+                  ><input
+                    type="text"
+                    class="finput"
+                    placeholder="Quezon City"
+                  />
+                </div>
+                <div class="fg">
+                  <label class="flabel">Province</label
+                  ><input
+                    type="text"
+                    class="finput"
+                    placeholder="Metro Manila"
+                  />
+                </div>
+              </div>
+              <div class="frow">
+                <div class="fg">
+                  <label class="flabel">Postal Code</label
+                  ><input type="text" class="finput" placeholder="1100" />
+                </div>
+                <div class="fg">
+                  <label class="flabel">Country</label
+                  ><select class="finput">
+                    <option>Philippines</option>
+                  </select>
+                </div>
+              </div>
+              <div class="fg" style="margin-bottom: 0">
+                <label
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    cursor: pointer;
+                    font-size: 13px;
+                    color: var(--mid);
+                  "
+                  ><input
+                    type="checkbox"
+                    style="accent-color: var(--terra)"
+                  />Same as billing address</label
+                >
+              </div>
+              <div class="co-step-btns">
+                <button class="btn btn-ghost" onclick="coNext(1)">← Back</button
+                ><button class="btn btn-primary btn-lg" onclick="coNext(3)">
+                  Continue to Payment →
+                </button>
+              </div>
+            </div>
+            <!-- Step 3: Payment -->
+            <div id="co-step-3" class="hide">
+              <h2
+                style="
+                  font-family: &quot;Cormorant Garamond&quot;, serif;
+                  font-size: 32px;
+                  font-weight: 300;
+                  margin-bottom: 24px;
+                "
+              >
+                Payment Method
+              </h2>
+              <div class="pay-opt selected" onclick="selPay(this)">
+                <input type="radio" name="pay" checked /><span
+                  class="pay-opt-icon"
+                  >💳</span
+                >Credit / Debit Card
+              </div>
+              <div class="pay-opt" onclick="selPay(this)">
+                <input type="radio" name="pay" /><span class="pay-opt-icon"
+                  >📱</span
+                >GCash / Maya
+              </div>
+              <div class="pay-opt" onclick="selPay(this)">
+                <input type="radio" name="pay" /><span class="pay-opt-icon"
+                  >💵</span
+                >Cash on Delivery
+              </div>
+              <div id="card-fields" style="margin-top: 16px">
+                <div class="fg">
+                  <label class="flabel">Card Number</label
+                  ><input
+                    type="text"
+                    class="finput"
+                    placeholder="1234 5678 9012 3456"
+                  />
+                </div>
+                <div class="frow">
+                  <div class="fg">
+                    <label class="flabel">Expiry</label
+                    ><input type="text" class="finput" placeholder="MM/YY" />
+                  </div>
+                  <div class="fg">
+                    <label class="flabel">CVV</label
+                    ><input type="text" class="finput" placeholder="123" />
+                  </div>
+                </div>
+              </div>
+              <div class="co-step-btns">
+                <button class="btn btn-ghost" onclick="coNext(2)">← Back</button
+                ><button class="btn btn-primary btn-lg" onclick="coNext(4)">
+                  Review Order →
+                </button>
+              </div>
+            </div>
+            <!-- Step 4: Order Summary / Review -->
+            <div id="co-step-4" class="hide">
+              <h2
+                style="
+                  font-family: &quot;Cormorant Garamond&quot;, serif;
+                  font-size: 32px;
+                  font-weight: 300;
+                  margin-bottom: 24px;
+                "
+              >
+                Your Order
+              </h2>
+              <div
+                style="
+                  background: var(--cream);
+                  padding: 22px;
+                  border-radius: var(--r);
+                  margin-bottom: 20px;
+                "
+                id="co-review-items"
+              ></div>
+              <div
+                style="
+                  background: var(--cream);
+                  padding: 22px;
+                  border-radius: var(--r);
+                  margin-bottom: 20px;
+                "
+              >
+                <div
+                  style="
+                    font-size: 12px;
+                    letter-spacing: 0.1em;
+                    text-transform: uppercase;
+                    color: var(--muted);
+                    margin-bottom: 12px;
+                  "
+                >
+                  Order Total
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    font-size: 14px;
+                    color: var(--mid);
+                    margin-bottom: 8px;
+                  "
+                >
+                  <span>Subtotal</span><span id="co-rev-sub">₱0</span>
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    font-size: 14px;
+                    color: var(--mid);
+                    margin-bottom: 8px;
+                  "
+                >
+                  <span>Shipping</span><span>₱150</span>
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    font-size: 17px;
+                    font-weight: 500;
+                    color: var(--ink);
+                    border-top: 1px solid var(--border);
+                    padding-top: 10px;
+                    margin-top: 6px;
+                  "
+                >
+                  <span>Total</span><span id="co-rev-total">₱150</span>
+                </div>
+              </div>
+              <!-- Place Order CTA -->
+              <div class="co-step-btns">
+                <button class="btn btn-ghost" onclick="coNext(3)">
+                  ← Back
+                </button>
+                <button
+                  class="btn btn-primary btn-lg"
+                  id="place-order-btn"
+                  onclick="placeOrder()"
+                >
+                  Place Order →
+                </button>
+              </div>
+              <div class="secure-note" style="margin-top: 12px">
+                🔒 Secured &amp; encrypted checkout
+              </div>
+            </div>
+          </div>
+          <!-- Order sidebar -->
+          <div class="order-sidebar">
+            <div class="os-title">Order Summary</div>
+            <div id="co-sidebar-items">
+              <p style="font-size: 13px; color: var(--muted)">No items yet</p>
+            </div>
+            <div class="os-totals">
+              <div class="os-row">
+                <span>Subtotal</span><span id="cos-sub">₱0</span>
+              </div>
+              <div class="os-row"><span>Shipping</span><span>₱150</span></div>
+              <div class="os-row total">
+                <span>Total</span><span id="cos-total">₱150</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+     BOOKING PAGE
+     Flow: Service Details → Book Appointment → Confirm
+══════════════════════════════════════════ -->
+    <div id="page-booking" class="page">
+      <div class="bk-wrap">
+        <div class="bk-hdr">
+          <div class="eyebrow">Reserve Your Spot</div>
+          <h1>Book Appointment</h1>
+          <p>Choose your service, pick a time — we'll take care of the rest.</p>
+        </div>
+        <div class="bk-steps">
+          <div class="bks active" id="bks-1">
+            <div class="bks-dot">1</div>
+            <div class="bks-lbl">Service</div>
+          </div>
+          <div class="bks" id="bks-2">
+            <div class="bks-dot">2</div>
+            <div class="bks-lbl">Schedule</div>
+          </div>
+          <div class="bks" id="bks-3">
+            <div class="bks-dot">3</div>
+            <div class="bks-lbl">Confirm</div>
+          </div>
+        </div>
+        <!-- Step 1: Service Details -->
+        <div id="bk-1" class="bk-step">
+          <h2>Choose a Service</h2>
+          <div class="svc-opt-grid">
+            <div class="svc-opt" onclick="selOpt(this, '✂️ Hair', 'from ₱350')">
+              <div class="so-icon">✂️</div>
+              <div class="so-name">Hair</div>
+              <div class="so-price">from ₱350</div>
+            </div>
+            <div
+              class="svc-opt"
+              onclick="selOpt(this, '🌸 Facial', 'from ₱600')"
+            >
+              <div class="so-icon">🌸</div>
+              <div class="so-name">Facial</div>
+              <div class="so-price">from ₱600</div>
+            </div>
+            <div
+              class="svc-opt"
+              onclick="selOpt(this, '💅 Nails', 'from ₱250')"
+            >
+              <div class="so-icon">💅</div>
+              <div class="so-name">Nails</div>
+              <div class="so-price">from ₱250</div>
+            </div>
+            <div
+              class="svc-opt"
+              onclick="selOpt(this, '🧖 Spa', 'from ₱1,200')"
+            >
+              <div class="so-icon">🧖</div>
+              <div class="so-name">Spa</div>
+              <div class="so-price">from ₱1,200</div>
+            </div>
+            <div
+              class="svc-opt"
+              onclick="selOpt(this, '💄 Makeup', 'from ₱900')"
+            >
+              <div class="so-icon">💄</div>
+              <div class="so-name">Makeup</div>
+              <div class="so-price">from ₱900</div>
+            </div>
+            <div
+              class="svc-opt"
+              onclick="selOpt(this, '🛁 Body Scrub', 'from ₱700')"
+            >
+              <div class="so-icon">🛁</div>
+              <div class="so-name">Body Scrub</div>
+              <div class="so-price">from ₱700</div>
+            </div>
+          </div>
+          <div class="bk-nav">
+            <button class="btn btn-primary" onclick="bkNext(2)">
+              Continue →
+            </button>
+          </div>
+        </div>
+        <!-- Step 2: Book Appointment (schedule) -->
+        <div id="bk-2" class="bk-step hide">
+          <h2>Schedule Your Appointment</h2>
+          <div class="frow" style="margin-bottom: 16px">
+            <div class="fg">
+              <label class="flabel">Preferred Date</label
+              ><input type="date" class="finput" id="bk-date" />
+            </div>
+            <div class="fg">
+              <label class="flabel">Preferred Time</label>
+              <select class="finput" id="bk-time">
+                <option>9:00 AM</option>
+                <option>10:00 AM</option>
+                <option>11:00 AM</option>
+                <option>1:00 PM</option>
+                <option>2:00 PM</option>
+                <option>3:00 PM</option>
+                <option>4:00 PM</option>
+              </select>
+            </div>
+          </div>
+          <div class="fg" style="margin-bottom: 24px">
+            <label class="flabel">Special Requests</label
+            ><textarea
+              class="finput"
+              id="bk-notes"
+              rows="3"
+              placeholder="Any notes for your therapist…"
+              style="resize: vertical"
+            ></textarea>
+          </div>
+          <div class="bk-nav">
+            <button class="btn btn-ghost" onclick="bkNext(1)">← Back</button
+            ><button class="btn btn-primary" onclick="bkNext(3)">
+              Continue →
+            </button>
+          </div>
+        </div>
+        <!-- Step 3: Confirm -->
+        <div id="bk-3" class="bk-step hide">
+          <h2>Confirm Appointment</h2>
+          <div class="confirm-summary">
+            <div class="cr">
+              <span class="cr-l">Service</span
+              ><span class="cr-v" id="c-svc">—</span>
+            </div>
+            <div class="cr">
+              <span class="cr-l">Date</span
+              ><span class="cr-v" id="c-date">—</span>
+            </div>
+            <div class="cr">
+              <span class="cr-l">Time</span
+              ><span class="cr-v" id="c-time">—</span>
+            </div>
+            <div class="cr">
+              <span class="cr-l">Location</span
+              ><span class="cr-v">Lumière Salon, BGC Taguig</span>
+            </div>
+            <div class="cr">
+              <span class="cr-l">Estimated Price</span
+              ><span class="cr-v" style="color: var(--terra)" id="c-price"
+                >—</span
+              >
+            </div>
+            <div class="cr">
+              <span class="cr-l">Special Requests</span
+              ><span
+                class="cr-v"
+                id="c-notes"
+                style="font-size: 13px; font-weight: 400; color: var(--mid)"
+                >None</span
+              >
+            </div>
+          </div>
+          <div class="bk-nav">
+            <button class="btn btn-ghost" onclick="bkNext(2)">← Back</button>
+            <button
+              class="btn btn-primary btn-lg"
+              id="confirm-bk-btn"
+              onclick="confirmBk()"
+            >
+              Confirm Appointment
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Simple info pages -->
+    <div id="page-about" class="page">
+      <div class="wrap" style="padding-top: 48px; padding-bottom: 80px">
+        <div class="bc">
+          <a onclick="go('home')">Home</a><span class="bc-sep">/</span
+          ><span>About</span>
+        </div>
+        <h1
+          style="
+            font-family: &quot;Cormorant Garamond&quot;, serif;
+            font-size: 52px;
+            font-weight: 300;
+            margin-bottom: 20px;
+          "
+        >
+          About <em style="font-style: italic; color: var(--terra)">Lumière</em>
+        </h1>
+        <p
+          style="
+            font-size: 15px;
+            color: var(--mid);
+            line-height: 1.8;
+            max-width: 640px;
+          "
+        >
+          Lumière was founded in 2018 with a single vision: to make luxury
+          beauty accessible. We combine expert salon services with a curated
+          selection of premium beauty products, all in a serene and welcoming
+          environment. Our team of certified professionals is dedicated to
+          helping every client look and feel their absolute best.
+        </p>
+        <br /><button class="btn btn-primary" onclick="go('booking')">
+          Book an Appointment
+        </button>
+      </div>
+    </div>
+    <div id="page-contact" class="page">
+      <div class="wrap" style="padding-top: 48px; padding-bottom: 80px">
+        <div class="bc">
+          <a onclick="go('home')">Home</a><span class="bc-sep">/</span
+          ><span>Contact</span>
+        </div>
+        <h1
+          style="
+            font-family: &quot;Cormorant Garamond&quot;, serif;
+            font-size: 52px;
+            font-weight: 300;
+            margin-bottom: 20px;
+          "
+        >
+          Contact <em style="font-style: italic; color: var(--terra)">Us</em>
+        </h1>
+        <p style="font-size: 15px; color: var(--mid); margin-bottom: 32px">
+          We'd love to hear from you. Reach out anytime.
+        </p>
+        <div
+          style="
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            max-width: 680px;
+          "
+        >
+          <div class="fg">
+            <label class="flabel">Your Name</label
+            ><input type="text" class="finput" placeholder="Sofia Reyes" />
+          </div>
+          <div class="fg">
+            <label class="flabel">Email</label
+            ><input type="email" class="finput" placeholder="you@example.com" />
+          </div>
+          <div class="fg" style="grid-column: 1/-1">
+            <label class="flabel">Message</label
+            ><textarea
+              class="finput"
+              rows="5"
+              style="resize: vertical"
+              placeholder="How can we help?"
+            ></textarea>
+          </div>
+          <div style="grid-column: 1/-1">
+            <button
+              class="btn btn-primary"
+              onclick="toast('Message sent! We\'ll reply soon.', 'info')"
+            >
+              Send Message
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="page-faqs" class="page">
+      <div class="wrap" style="padding-top: 48px; padding-bottom: 80px">
+        <div class="bc">
+          <a onclick="go('home')">Home</a><span class="bc-sep">/</span
+          ><span>FAQs</span>
+        </div>
+        <h1
+          style="
+            font-family: &quot;Cormorant Garamond&quot;, serif;
+            font-size: 52px;
+            font-weight: 300;
+            margin-bottom: 32px;
+          "
+        >
+          FAQs
+        </h1>
+        <div style="max-width: 680px">
+          <div class="acc">
+            <div class="acc-item open">
+              <div class="acc-hdr" onclick="toggleAcc(this)">
+                How do I book an appointment? <span class="acc-arr">▾</span>
+              </div>
+              <div class="acc-body">
+                <div class="acc-content">
+                  Click "Book" in the navigation or "Book a Service" on the home
+                  page. Follow the 3-step process to select your service, choose
+                  a date and time, then confirm.
+                </div>
+              </div>
+            </div>
+            <div class="acc-item">
+              <div class="acc-hdr" onclick="toggleAcc(this)">
+                What is your cancellation policy? <span class="acc-arr">▾</span>
+              </div>
+              <div class="acc-body">
+                <div class="acc-content">
+                  You may cancel or reschedule up to 24 hours before your
+                  appointment at no charge. Cancellations within 24 hours may
+                  incur a fee.
+                </div>
+              </div>
+            </div>
+            <div class="acc-item">
+              <div class="acc-hdr" onclick="toggleAcc(this)">
+                Do you offer free shipping? <span class="acc-arr">▾</span>
+              </div>
+              <div class="acc-body">
+                <div class="acc-content">
+                  Yes! Orders over ₱1,500 qualify for free standard shipping
+                  within Metro Manila. Provincial orders are charged a flat rate
+                  of ₱200.
+                </div>
+              </div>
+            </div>
+            <div class="acc-item">
+              <div class="acc-hdr" onclick="toggleAcc(this)">
+                How do I return a product? <span class="acc-arr">▾</span>
+              </div>
+              <div class="acc-body">
+                <div class="acc-content">
+                  We accept returns within 7 days of delivery for unopened items
+                  in original packaging. Contact us at
+                  <a
+                    href="/cdn-cgi/l/email-protection"
+                    class="__cf_email__"
+                    data-cfemail="8bf8fefbfbe4f9ffcbe7fee6e2eef9eea5fbe3"
+                    >[email&#160;protected]</a
+                  >
+                  to initiate a return.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="page-policies" class="page">
+      <div class="wrap" style="padding-top: 48px; padding-bottom: 80px">
+        <div class="bc">
+          <a onclick="go('home')">Home</a><span class="bc-sep">/</span
+          ><span>Policies</span>
+        </div>
+        <h1
+          style="
+            font-family: &quot;Cormorant Garamond&quot;, serif;
+            font-size: 52px;
+            font-weight: 300;
+            margin-bottom: 24px;
+          "
+        >
+          Policies
+        </h1>
+        <div
+          style="
+            max-width: 640px;
+            font-size: 14px;
+            color: var(--mid);
+            line-height: 1.8;
+          "
+        >
+          <h3
+            style="
+              font-family: &quot;Cormorant Garamond&quot;, serif;
+              font-size: 22px;
+              font-weight: 400;
+              color: var(--ink);
+              margin-bottom: 10px;
+            "
+          >
+            Privacy Policy
+          </h3>
+          <p>
+            Your personal information is kept confidential and never sold to
+            third parties. We use your data only to process orders and improve
+            your experience.
+          </p>
+          <br />
+          <h3
+            style="
+              font-family: &quot;Cormorant Garamond&quot;, serif;
+              font-size: 22px;
+              font-weight: 400;
+              color: var(--ink);
+              margin-bottom: 10px;
+            "
+          >
+            Return Policy
+          </h3>
+          <p>
+            Unopened products may be returned within 7 days of delivery. Opened
+            products may not be returned unless defective. Services are
+            non-refundable once rendered.
+          </p>
+          <br />
+          <h3
+            style="
+              font-family: &quot;Cormorant Garamond&quot;, serif;
+              font-size: 22px;
+              font-weight: 400;
+              color: var(--ink);
+              margin-bottom: 10px;
+            "
+          >
+            Terms of Service
+          </h3>
+          <p>
+            By using our website and services, you agree to our terms. We
+            reserve the right to update these terms at any time. Continued use
+            constitutes acceptance.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ CART SIDE PANEL (with Product Info, Quantity, Estimated Total, View Cart, Close) ══════ -->
+    <div class="overlay" id="cart-overlay" onclick="toggleCart()"></div>
+    <div class="cart-panel" id="cart-panel">
+      <div class="cart-hd">
+        <div>
+          <div class="cart-hd-title">Your Cart</div>
+          <div class="cart-hd-count" id="cart-hd-count">0 items</div>
+        </div>
+        <button class="icon-btn" onclick="toggleCart()">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            width="18"
+            height="18"
+          >
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+      <div class="cart-body-panel" id="cart-panel-body"></div>
+      <div class="cart-ft" id="cart-panel-ft" style="display: none">
+        <div class="cart-totals">
+          <div class="ct-row">
+            <span>Subtotal</span><span id="cp-sub2">₱0</span>
+          </div>
+          <div class="ct-row">
+            <span>Shipping</span><span id="cp-ship2">₱150</span>
+          </div>
+          <div class="ct-row total">
+            <span>Estimated Total</span><span id="cp-total2">₱150</span>
+          </div>
+        </div>
+        <div class="cart-ft-btns">
+          <button
+            class="btn btn-primary btn-full"
+            onclick="
+              toggleCart();
+              go('checkout');
+            "
+          >
+            Checkout →
+          </button>
+          <!-- View Cart button -->
+          <div
+            class="view-cart-btn"
+            onclick="
+              toggleCart();
+              go('cart');
+            "
+          >
+            🛍 View Cart Page
+          </div>
+          <!-- Close button -->
+          <button class="btn btn-ghost btn-full" onclick="toggleCart()">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOASTS -->
+    <div class="toast-wrap" id="toast-wrap"></div>
+    <!-- Back to top -->
+    <button
+      class="btt"
+      id="btt"
+      onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+    >
+      ↑
+    </button>
+
+    <script
+      data-cfasync="false"
+      src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"
+    ></script>
+    <script src="js/script.js"></script>
+  </body>
+</html>
