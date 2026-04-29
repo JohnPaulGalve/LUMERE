@@ -597,36 +597,72 @@ function updateAccountUI(){
 }
 
 // NEW FUNCTION: Overwrites hardcoded HTML with actual user data
-function renderWishlist() {
-  const el = document.getElementById('wishlist-grid');
-  if(!el) return;
-  const user = getCurrentUser();
-  
-  if(!user || !user.wishlist || user.wishlist.length === 0) {
-    el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted)">Your wishlist is empty. Browse our products to add some!</div>';
-    return;
-  }
-  
-  const wishProducts = user.wishlist.map(id => products.find(p => p.id === id)).filter(Boolean);
-  
-  el.innerHTML = wishProducts.map(p => {
-    const bdg = p.badge ? `<span class="pc-badge badge-${p.badge}">${p.badge}</span>` : '';
-    return `
-    <div class="pc" onclick="openPdp(${p.id})">
-      <div class="pc-img">
-        ${bdg}${p.img ? `<img src="${p.img}" alt="${p.name}">` : ''}
-        <div class="pc-actions">
-          <button class="pca-cart" onclick="event.stopPropagation();quickAdd(${p.id})">Add to Cart</button>
-          <button class="pca-wish" onclick="event.stopPropagation();toggleWishlist(${p.id})">✕ Remove</button>
-        </div>
-      </div>
-      <div class="pc-info">
-        <div class="pc-name">${p.name}</div>
-        <div class="pc-price-row"><span class="pc-price">₱${p.price.toLocaleString()}</span></div>
-      </div>
-    </div>
+function renderDynamicAccountData(user) {
+  const orders = user.orders || [];
+  const bookings = user.bookings || [];
+  const payments = user.payments || [];
+  const addresses = user.addresses || [];
+  const wishlist = user.wishlist || [];
+
+  // 1. Update Stats
+  const dashStats = document.querySelector('.dash-stats');
+  if(dashStats) {
+    dashStats.innerHTML = `
+      <div class="ds"><div class="ds-num">${orders.length}</div><div class="ds-lbl">Total Orders</div></div>
+      <div class="ds"><div class="ds-num">${bookings.length}</div><div class="ds-lbl">Upcoming Bookings</div></div>
+      <div class="ds"><div class="ds-num">${wishlist.length}</div><div class="ds-lbl">Wishlist Items</div></div>
     `;
-  }).join('');
+  }
+
+  // 2. Update Orders
+  const ordersTbody = document.querySelector('#tab-orders tbody');
+  const dashTbody = document.querySelector('#tab-dashboard tbody');
+  if(orders.length === 0) {
+    if(ordersTbody) ordersTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted)">No orders found.</td></tr>';
+    if(dashTbody) dashTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted)">No recent orders.</td></tr>';
+  } else {
+    const rows = orders.map(o => `<tr><td style="font-weight: 500">${o.id}</td><td>${o.date}</td><td>${o.items}</td><td style="color: var(--terra)">₱${o.total.toLocaleString()}</td><td><span class="sp sp-proc">Processing</span></td><td><button class="detail-btn" onclick="toast('Order is being prepared', 'info')">Status</button></td></tr>`).reverse().join('');
+    if(ordersTbody) ordersTbody.innerHTML = rows;
+    const dashRows = orders.slice(-2).reverse().map(o => `<tr><td style="font-weight: 500">${o.id}</td><td>${o.date}</td><td style="color: var(--terra)">₱${o.total.toLocaleString()}</td><td><span class="sp sp-proc">Processing</span></td><td></td></tr>`).join('');
+    if(dashTbody) dashTbody.innerHTML = dashRows;
+  }
+
+  // 3. Update Bookings
+  const bookingsTab = document.getElementById('tab-bookings');
+  if(bookingsTab) {
+    if(bookings.length === 0) {
+       bookingsTab.innerHTML = `<div class="acc-pg-title">My Bookings</div><div style="text-align:center;padding:40px 20px;color:var(--muted)"><div style="font-size:32px;margin-bottom:12px">📅</div><p style="margin-bottom:16px">You have no upcoming bookings.</p><button class="btn btn-primary" onclick="go('booking')">+ Book New Appointment</button></div>`;
+    } else {
+       const bkCards = bookings.map(b => `<div class="bk-card"><div class="bk-icon">${b.icon}</div><div class="bk-info"><div class="bk-name">${b.service}</div><div class="bk-meta">${b.date} · ${b.time}</div></div><span class="sp sp-proc">Upcoming</span><div class="bk-acts"><button class="btn btn-ghost btn-sm" onclick="toast('Booking cancelled', 'error')">Cancel</button></div></div>`).reverse().join('');
+       bookingsTab.innerHTML = `<div class="acc-pg-title">My Bookings</div><h4 style="font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px;">Upcoming</h4>${bkCards}<br><button class="btn btn-primary" onclick="go('booking')">+ Book New Appointment</button>`;
+    }
+  }
+
+  // 4. Update Payments
+  const paymentTab = document.getElementById('tab-payment');
+  if(paymentTab) {
+     let html = `<div class="acc-pg-title">Payment Methods</div>`;
+     if(payments.length === 0) {
+        html += `<div style="padding:30px;text-align:center;color:var(--muted);border:1px dashed var(--pink-soft);border-radius:var(--r);margin-bottom:20px;">No payment methods saved.</div>`;
+     } else {
+        html += payments.map((p, index) => `<div class="pay-card"><div class="pay-icon">💳</div><div class="pay-info"><div class="pay-name">${p.name}</div><div class="pay-meta">Expires ${p.expiry}</div>${index === 0 ? '<div class="pay-default">Default</div>' : ''}</div><div class="pay-acts">${index !== 0 ? `<button class="btn btn-ghost btn-sm" onclick="setAsDefault('payments', ${p.id})">Make Default</button>` : ''}<button class="btn btn-ghost btn-sm" onclick="removePayment(${p.id})">Remove</button></div></div>`).join('');
+     }
+     html += `<br><div style="background: var(--cream); padding: 24px; border-radius: var(--r); max-width: 420px; border: 1px solid var(--border);"><div style="font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 16px;">Add New Card</div><div class="fg"><label class="flabel">Card Number</label><input type="text" id="new-card-num" class="finput" placeholder="1234 5678 9012 3456"></div><button class="btn btn-primary btn-full" onclick="addPayment()">Add Card</button></div>`;
+     paymentTab.innerHTML = html;
+  }
+
+  // 5. Update Addresses
+  const addressesTab = document.getElementById('tab-addresses');
+  if(addressesTab) {
+     let html = `<div class="acc-pg-title">My Addresses</div>`;
+     if(addresses.length === 0) {
+        html += `<div style="padding:30px;text-align:center;color:var(--muted);border:1px dashed var(--pink-soft);border-radius:var(--r);margin-bottom:20px;">No addresses saved.</div>`;
+     } else {
+        html += addresses.map((a, index) => `<div class="addr-card">${index === 0 ? '<div class="addr-default">Default Address</div>' : ''}<div class="addr-text">${a.text}</div><div class="addr-acts">${index !== 0 ? `<button class="btn btn-ghost btn-sm" onclick="setAsDefault('addresses', ${a.id})">Make Default</button>` : ''}<button class="btn btn-ghost btn-sm" onclick="removeAddress(${a.id})">Remove</button></div></div>`).join('');
+     }
+     html += `<br><div style="background: var(--cream); padding: 24px; border-radius: var(--r); max-width: 480px; border: 1px solid var(--border);"><div style="font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 16px;">Add New Address</div><div class="fg"><label class="flabel">Street Address</label><input type="text" id="new-addr-street" class="finput" placeholder="Street, unit/floor"></div><button class="btn btn-primary btn-full" onclick="addAddress()">Add Address</button></div>`;
+     addressesTab.innerHTML = html;
+  }
 }
 function saveProfileChanges(){
   const user=getCurrentUser();
