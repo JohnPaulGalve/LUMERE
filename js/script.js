@@ -442,6 +442,48 @@ function coGoto(step){
     const cs=document.getElementById('cos-'+s);if(!cs)return;
     cs.classList.toggle('active',s===step);cs.classList.toggle('done',s<step);
   });
+
+  // NEW: Render dynamic payments when the user reaches Step 3
+  if(step === 3) {
+    renderCheckoutPayments();
+  }
+}
+
+function renderCheckoutPayments() {
+  const user = getCurrentUser();
+  const container = document.getElementById('co-step-3');
+  if(!user || !container) return;
+
+  let html = `<h2 style="font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 300; margin-bottom: 24px;">Payment Method</h2>`;
+
+  // Render Saved Methods
+  if(user.payments && user.payments.length > 0) {
+    html += `<div style="margin-bottom:12px; font-size:12px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">Saved Methods</div>`;
+    html += user.payments.map((p, i) => `
+      <label class="pay-opt ${i===0?'selected':''}" style="display:flex; cursor:pointer;" onclick="document.querySelectorAll('#co-step-3 .pay-opt').forEach(el=>el.classList.remove('selected')); this.classList.add('selected');">
+        <input type="radio" name="pay" ${i===0?'checked':''} style="margin-right:12px; accent-color: var(--ink);">
+        <span class="pay-opt-icon">${p.icon||'💳'}</span> <span style="font-weight:600; color:var(--ink);">${p.name}</span>
+      </label>
+    `).join('');
+  }
+
+  html += `<div style="margin-top:24px; margin-bottom:12px; font-size:12px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">Other Methods</div>`;
+  
+  // If they have no saved methods, Cash on Delivery becomes the default selection
+  const noSaved = (!user.payments || user.payments.length === 0);
+  
+  html += `
+    <label class="pay-opt ${noSaved?'selected':''}" style="display:flex; cursor:pointer;" onclick="document.querySelectorAll('#co-step-3 .pay-opt').forEach(el=>el.classList.remove('selected')); this.classList.add('selected');">
+       <input type="radio" name="pay" ${noSaved?'checked':''} style="margin-right:12px; accent-color: var(--ink);">
+       <span class="pay-opt-icon">💵</span> <span style="font-weight:600; color:var(--ink);">Cash on Delivery</span>
+    </label>
+    <div class="co-step-btns" style="margin-top:32px;">
+      <button class="btn btn-ghost" onclick="coNext(2)">← Back</button>
+      <button class="btn btn-primary btn-lg" onclick="coNext(4)">Review Order →</button>
+    </div>
+  `;
+
+  container.innerHTML = html;
 }
 function coNext(step){coGoto(step)}
 function renderCheckoutSidebar(){
@@ -673,23 +715,27 @@ function renderDynamicAccountData(user) {
      if(payments.length === 0) {
         html += `<div style="padding:30px;text-align:center;color:var(--muted);border:1px dashed var(--pink-soft);border-radius:var(--r);margin-bottom:20px;">No payment methods saved.</div>`;
      } else {
-        html += payments.map((p, index) => `<div class="pay-card"><div class="pay-icon">💳</div><div class="pay-info"><div class="pay-name">${p.name}</div><div class="pay-meta">Expires ${p.expiry}</div>${index === 0 ? '<div class="pay-default">Default</div>' : ''}</div><div class="pay-acts">${index !== 0 ? `<button class="btn btn-ghost btn-sm" onclick="setAsDefault('payments', ${p.id})">Make Default</button>` : ''}<button class="btn btn-ghost btn-sm" onclick="removePayment(${p.id})">Remove</button></div></div>`).join('');
+        html += payments.map((p, index) => `<div class="pay-card"><div class="pay-icon">${p.icon || '💳'}</div><div class="pay-info"><div class="pay-name">${p.name}</div>${index === 0 ? '<div class="pay-default">Default</div>' : ''}</div><div class="pay-acts">${index !== 0 ? `<button class="btn btn-ghost btn-sm" onclick="setAsDefault('payments', ${p.id})">Make Default</button>` : ''}<button class="btn btn-ghost btn-sm" onclick="removePayment(${p.id})">Remove</button></div></div>`).join('');
      }
-     html += `<br><div style="background: var(--cream); padding: 24px; border-radius: var(--r); max-width: 420px; border: 1px solid var(--border);"><div style="font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 16px;">Add New Card</div><div class="fg"><label class="flabel">Card Number</label><input type="text" id="new-card-num" class="finput" placeholder="1234 5678 9012 3456"></div><button class="btn btn-primary btn-full" onclick="addPayment()">Add Card</button></div>`;
+     html += `<br><div style="background: var(--cream); padding: 24px; border-radius: var(--r); max-width: 420px; border: 1px solid var(--border);">
+       <div style="font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 16px;">Add New Payment</div>
+       <div class="fg"><label class="flabel">Method</label>
+         <select id="new-pay-type" class="finput" onchange="togglePayFields()">
+           <option value="card">Bank / Credit Card</option>
+           <option value="gcash">GCash</option>
+         </select>
+       </div>
+       <div id="pay-card-fields">
+         <div class="fg"><label class="flabel">Bank Name</label><input type="text" id="new-bank-name" class="finput" placeholder="BDO, BPI, UnionBank..."></div>
+         <div class="fg"><label class="flabel">Card Number</label><input type="text" id="new-card-num" class="finput" placeholder="1234 5678 9012 3456"></div>
+       </div>
+       <div id="pay-gcash-fields" style="display:none;">
+         <div class="fg"><label class="flabel">GCash Name</label><input type="text" id="new-gcash-name" class="finput" placeholder="Juan Dela Cruz"></div>
+         <div class="fg"><label class="flabel">GCash Number</label><input type="tel" id="new-gcash-num" class="finput" placeholder="09XX XXX XXXX"></div>
+       </div>
+       <button class="btn btn-primary btn-full" onclick="addPayment()" style="margin-top: 8px;">Save Payment Method</button>
+     </div>`;
      paymentTab.innerHTML = html;
-  }
-
-  // 5. Update Addresses
-  const addressesTab = document.getElementById('tab-addresses');
-  if(addressesTab) {
-     let html = `<div class="acc-pg-title">My Addresses</div>`;
-     if(addresses.length === 0) {
-        html += `<div style="padding:30px;text-align:center;color:var(--muted);border:1px dashed var(--pink-soft);border-radius:var(--r);margin-bottom:20px;">No addresses saved.</div>`;
-     } else {
-        html += addresses.map((a, index) => `<div class="addr-card">${index === 0 ? '<div class="addr-default">Default Address</div>' : ''}<div class="addr-text">${a.text}</div><div class="addr-acts">${index !== 0 ? `<button class="btn btn-ghost btn-sm" onclick="setAsDefault('addresses', ${a.id})">Make Default</button>` : ''}<button class="btn btn-ghost btn-sm" onclick="removeAddress(${a.id})">Remove</button></div></div>`).join('');
-     }
-     html += `<br><div style="background: var(--cream); padding: 24px; border-radius: var(--r); max-width: 480px; border: 1px solid var(--border);"><div style="font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 16px;">Add New Address</div><div class="fg"><label class="flabel">Street Address</label><input type="text" id="new-addr-street" class="finput" placeholder="Street, unit/floor"></div><button class="btn btn-primary btn-full" onclick="addAddress()">Add Address</button></div>`;
-     addressesTab.innerHTML = html;
   }
 }
 function saveProfileChanges(){
@@ -793,20 +839,36 @@ function toggleWishlist(id) {
 }
 
 // Payment Handlers
+// NEW: Toggles between Bank and GCash fields
+function togglePayFields() {
+  const type = document.getElementById('new-pay-type').value;
+  document.getElementById('pay-card-fields').style.display = (type === 'card') ? 'block' : 'none';
+  document.getElementById('pay-gcash-fields').style.display = (type === 'gcash') ? 'block' : 'none';
+}
+
 function addPayment() {
   const user = getCurrentUser();
   if(!user) return;
-  const num = document.getElementById('new-card-num').value.slice(-4);
-  if(!num) { toast('Please enter a valid card number', 'error'); return; }
+  const type = document.getElementById('new-pay-type').value;
   
   if(!user.payments) user.payments = [];
-  user.payments.push({ id: Date.now(), name: `Card ending in ${num}`, expiry: '12/28' });
+  
+  if(type === 'card') {
+    const bank = document.getElementById('new-bank-name').value.trim();
+    const num = document.getElementById('new-card-num').value.slice(-4);
+    if(!bank || !num) { toast('Please enter Bank Name and Card Number', 'error'); return; }
+    user.payments.push({ id: Date.now(), name: `${bank} ending in ${num}`, icon: '💳' });
+  } else {
+    const gname = document.getElementById('new-gcash-name').value.trim();
+    const gnum = document.getElementById('new-gcash-num').value.slice(-4);
+    if(!gname || !gnum) { toast('Please enter GCash Name and Number', 'error'); return; }
+    user.payments.push({ id: Date.now(), name: `GCash ending in ${gnum}`, icon: '📱' });
+  }
+  
   saveUserData(user);
-  toast('Card added successfully!', 'info');
-  document.getElementById('new-card-num').value = ''; // clear input
+  toast('Payment method saved!', 'info');
   renderDynamicAccountData(user);
 }
-
 function removePayment(id) {
   const user = getCurrentUser();
   user.payments = user.payments.filter(p => p.id !== id);
