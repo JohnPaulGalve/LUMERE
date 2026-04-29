@@ -454,29 +454,51 @@ function renderCheckoutPayments() {
   const container = document.getElementById('co-step-3');
   if(!user || !container) return;
 
+  // Split saved payments into categories
+  const cards = (user.payments || []).filter(p => p.type === 'card' || (!p.type && !p.name.includes('GCash')));
+  const gcash = (user.payments || []).filter(p => p.type === 'gcash' || (!p.type && p.name.includes('GCash')));
+
   let html = `<h2 style="font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 300; margin-bottom: 24px;">Payment Method</h2>`;
 
-  // Render Saved Methods
-  if(user.payments && user.payments.length > 0) {
-    html += `<div style="margin-bottom:12px; font-size:12px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">Saved Methods</div>`;
-    html += user.payments.map((p, i) => `
-      <label class="pay-opt ${i===0?'selected':''}" style="display:flex; cursor:pointer;" onclick="document.querySelectorAll('#co-step-3 .pay-opt').forEach(el=>el.classList.remove('selected')); this.classList.add('selected');">
-        <input type="radio" name="pay" ${i===0?'checked':''} style="margin-right:12px; accent-color: var(--ink);">
-        <span class="pay-opt-icon">${p.icon||'💳'}</span> <span style="font-weight:600; color:var(--ink);">${p.name}</span>
-      </label>
-    `).join('');
-  }
-
-  html += `<div style="margin-top:24px; margin-bottom:12px; font-size:12px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">Other Methods</div>`;
-  
-  // If they have no saved methods, Cash on Delivery becomes the default selection
-  const noSaved = (!user.payments || user.payments.length === 0);
-  
+  // 1. Card Section
   html += `
-    <label class="pay-opt ${noSaved?'selected':''}" style="display:flex; cursor:pointer;" onclick="document.querySelectorAll('#co-step-3 .pay-opt').forEach(el=>el.classList.remove('selected')); this.classList.add('selected');">
-       <input type="radio" name="pay" ${noSaved?'checked':''} style="margin-right:12px; accent-color: var(--ink);">
+    <label class="pay-opt" style="display:flex; cursor:pointer; align-items:center;" onclick="toggleCheckoutPay('card')">
+       <input type="radio" name="pay_main" id="pay_main_card" style="margin-right:12px; accent-color: var(--ink);">
+       <span class="pay-opt-icon">💳</span> <span style="font-weight:600; color:var(--ink);">Credit / Debit Card</span>
+    </label>
+    <div id="co-cards-list" style="display:none; margin-left: 46px; margin-bottom: 24px; padding-top: 8px;">
+  `;
+  if (cards.length > 0) {
+     html += cards.map((c, i) => `<label style="display:flex; cursor:pointer; margin-bottom:12px; align-items:center;"><input type="radio" name="pay_sub_card" ${i===0?'checked':''} style="margin-right:8px; accent-color: var(--ink);"><span style="font-size:14px; color:var(--ink);">${c.name}</span></label>`).join('');
+  } else {
+     html += `<div style="font-size:13px; color:var(--muted); font-style:italic;">No cards saved. Please add one in your account.</div>`;
+  }
+  html += `</div>`;
+
+  // 2. GCash Section
+  html += `
+    <label class="pay-opt" style="display:flex; cursor:pointer; margin-top:12px; align-items:center;" onclick="toggleCheckoutPay('gcash')">
+       <input type="radio" name="pay_main" id="pay_main_gcash" style="margin-right:12px; accent-color: var(--ink);">
+       <span class="pay-opt-icon">📱</span> <span style="font-weight:600; color:var(--ink);">GCash / Maya</span>
+    </label>
+    <div id="co-gcash-list" style="display:none; margin-left: 46px; margin-bottom: 24px; padding-top: 8px;">
+  `;
+  if (gcash.length > 0) {
+     html += gcash.map((g, i) => `<label style="display:flex; cursor:pointer; margin-bottom:12px; align-items:center;"><input type="radio" name="pay_sub_gcash" ${i===0?'checked':''} style="margin-right:8px; accent-color: var(--ink);"><span style="font-size:14px; color:var(--ink);">${g.name}</span></label>`).join('');
+  } else {
+     html += `<div style="font-size:13px; color:var(--muted); font-style:italic;">No GCash accounts saved. Please add one in your account.</div>`;
+  }
+  html += `</div>`;
+
+  // 3. Cash on Delivery (Default)
+  html += `
+    <label class="pay-opt selected" style="display:flex; cursor:pointer; margin-top:12px; align-items:center;" onclick="toggleCheckoutPay('cod')">
+       <input type="radio" name="pay_main" id="pay_main_cod" checked style="margin-right:12px; accent-color: var(--ink);">
        <span class="pay-opt-icon">💵</span> <span style="font-weight:600; color:var(--ink);">Cash on Delivery</span>
     </label>
+  `;
+
+  html += `
     <div class="co-step-btns" style="margin-top:32px;">
       <button class="btn btn-ghost" onclick="coNext(2)">← Back</button>
       <button class="btn btn-primary btn-lg" onclick="coNext(4)">Review Order →</button>
@@ -484,6 +506,16 @@ function renderCheckoutPayments() {
   `;
 
   container.innerHTML = html;
+}
+
+// Function to handle the drop-down animations during checkout
+function toggleCheckoutPay(type) {
+   document.querySelectorAll('#co-step-3 .pay-opt').forEach(el => el.classList.remove('selected'));
+   document.getElementById('pay_main_' + type).closest('.pay-opt').classList.add('selected');
+   
+   document.getElementById('pay_main_' + type).checked = true;
+   document.getElementById('co-cards-list').style.display = (type === 'card') ? 'block' : 'none';
+   document.getElementById('co-gcash-list').style.display = (type === 'gcash') ? 'block' : 'none';
 }
 function coNext(step){coGoto(step)}
 function renderCheckoutSidebar(){
@@ -715,9 +747,21 @@ function renderDynamicAccountData(user) {
      if(payments.length === 0) {
         html += `<div style="padding:30px;text-align:center;color:var(--muted);border:1px dashed var(--pink-soft);border-radius:var(--r);margin-bottom:20px;">No payment methods saved.</div>`;
      } else {
-        html += payments.map((p, index) => `<div class="pay-card"><div class="pay-icon">${p.icon || '💳'}</div><div class="pay-info"><div class="pay-name">${p.name}</div>${index === 0 ? '<div class="pay-default">Default</div>' : ''}</div><div class="pay-acts">${index !== 0 ? `<button class="btn btn-ghost btn-sm" onclick="setAsDefault('payments', ${p.id})">Make Default</button>` : ''}<button class="btn btn-ghost btn-sm" onclick="removePayment(${p.id})">Remove</button></div></div>`).join('');
+        let hasDefaultCard = false;
+        let hasDefaultGcash = false;
+        
+        html += payments.map((p) => {
+           // Fallback for older saves that might not have a type
+           const pType = p.type || (p.name.includes('GCash') ? 'gcash' : 'card');
+           
+           let isDef = false;
+           if (pType === 'card' && !hasDefaultCard) { isDef = true; hasDefaultCard = true; }
+           if (pType === 'gcash' && !hasDefaultGcash) { isDef = true; hasDefaultGcash = true; }
+           
+           return `<div class="pay-card"><div class="pay-icon">${p.icon || '💳'}</div><div class="pay-info"><div class="pay-name">${p.name}</div>${isDef ? '<div class="pay-default">Default</div>' : ''}</div><div class="pay-acts">${!isDef ? `<button class="btn btn-ghost btn-sm" onclick="setAsDefault('payments', ${p.id})">Make Default</button>` : ''}<button class="btn btn-ghost btn-sm" onclick="removePayment(${p.id})">Remove</button></div></div>`;
+        }).join('');
      }
-    html += `<br><div style="background: var(--cream); padding: 24px; border-radius: var(--r); max-width: 420px; border: 1px solid var(--border);">
+     html += `<br><div style="background: var(--cream); padding: 24px; border-radius: var(--r); max-width: 420px; border: 1px solid var(--border);">
        <div style="font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 16px;">Add New Payment</div>
        <div class="fg"><label class="flabel">Method</label>
          <select id="new-pay-type" class="finput" onchange="togglePayFields()">
@@ -728,14 +772,12 @@ function renderDynamicAccountData(user) {
        <div id="pay-card-fields">
          <div class="fg"><label class="flabel">Bank Name</label><input type="text" id="new-bank-name" class="finput" placeholder="BDO, BPI, UnionBank..."></div>
          <div class="fg"><label class="flabel">Card Number</label>
-           <!-- STRICT DIGITS ONLY & 16 MAX LENGTH -->
            <input type="text" id="new-card-num" class="finput" placeholder="16-digit card number" maxlength="16" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
          </div>
        </div>
        <div id="pay-gcash-fields" style="display:none;">
          <div class="fg"><label class="flabel">GCash Name</label><input type="text" id="new-gcash-name" class="finput" placeholder="Juan Dela Cruz"></div>
          <div class="fg"><label class="flabel">GCash Number</label>
-           <!-- STRICT DIGITS ONLY & 11 MAX LENGTH -->
            <input type="tel" id="new-gcash-num" class="finput" placeholder="09XXXXXXXXX" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
          </div>
        </div>
@@ -862,31 +904,33 @@ function addPayment() {
   if(type === 'card') {
     const bank = document.getElementById('new-bank-name').value.trim();
     const rawNum = document.getElementById('new-card-num').value.trim();
-    
     if(!bank || !rawNum) { toast('Please enter Bank Name and Card Number', 'error'); return; }
-    // Enforce length for cards (usually 16 digits, but we'll accept at least 13 to be safe)
     if(rawNum.length < 13) { toast('Please enter a valid card number', 'error'); return; }
-    
     const num = rawNum.slice(-4);
-    user.payments.push({ id: Date.now(), name: `${bank} ending in ${num}`, icon: '💳' });
+    
+    // Notice the new type property added here
+    user.payments.push({ id: Date.now(), type: 'card', name: `${bank} ending in ${num}`, icon: '💳' });
     
   } else {
     const gname = document.getElementById('new-gcash-name').value.trim();
     const rawGnum = document.getElementById('new-gcash-num').value.trim();
-    
     if(!gname || !rawGnum) { toast('Please enter GCash Name and Number', 'error'); return; }
-    // Enforce exact GCash formatting (11 digits, starts with 09)
-    if(rawGnum.length !== 11 || !rawGnum.startsWith('09')) { 
-      toast('Enter a valid 11-digit GCash number starting with 09', 'error'); 
-      return; 
-    }
-    
+    if(rawGnum.length !== 11 || !rawGnum.startsWith('09')) { toast('Enter a valid 11-digit GCash number starting with 09', 'error'); return; }
     const gnum = rawGnum.slice(-4);
-    user.payments.push({ id: Date.now(), name: `GCash ending in ${gnum}`, icon: '📱' });
+    
+    // Notice the new type property added here
+    user.payments.push({ id: Date.now(), type: 'gcash', name: `GCash ending in ${gnum}`, icon: '📱' });
   }
   
   saveUserData(user);
   toast('Payment method saved!', 'info');
+  
+  // Clear inputs
+  document.getElementById('new-bank-name').value = '';
+  document.getElementById('new-card-num').value = '';
+  document.getElementById('new-gcash-name').value = '';
+  document.getElementById('new-gcash-num').value = '';
+  
   renderDynamicAccountData(user);
 }
 function removePayment(id) {
