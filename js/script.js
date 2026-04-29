@@ -459,32 +459,46 @@ function renderCheckoutSidebar(){
 function selPay(el){document.querySelectorAll('.pay-opt').forEach(o=>o.classList.remove('selected'));el.classList.add('selected');el.querySelector('input').checked=true;document.getElementById('card-fields').style.display=el.textContent.includes('Card')?'block':'none'}
 function placeOrder(){
   const user = getCurrentUser();
-  if(!user) return;
-  const btn=document.getElementById('place-order-btn');btn.textContent='Processing…';btn.disabled=true;
+  if(!user) { 
+    toast('Please sign in to place an order.', 'error'); 
+    go('login'); 
+    return; 
+  }
   
-  setTimeout(()=>{
-    // Generate Order
-    const sub=cart.reduce((s,i)=>s+(i.price*i.qty),0);
+  const btn = document.getElementById('place-order-btn');
+  btn.textContent = 'Processing…';
+  btn.disabled = true;
+  
+  setTimeout(() => {
+    const sub = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+    const ship = sub >= 1500 ? 0 : 150;
+    
+    // Generate Order Data
     const newOrder = {
        id: '#LUM-' + Math.floor(Math.random() * 10000).toString().padStart(4, '0'),
        date: new Date().toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'}),
        items: cart.map(i => `${i.name} (x${i.qty})`).join(', '),
-       total: sub + (sub >= 1500 ? 0 : 150)
+       total: sub + ship
     };
     
-    // Save to user
+    // Save to User
     if(!user.orders) user.orders = [];
     user.orders.push(newOrder);
-    const users = getUsers();
-    users[user.email] = user;
-    saveUsers(users);
+    saveUserData(user); 
     
-    // Reset and redirect
-    cart=[]; updateBadge(); btn.textContent='Place Order'; btn.disabled=false; 
-    toast('Order placed! Thank you 🎉','info');
+    // Reset Cart & Redirect
+    cart = []; 
+    updateBadge(); 
+    btn.textContent = 'Place Order →'; 
+    btn.disabled = false; 
+    
+    toast('Order placed! Thank you 🎉', 'info');
     go('account');
-    setTimeout(()=>showTab('orders'),300);
-  }, 1800);
+    
+    // Render the new order on the dashboard
+    renderDynamicAccountData(user);
+    setTimeout(() => showTab('orders'), 300);
+  }, 1500);
 }
 
 /* ═══════════════ BOOKING ═══════════════ */
@@ -497,31 +511,45 @@ function bkNext(step){
 }
 function confirmBk(){
   const user = getCurrentUser();
-  if(!user) return;
-  const btn=document.getElementById('confirm-bk-btn');btn.textContent='Confirming…';btn.disabled=true;
+  if(!user) { 
+    toast('Please sign in to book an appointment.', 'error'); 
+    go('login'); 
+    return; 
+  }
   
-  setTimeout(()=>{
-    // Generate Booking
-    const date = document.getElementById('bk-date').value || new Date().toLocaleDateString();
+  const btn = document.getElementById('confirm-bk-btn');
+  btn.textContent = 'Confirming…';
+  btn.disabled = true;
+  
+  setTimeout(() => {
+    // Generate Booking Data
+    const dateInput = document.getElementById('bk-date').value;
+    const formattedDate = dateInput ? new Date(dateInput).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'}) : 'Not selected';
     const time = document.getElementById('bk-time').value;
-    const icon = bkSvc.split(' ')[0]; // extracts the emoji
-    const serviceName = bkSvc.replace(/^[^ ]+ /, ''); // extracts the name
+    const icon = bkSvc.split(' ')[0] || '✨'; 
+    const serviceName = bkSvc.replace(/^[^ ]+ /, '') || 'Service'; 
     
     // Save to User
     if(!user.bookings) user.bookings = [];
-    user.bookings.push({ icon, service: serviceName, date, time });
-    const users = getUsers();
-    users[user.email] = user;
-    saveUsers(users);
+    user.bookings.push({ icon, service: serviceName, date: formattedDate, time });
+    saveUserData(user);
   
-    btn.textContent='Confirm Appointment';btn.disabled=false;
-    toast('Appointment confirmed! 🎉','info');
+    btn.textContent = 'Confirm Appointment';
+    btn.disabled = false;
+    
+    toast('Appointment confirmed! 🎉', 'info');
     go('account');
-    setTimeout(()=>showTab('bookings'),300);
-    bkSvc='';bkSvcPrice='';
-    document.querySelectorAll('.svc-opt').forEach(o=>o.classList.remove('selected'));
+    
+    // Render the new booking on the dashboard
+    renderDynamicAccountData(user);
+    setTimeout(() => showTab('bookings'), 300);
+    
+    // Reset booking form
+    bkSvc = ''; 
+    bkSvcPrice = '';
+    document.querySelectorAll('.svc-opt').forEach(o => o.classList.remove('selected'));
     bkNext(1);
-  },1500);
+  }, 1500);
 }
 function toggleAccDrop(){const d=document.getElementById('acc-dropdown');const o=document.getElementById('acc-drop-overlay');const open=d.classList.toggle('open');o.classList.toggle('open',open)}
 function closeAccDrop(){document.getElementById('acc-dropdown').classList.remove('open');document.getElementById('acc-drop-overlay').classList.remove('open')}
