@@ -1349,12 +1349,7 @@
             <div style="text-align: right; margin-top: 4px">
               <a
                 style="font-size: 12px; color: var(--terra); cursor: pointer"
-                onclick="
-                  toast(
-                    'Please enter your registered email and password.',
-                    'info',
-                  )
-                "
+                onclick="handleForgotPassword()"
                 >Forgot password?</a
               >
             </div>
@@ -2081,24 +2076,30 @@
                   Change Password
                 </div>
                 <div class="fg">
-                  <label class="flabel">Current Password</label
-                  ><input
+                  <label class="flabel">Current Password</label>
+                  <!-- Added ID below -->
+                  <input
+                    id="profile-curr-pass"
                     type="password"
                     class="finput"
                     placeholder="••••••••"
                   />
                 </div>
                 <div class="fg">
-                  <label class="flabel">New Password</label
-                  ><input
+                  <label class="flabel">New Password</label>
+                  <!-- Added ID below -->
+                  <input
+                    id="profile-new-pass"
                     type="password"
                     class="finput"
                     placeholder="Min. 8 characters"
                   />
                 </div>
                 <div class="fg">
-                  <label class="flabel">Confirm New Password</label
-                  ><input
+                  <label class="flabel">Confirm New Password</label>
+                  <!-- Added ID below -->
+                  <input
+                    id="profile-conf-pass"
                     type="password"
                     class="finput"
                     placeholder="Repeat new password"

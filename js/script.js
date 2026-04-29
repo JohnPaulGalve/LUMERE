@@ -103,46 +103,42 @@ let productFilters = {cat:'all', sub:null, minPrice:null, maxPrice:null, minRati
 
 /* ═══════════════ NAVIGATION ═══════════════ */
 const navIds={home:'nl-home',products:'nl-products',services:'nl-services',booking:'nl-booking',account:'nl-account'};
-function go(page){
+function go(page) {
   const currentUser = getCurrentUser();
   
-  // Require login for Account, Checkout, and Booking pages
-  if((page==='account' || page==='checkout' || page==='booking') && !currentUser){
-    // Show a different message depending on what they clicked
-    if(page === 'account') {
+  // 1. Require login for secure pages
+  if ((page === 'account' || page === 'checkout' || page === 'booking') && !currentUser) {
+    if (page === 'account') {
       toast('Please sign in to access your account.', 'error');
     } else {
       toast('Please sign in to continue with your transaction.', 'error');
     }
-    page='login';
+    page = 'login'; // Reroute to login
   }
   
-  // Prevent logged-in users from accessing login/register pages
-  if((page==='login' || page==='register') && currentUser){
-    toast('You are already signed in.','info');
-    page='account';
+  // 2. Enforce complete profile before checkout
+  if (page === 'checkout' && currentUser) {
+     if (!currentUser.first || !currentUser.last || !currentUser.phone) {
+         toast('Please add your phone number in your profile before checking out.', 'error');
+         page = 'account';
+         setTimeout(() => showTab('profile'), 100); // Auto-open the profile tab
+     }
+  }
+
+  // 3. Prevent logged-in users from seeing the login/register screens
+  if ((page === 'login' || page === 'register') && currentUser) {
+      page = 'home'; // Send them back home
+  }
+
+  // 4. Actual Page Routing (Hides old page, shows new page)
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const targetPage = document.getElementById('page-' + page);
+  if (targetPage) {
+     targetPage.classList.add('active');
   }
   
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  const el=document.getElementById('page-'+page);
-  if(el){el.classList.add('active');window.scrollTo({top:0,behavior:'smooth'})}
-  
-  // NEW NAV LOGIC
-  document.querySelectorAll('.nl').forEach(l=>l.classList.remove('active'));
-  let activeNavId = navIds[page];
-  
-  // Force the 'My Account' tab to stay active during login/register
-  if(page === 'login' || page === 'register') {
-    activeNavId = 'nl-account';
-  }
-  
-  if(activeNavId) document.getElementById(activeNavId)?.classList.add('active');
-  
-  if(page==='products')renderProdGrid('prod-grid','all');
-  if(page==='cart')renderCartPage();
-  if(page==='checkout'){renderCheckoutSidebar();coGoto(1);}
-  if(page==='account'){renderWishlist();showTab('dashboard');updateAccountUI();}
-  closeMob();
+  // Scroll to top of the new page
+  window.scrollTo(0,0);
 }
 function toggleMob(){document.getElementById('mob-menu').classList.toggle('open');document.getElementById('burger').classList.toggle('open')}
 function closeMob(){document.getElementById('mob-menu').classList.remove('open');document.getElementById('burger').classList.remove('open')}
@@ -226,8 +222,37 @@ function openPdp(id){
 }
 function setThumb(el,e){document.querySelectorAll('.pdp-thumb').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.getElementById('pdp-main-img').textContent=e}
 function adjQty(d){const i=document.getElementById('pdp-qty');i.value=Math.max(1,Math.min(99,+i.value+d))}
-function pdpAddCart(){if(!currentPdp)return;const qty=+document.getElementById('pdp-qty').value;for(let i=0;i<qty;i++)addToCart(currentPdp);const b=document.getElementById('pdp-atc');b.textContent='✓ Added!';setTimeout(()=>b.textContent='Add to Cart',1400)}
-function pdpBuyNow(){if(!currentPdp)return;addToCart(currentPdp);go('checkout')}
+function pdpAddCart() {
+  if (!currentPdp) return;
+  const qty = +document.getElementById('pdp-qty').value;
+  
+  // Add correct quantity all at once (fixes the multiple pop-up bug)
+  const ex = cart.find(i => i.id === currentPdp.id);
+  if (ex) ex.qty += qty;
+  else cart.push({ ...currentPdp, qty });
+  
+  updateBadge();
+  toast(`${currentPdp.name} added to cart!`, 'info'); // Show toast for normal cart adds
+  
+  const b = document.getElementById('pdp-atc');
+  b.textContent = '✓ Added!';
+  setTimeout(() => b.textContent = 'Add to Cart', 1400);
+}
+
+function pdpBuyNow() {
+  if (!currentPdp) return;
+  const qty = +document.getElementById('pdp-qty').value;
+  
+  // Silently add the item to the cart
+  const ex = cart.find(i => i.id === currentPdp.id);
+  if (ex) ex.qty += qty;
+  else cart.push({ ...currentPdp, qty });
+  
+  updateBadge();
+  
+  // Redirect directly to checkout WITHOUT the toast pop-up
+  go('checkout');
+}
 function toggleAcc(hdr){hdr.closest('.acc-item').classList.toggle('open')}
 
 /* ═══════════════ CATEGORY / FILTER ═══════════════ */
@@ -443,7 +468,22 @@ function coGoto(step){
     cs.classList.toggle('active',s===step);cs.classList.toggle('done',s<step);
   });
 
-  // NEW: Render dynamic payments when the user reaches Step 3
+  // Step 1: Auto-fill Billing Details from the user's account
+  if(step === 1) {
+    const user = getCurrentUser();
+    if(user) {
+      const billingInputs = document.querySelectorAll('#co-step-1 .finput');
+      // The first 4 inputs in Step 1 are First Name, Last Name, Email, and Phone
+      if(billingInputs.length >= 4) {
+        billingInputs[0].value = user.first || '';
+        billingInputs[1].value = user.last || '';
+        billingInputs[2].value = user.email || '';
+        billingInputs[3].value = user.phone || '';
+      }
+    }
+  }
+
+  // Step 3: Render dynamic payments when the user reaches Step 3
   if(step === 3) {
     renderCheckoutPayments();
   }
@@ -645,6 +685,38 @@ function getCurrentUser(){
   const users=getUsers();
   return users[email]||null;
 }
+function handleForgotPassword() {
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
+  
+  if (!email) {
+    toast('Please enter your email address first.', 'error');
+    document.getElementById('login-email').focus();
+    return;
+  }
+  
+  const users = getUsers();
+  if (!users[email]) {
+    toast('No account found with that email.', 'error');
+    return;
+  }
+  
+  // Front-end simulation of an email reset flow
+  const newPass = prompt(`Password Reset Request for: ${email}\n\n(In a real app, you would receive an email link. For this demo, please enter your new password below):\n\nMinimum 8 characters:`);
+  
+  if (newPass === null) return; // User clicked Cancel
+  
+  if (newPass.length < 8) {
+    toast('Password must be at least 8 characters. Please try again.', 'error');
+    return;
+  }
+  
+  // Update password and save to local storage
+  users[email].password = newPass;
+  saveUsers(users);
+  
+  toast('Password reset successfully! You can now log in.', 'info');
+  document.getElementById('login-password').value = ''; // Clear the password field
+}
 function loginUser(){
   const email=document.getElementById('login-email').value.trim().toLowerCase();
   const password=document.getElementById('login-password').value;
@@ -787,19 +859,42 @@ function renderDynamicAccountData(user) {
   }
 }
 function saveProfileChanges(){
-  const user=getCurrentUser();
-  if(!user){toast('No user is currently signed in.','error');return;}
-  const first=document.getElementById('profile-first').value.trim();
-  const last=document.getElementById('profile-last').value.trim();
-  const phone=document.getElementById('profile-phone').value.trim();
-  const birthday=document.getElementById('profile-birthday').value;
-  if(!first||!last){toast('Please enter your first and last name.','error');return;}
-  const users=getUsers();
-  users[user.email] = {...user,first,last,phone,birthday};
+  const user = getCurrentUser();
+  if(!user){ toast('No user is currently signed in.', 'error'); return; }
+  
+  const first = document.getElementById('profile-first').value.trim();
+  const last = document.getElementById('profile-last').value.trim();
+  const phone = document.getElementById('profile-phone').value.trim();
+  const birthday = document.getElementById('profile-birthday').value;
+  
+  const currPass = document.getElementById('profile-curr-pass').value;
+  const newPass = document.getElementById('profile-new-pass').value;
+  const confPass = document.getElementById('profile-conf-pass').value;
+
+  if(!first || !last){ toast('Please enter your first and last name.', 'error'); return; }
+  
+  // Password change logic
+  let finalPassword = user.password;
+  if (currPass || newPass || confPass) {
+     if (currPass !== user.password) { toast('Current password is incorrect.', 'error'); return; }
+     if (newPass.length < 8) { toast('New password must be at least 8 characters.', 'error'); return; }
+     if (newPass !== confPass) { toast('New passwords do not match.', 'error'); return; }
+     finalPassword = newPass;
+  }
+
+  const users = getUsers();
+  // Save updated data including the potentially new password
+  users[user.email] = { ...user, first, last, phone, birthday, password: finalPassword };
   saveUsers(users);
   setCurrentUser(user.email);
   updateAccountUI();
-  toast('Profile updated successfully!','info');
+  
+  // Clear the password fields after saving
+  document.getElementById('profile-curr-pass').value = '';
+  document.getElementById('profile-new-pass').value = '';
+  document.getElementById('profile-conf-pass').value = '';
+
+  toast('Profile updated successfully!', 'info');
 }
 
 /* ═══════════════ ACCOUNT ═══════════════ */
@@ -975,4 +1070,26 @@ function setAsDefault(type, id) {
     toast('Default updated!', 'info');
     renderDynamicAccountData(user);
   }
+}
+// NEW & UPGRADED LOGOUT FUNCTION
+function logout() {
+  clearCurrentUser();
+  
+  // Empty the shopping cart
+  cart = [];
+  updateBadge();
+  if (typeof renderCartPanel === 'function') renderCartPanel();
+  
+  // Reset the sidebar UI back to default
+  const av = document.getElementById('acc-av');
+  const uname = document.getElementById('acc-uname');
+  const email = document.getElementById('acc-email');
+  
+  if(av) av.textContent = '👤';
+  if(uname) uname.textContent = 'Guest';
+  if(email) email.textContent = 'guest@lumiere.com';
+  
+  // Show confirmation and send to login screen
+  toast('You have been logged out.', 'info');
+  go('login');
 }
