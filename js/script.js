@@ -126,8 +126,17 @@ function go(page){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   const el=document.getElementById('page-'+page);
   if(el){el.classList.add('active');window.scrollTo({top:0,behavior:'smooth'})}
+  
+  // NEW NAV LOGIC
   document.querySelectorAll('.nl').forEach(l=>l.classList.remove('active'));
-  if(navIds[page])document.getElementById(navIds[page])?.classList.add('active');
+  let activeNavId = navIds[page];
+  
+  // Force the 'My Account' tab to stay active during login/register
+  if(page === 'login' || page === 'register') {
+    activeNavId = 'nl-account';
+  }
+  
+  if(activeNavId) document.getElementById(activeNavId)?.classList.add('active');
   
   if(page==='products')renderProdGrid('prod-grid','all');
   if(page==='cart')renderCartPage();
