@@ -724,12 +724,102 @@
       >
         <div
           onclick="
-            subCatFilter('sunscreen', event.target);
+            subCatFilter('sunscreen', this);
             toggleMoreMenu();
           "
-          style="padding: 8px; cursor: pointer; hover-background: #f0f0f0"
+          style="padding: 8px; cursor: pointer; transition: background 0.2s"
+          onmouseover="this.style.background = '#fdf2f5'"
+          onmouseout="this.style.background = 'transparent'"
         >
           Sunscreen
+        </div>
+        <div
+          onclick="
+            subCatFilter('cleansers', this);
+            toggleMoreMenu();
+          "
+          style="padding: 8px; cursor: pointer; transition: background 0.2s"
+          onmouseover="this.style.background = '#fdf2f5'"
+          onmouseout="this.style.background = 'transparent'"
+        >
+          Cleansers
+        </div>
+        <div
+          onclick="
+            subCatFilter('masks', this);
+            toggleMoreMenu();
+          "
+          style="padding: 8px; cursor: pointer; transition: background 0.2s"
+          onmouseover="this.style.background = '#fdf2f5'"
+          onmouseout="this.style.background = 'transparent'"
+        >
+          Masks
+        </div>
+        <div
+          onclick="
+            subCatFilter('toners', this);
+            toggleMoreMenu();
+          "
+          style="padding: 8px; cursor: pointer; transition: background 0.2s"
+          onmouseover="this.style.background = '#fdf2f5'"
+          onmouseout="this.style.background = 'transparent'"
+        >
+          Toners
+        </div>
+        <div
+          onclick="
+            subCatFilter('bodycare', this);
+            toggleMoreMenu();
+          "
+          style="padding: 8px; cursor: pointer; transition: background 0.2s"
+          onmouseover="this.style.background = '#fdf2f5'"
+          onmouseout="this.style.background = 'transparent'"
+        >
+          Bodycare
+        </div>
+        <div
+          onclick="
+            subCatFilter('nailcare', this);
+            toggleMoreMenu();
+          "
+          style="padding: 8px; cursor: pointer; transition: background 0.2s"
+          onmouseover="this.style.background = '#fdf2f5'"
+          onmouseout="this.style.background = 'transparent'"
+        >
+          Nailcare
+        </div>
+        <div
+          onclick="
+            subCatFilter('brushes', this);
+            toggleMoreMenu();
+          "
+          style="padding: 8px; cursor: pointer; transition: background 0.2s"
+          onmouseover="this.style.background = '#fdf2f5'"
+          onmouseout="this.style.background = 'transparent'"
+        >
+          Brushes
+        </div>
+        <div
+          onclick="
+            subCatFilter('styling', this);
+            toggleMoreMenu();
+          "
+          style="padding: 8px; cursor: pointer; transition: background 0.2s"
+          onmouseover="this.style.background = '#fdf2f5'"
+          onmouseout="this.style.background = 'transparent'"
+        >
+          Styling
+        </div>
+        <div
+          onclick="
+            subCatFilter('treatment', this);
+            toggleMoreMenu();
+          "
+          style="padding: 8px; cursor: pointer; transition: background 0.2s"
+          onmouseover="this.style.background = '#fdf2f5'"
+          onmouseout="this.style.background = 'transparent'"
+        >
+          Treatment
         </div>
       </div>
       <div class="wrap">
@@ -775,7 +865,7 @@
             >
           </aside>
           <div>
-            <div class="prod-count" id="prod-count">Showing 25 products</div>
+            <div class="prod-count" id="prod-count">Showing 83 products</div>
             <div class="pg" id="prod-grid"></div>
           </div>
         </div>

@@ -105,19 +105,25 @@ let productFilters = {cat:'all', sub:null, minPrice:null, maxPrice:null, minRati
 const navIds={home:'nl-home',products:'nl-products',services:'nl-services',booking:'nl-booking',account:'nl-account'};
 function go(page){
   const currentUser = getCurrentUser();
-  if(page==='account' && !currentUser){
-    toast('Please sign in to access your account.','error');
+  
+  // NEW: Require login for Account, Checkout, and Booking pages
+  if((page==='account' || page==='checkout' || page==='booking') && !currentUser){
+    toast('Please sign in to continue with your transaction.','error');
     page='login';
   }
+  
+  // Prevent logged-in users from accessing login/register pages
   if((page==='login' || page==='register') && currentUser){
     toast('You are already signed in.','info');
     page='account';
   }
+  
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   const el=document.getElementById('page-'+page);
   if(el){el.classList.add('active');window.scrollTo({top:0,behavior:'smooth'})}
   document.querySelectorAll('.nl').forEach(l=>l.classList.remove('active'));
   if(navIds[page])document.getElementById(navIds[page])?.classList.add('active');
+  
   if(page==='products')renderProdGrid('prod-grid','all');
   if(page==='cart')renderCartPage();
   if(page==='checkout'){renderCheckoutSidebar();coGoto(1);}
@@ -169,6 +175,7 @@ function renderProdGrid(id,cat){
   const el=document.getElementById(id); if(!el) return;
   let list = products.slice();
   if(productFilters.cat && productFilters.cat!=='all') list = list.filter(p=>p.cat===productFilters.cat);
+  if(productFilters.sub) list = list.filter(p=>p.subcat===productFilters.sub);
   if(productFilters.minPrice!=null){
     list = list.filter(p=> p.price >= (productFilters.minPrice||0) && (productFilters.maxPrice===Infinity? true : p.price <= productFilters.maxPrice));
   }
@@ -206,6 +213,8 @@ function toggleAcc(hdr){hdr.closest('.acc-item').classList.toggle('open')}
 /* ═══════════════ CATEGORY / FILTER ═══════════════ */
 function catFilter(cat, el){
   productFilters.cat = cat;
+  // clear any active subcategory when switching top-level category
+  productFilters.sub = null;
   // clear tabs and category sidebar active
   document.querySelectorAll('.ct').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('#cat-list .fo').forEach(f=>f.classList.remove('active'));
@@ -213,6 +222,39 @@ function catFilter(cat, el){
   else if(el && el.classList.contains('fo')) el.classList.add('active');
   else { document.querySelector(`.ct[data-cat="${cat}"]`)?.classList.add('active'); document.querySelector(`#cat-list .fo[data-cat="${cat}"]`)?.classList.add('active'); }
   renderProdGrid('prod-grid',cat);
+}
+
+function subCatFilter(subcat, el){
+  // subcat may be 'all' to clear subcategory filter
+  productFilters.sub = (subcat==='all' ? null : subcat);
+  // when using subcat tabs, clear main category selection so subcat shows across cats
+  productFilters.cat = 'all';
+  // update active states on tabs
+  document.querySelectorAll('.ct').forEach(t=>t.classList.remove('active'));
+  if(el && el.classList && el.classList.contains('ct')){
+    el.classList.add('active');
+  } else {
+    // try to find matching tab and mark active
+    document.querySelector(`.ct[data-subcat="${subcat}"]`)?.classList.add('active');
+  }
+  // render results
+  renderProdGrid('prod-grid','all');
+}
+
+function toggleMoreMenu(trigger){
+  const menu = document.getElementById('more-menu');
+  if(!menu) return;
+  if(menu.style.display === 'block'){
+    menu.style.display = 'none';
+    return;
+  }
+  // position near trigger if provided
+  if(trigger && trigger.getBoundingClientRect){
+    const rect = trigger.getBoundingClientRect();
+    menu.style.top = (rect.bottom + window.scrollY) + 'px';
+    menu.style.left = (rect.left + window.scrollX) + 'px';
+  }
+  menu.style.display = 'block';
 }
 
 function priceFilter(range, el){
@@ -233,7 +275,7 @@ function ratingFilter(min, el){
 }
 
 function clearFilters(){
-  productFilters = {cat:'all', minPrice:null, maxPrice:null, minRating:0};
+  productFilters = {cat:'all', sub:null, minPrice:null, maxPrice:null, minRating:0};
   document.querySelectorAll('.filter-panel .fo').forEach(e=>e.classList.remove('active'));
   document.querySelector('#cat-list .fo[data-cat="all"]')?.classList.add('active');
   document.getElementById('min-price').value = '';
@@ -247,26 +289,83 @@ function clearFilters(){
 /* ═══════════════ SEARCH ═══════════════ */
 function doSearch(){
   const q=(document.getElementById('s-input').value||'').toLowerCase().trim();
-  const sort=document.getElementById('s-sort').value;
-  let prods=products.filter(p=>p.name.toLowerCase().includes(q)||p.cat.toLowerCase().includes(q)||p.brand.toLowerCase().includes(q)||p.subcat.toLowerCase().includes(q));
-  let svcs=services.filter(s=>s.name.toLowerCase().includes(q)||s.cat.toLowerCase().includes(q)||s.desc.toLowerCase().includes(q));
-  if(sFilterType==='products')svcs=[];
-  if(sFilterType==='services')prods=[];
-  if(sort==='price-asc')prods.sort((a,b)=>a.price-b.price);
-  if(sort==='price-desc')prods.sort((a,b)=>b.price-a.price);
-  if(sort==='name')prods.sort((a,b)=>a.name.localeCompare(b.name));
+  const sortSelect=document.getElementById('s-sort');
+  const sort=sortSelect ? sortSelect.value : 'default';
+  
+  // Added safety fallbacks (|| '') so it won't crash if a product is missing a property
+  let prods=products.filter(p=>
+    (p.name||'').toLowerCase().includes(q) ||
+    (p.cat||'').toLowerCase().includes(q) ||
+    (p.brand||'').toLowerCase().includes(q) ||
+    (p.subcat||'').toLowerCase().includes(q)
+  );
+  let svcs=services.filter(s=>
+    (s.name||'').toLowerCase().includes(q) ||
+    (s.cat||'').toLowerCase().includes(q) ||
+    (s.desc||'').toLowerCase().includes(q)
+  );
+  
+  if(sFilterType==='products') svcs=[];
+  if(sFilterType==='services') prods=[];
+  
+  if(sort==='price-asc') prods.sort((a,b)=>a.price-b.price);
+  if(sort==='price-desc') prods.sort((a,b)=>b.price-a.price);
+  if(sort==='name') prods.sort((a,b)=>a.name.localeCompare(b.name));
+  
   const total=prods.length+svcs.length;
-  document.getElementById('s-count').textContent=q?`${total} result${total!==1?'s':''}`:' ';
-  document.getElementById('sr-products').innerHTML=prods.map(pCard).join('');
-  document.getElementById('sr-prod-label').classList.toggle('hide',prods.length===0||!q);
-  document.getElementById('sr-services').innerHTML=svcs.map(s=>`<div class="s-service-result" onclick="go('services');showPanel('${s.cat}')"><div class="ssr-icon">${s.emoji}</div><div><div class="ssr-name">${s.name}</div><div class="ssr-meta">${s.desc}</div><div class="ssr-tag">Service · ${s.cat}</div></div><div class="ssr-price">${s.price}</div></div>`).join('');
-  document.getElementById('sr-svc-label').classList.toggle('hide',svcs.length===0||!q);
-  document.getElementById('s-empty').classList.toggle('hide',total>0||!q);
+  const countEl=document.getElementById('s-count');
+  if(countEl) countEl.textContent=q ? `${total} result${total!==1?'s':''}` : `${total} item${total!==1?'s':''}`;
+  
+  const prodWrap=document.getElementById('sr-products');
+  if(prodWrap) prodWrap.innerHTML=prods.map(pCard).join('');
+  
+  const prodLabel=document.getElementById('sr-prod-label');
+  if(prodLabel) prodLabel.classList.toggle('hide', prods.length===0); // Only hide if exactly 0 products
+  
+  const svcWrap=document.getElementById('sr-services');
+  if(svcWrap) svcWrap.innerHTML=svcs.map(s=>
+    `<div class="s-service-result" onclick="go('services');showPanel('${s.cat}')">
+      <div class="ssr-icon">${s.emoji}</div>
+      <div>
+        <div class="ssr-name">${s.name}</div>
+        <div class="ssr-meta">${s.desc}</div>
+        <div class="ssr-tag">Service · ${s.cat}</div>
+      </div>
+      <div class="ssr-price">${s.price}</div>
+    </div>`
+  ).join('');
+  
+  const svcLabel=document.getElementById('sr-svc-label');
+  if(svcLabel) svcLabel.classList.toggle('hide', svcs.length===0); // Only hide if exactly 0 services
+  
+  const emptyState=document.getElementById('s-empty');
+  if(emptyState) emptyState.classList.toggle('hide', total>0);
 }
-function qs(term){document.getElementById('s-input').value=term;doSearch()}
-function clearSearch(){document.getElementById('s-input').value='';document.getElementById('s-count').textContent='';document.getElementById('sr-products').innerHTML='';document.getElementById('sr-services').innerHTML='';document.getElementById('sr-prod-label').classList.add('hide');document.getElementById('sr-svc-label').classList.add('hide');document.getElementById('s-empty').classList.add('hide')}
-function sFilter(type,btn){sFilterType=type;document.querySelectorAll('.f-chip').forEach(c=>c.classList.remove('active'));btn.classList.add('active');doSearch()}
 
+function qs(term){
+  document.getElementById('s-input').value=term;
+  doSearch();
+}
+
+function clearSearch(){
+  // Properly reset the search view instead of blanking out the HTML
+  document.getElementById('s-input').value='';
+  sFilterType='all';
+  document.querySelectorAll('.f-chip').forEach(c=>c.classList.remove('active'));
+  const firstChip = document.querySelector('.f-chip');
+  if(firstChip) firstChip.classList.add('active'); 
+  const sortSelect = document.getElementById('s-sort');
+  if(sortSelect) sortSelect.value='default';
+  
+  doSearch(); 
+}
+
+function sFilter(type,btn){
+  sFilterType=type;
+  document.querySelectorAll('.f-chip').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  doSearch();
+}
 /* ═══════════════ SERVICES ═══════════════ */
 function showPanel(id){
   document.querySelectorAll('.svc-panel').forEach(p=>p.classList.remove('active'));
