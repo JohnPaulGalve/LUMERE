@@ -99,7 +99,7 @@ const services=[
 ];
 
 let cart=[], currentPdp=null, bkSvc='', bkSvcPrice='', sFilterType='all', coStep=1;
-let productFilters = {cat:'all', sub:null, minPrice:null, maxPrice:null, minRating:0};
+let productFilters = {cat:'all', subcat:'all', minPrice:null, maxPrice:null, minRating:0};
 
 /* ═══════════════ NAVIGATION ═══════════════ */
 const navIds={home:'nl-home',products:'nl-products',services:'nl-services',booking:'nl-booking',account:'nl-account'};
@@ -168,7 +168,11 @@ function renderProdGrid(id,cat){
   if(cat!==undefined) productFilters.cat = cat;
   const el=document.getElementById(id); if(!el) return;
   let list = products.slice();
-  if(productFilters.cat && productFilters.cat!=='all') list = list.filter(p=>p.cat===productFilters.cat);
+  if(productFilters.subcat && productFilters.subcat !== 'all'){
+    list = list.filter(p=>p.subcat===productFilters.subcat);
+  } else if(productFilters.cat && productFilters.cat!=='all'){
+    list = list.filter(p=>p.cat===productFilters.cat);
+  }
   if(productFilters.minPrice!=null){
     list = list.filter(p=> p.price >= (productFilters.minPrice||0) && (productFilters.maxPrice===Infinity? true : p.price <= productFilters.maxPrice));
   }
@@ -206,14 +210,48 @@ function toggleAcc(hdr){hdr.closest('.acc-item').classList.toggle('open')}
 /* ═══════════════ CATEGORY / FILTER ═══════════════ */
 function catFilter(cat, el){
   productFilters.cat = cat;
-  // clear tabs and category sidebar active
-  document.querySelectorAll('.ct').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('#cat-list .fo').forEach(f=>f.classList.remove('active'));
+  productFilters.subcat = 'all';
+  document.querySelectorAll('.cat-tabs .ct').forEach(t=>t.classList.remove('active'));
   if(el && el.classList.contains('ct')) el.classList.add('active');
-  else if(el && el.classList.contains('fo')) el.classList.add('active');
-  else { document.querySelector(`.ct[data-cat="${cat}"]`)?.classList.add('active'); document.querySelector(`#cat-list .fo[data-cat="${cat}"]`)?.classList.add('active'); }
-  renderProdGrid('prod-grid',cat);
+  renderProdGrid('prod-grid');
 }
+
+function subCatFilter(subcat, el){
+  if(subcat==='more'){
+    toggleMoreMenu(el);
+    return;
+  }
+  productFilters.subcat = subcat || 'all';
+  document.querySelectorAll('.cat-tabs .ct').forEach(t=>t.classList.remove('active'));
+  const activeEl = el && el.classList.contains('ct') ? el : document.querySelector(`.cat-tabs .ct[data-subcat="${subcat}"]`);
+  if(activeEl) activeEl.classList.add('active');
+  else document.querySelector('.cat-tabs .ct[data-subcat="more"]')?.classList.add('active');
+  renderProdGrid('prod-grid');
+  toast(subcat==='all' ? 'Showing all products' : `Filtered: ${subcat}`,'info');
+}
+
+function toggleMoreMenu(btn){
+  const menu = document.getElementById('more-menu');
+  if(!menu) return;
+  if(menu.style.display==='block'){
+    menu.style.display='none';
+    return;
+  }
+  const rect = btn?.getBoundingClientRect();
+  menu.style.display='block';
+  if(rect){
+    menu.style.top = `${rect.bottom + window.scrollY + 8}px`;
+    menu.style.left = `${rect.left + window.scrollX}px`;
+  }
+}
+
+document.addEventListener('click', function(e){
+  const menu = document.getElementById('more-menu');
+  if(!menu) return;
+  if(menu.style.display==='block' && !menu.contains(e.target) && !e.target.closest('[data-subcat="more"]')){
+    menu.style.display='none';
+  }
+});
 
 function priceFilter(range, el){
   document.querySelectorAll('#price-list .fo').forEach(f=>f.classList.remove('active'));
@@ -233,9 +271,10 @@ function ratingFilter(min, el){
 }
 
 function clearFilters(){
-  productFilters = {cat:'all', minPrice:null, maxPrice:null, minRating:0};
-  document.querySelectorAll('.filter-panel .fo').forEach(e=>e.classList.remove('active'));
-  document.querySelector('#cat-list .fo[data-cat="all"]')?.classList.add('active');
+  productFilters = {cat:'all', subcat:'all', minPrice:null, maxPrice:null, minRating:0};
+  document.querySelectorAll('.cat-tabs .ct').forEach(e=>e.classList.remove('active'));
+  document.querySelector('.cat-tabs .ct[data-subcat="all"]')?.classList.add('active');
+  document.getElementById('more-menu')?.style.display = 'none';
   document.getElementById('min-price').value = '';
   document.getElementById('max-price').value = '';
   document.getElementById('min-rating').value = '';
