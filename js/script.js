@@ -477,25 +477,28 @@ function coGoto(step) {
 
   const user = getCurrentUser();
 
-  // STEP 1: Auto-fill the Billing Details
+  // STEP 1: Auto-fill the Billing Details using strict IDs
   if (step === 1 && user) {
-    const billingInputs = document.querySelectorAll('#co-step-1 .finput');
+    const firstInput = document.getElementById('co-first');
+    const lastInput = document.getElementById('co-last');
+    const emailInput = document.getElementById('co-email');
+    const phoneInput = document.getElementById('co-phone');
     
-    // The first 4 inputs in your HTML are First Name, Last Name, Email, and Phone
-    if (billingInputs.length >= 4) {
-      billingInputs[0].value = user.first || '';
-      billingInputs[1].value = user.last || '';
-      billingInputs[2].value = user.email || '';
-      billingInputs[3].value = user.phone || '';
+    // Only auto-fill if the elements actually exist on the page
+    if (firstInput && lastInput && emailInput && phoneInput) {
+      firstInput.value = user.first || '';
+      lastInput.value = user.last || '';
+      emailInput.value = user.email || '';
+      phoneInput.value = user.phone || '';
       
-      // Make the email field read-only (grayed out) so they don't accidentally change it
-      billingInputs[2].readOnly = true;
-      billingInputs[2].style.opacity = '0.6';
-      billingInputs[2].style.cursor = 'not-allowed';
+      // Make the email field read-only
+      emailInput.readOnly = true;
+      emailInput.style.opacity = '0.6';
+      emailInput.style.cursor = 'not-allowed';
     }
   }
 
-  // STEP 3: Load the custom payment methods we built earlier
+  // STEP 3: Load the custom payment methods
   if (step === 3) {
     if (typeof renderCheckoutPayments === 'function') {
       renderCheckoutPayments();
