@@ -1511,28 +1511,39 @@ if (hfInit) hfInit.innerHTML = products.filter(p=>p.badge==='new').slice(0, 8).m
 const dgInit = document.getElementById('deals-grid');
 if (dgInit) dgInit.innerHTML = products.filter(p=>p.badge==='sale'||p.orig).slice(0, 8).map(pCard).join('');
 
-document.getElementById('min-price').oninput = function() { productFilters.minPrice = this.value ? +this.value : null; renderProdGrid('prod-grid'); };
-document.getElementById('max-price').oninput = function() { productFilters.maxPrice = this.value ? +this.value : Infinity; renderProdGrid('prod-grid'); };
-document.getElementById('min-rating').onchange = function() { productFilters.minRating = this.value ? +this.value : 0; renderProdGrid('prod-grid'); };
+// Setup Filters
+const minPriceEl = document.getElementById('min-price');
+if (minPriceEl) minPriceEl.oninput = function() { productFilters.minPrice = this.value ? +this.value : null; renderProdGrid('prod-grid'); };
 
+const maxPriceEl = document.getElementById('max-price');
+if (maxPriceEl) maxPriceEl.oninput = function() { productFilters.maxPrice = this.value ? +this.value : Infinity; renderProdGrid('prod-grid'); };
+
+const minRatingEl = document.getElementById('min-rating');
+if (minRatingEl) minRatingEl.onchange = function() { productFilters.minRating = this.value ? +this.value : 0; renderProdGrid('prod-grid'); };
+
+// Boot up initial data
 updateCategoryCounts();
 renderProdGrid('prod-grid','all');
 renderCartPage();
 renderWishlist();
 updateAccountUI();
+
 // Ensure booking date cannot be set in the past and render booking services
-try{ if(typeof setMinBookingDate === 'function') setMinBookingDate(); if(typeof renderBookingServices === 'function') renderBookingServices(); }catch(e){}
+try {
+    if(typeof setMinBookingDate === 'function') setMinBookingDate();
+    if(typeof renderBookingServicesByCategory === 'function') renderBookingServicesByCategory('hair');
+} catch(e) { console.error("Booking Init Error:", e); }
 
 // Phone input masking for profile phone (09XX-XXX-XXXX)
 const phoneInput = document.getElementById('profile-phone');
 if (phoneInput) {
-  phoneInput.addEventListener('input', function(e){
-    let v = e.target.value.replace(/\D/g,'');
-    let x = v.match(/(\d{0,4})(\d{0,3})(\d{0,4})/);
-    if(!x) return;
-    if(!x[2]) e.target.value = x[1];
-    else e.target.value = x[1] + '-' + x[2] + (x[3] ? '-' + x[3] : '');
-  });
+    phoneInput.addEventListener('input', function(e) {
+        let v = e.target.value.replace(/\D/g,'');
+        let x = v.match(/(\d{0,4})(\d{0,3})(\d{0,4})/);
+        if(!x) return;
+        if(!x[2]) e.target.value = x[1];
+        else e.target.value = x[1] + '-' + x[2] + (x[3] ? '-' + x[3] : '');
+    });
 }
 
 // Pre-fill homepage review form if logged in
@@ -1544,10 +1555,12 @@ if (homeNameInput) {
 
 // Render the initial home reviews
 setTimeout(() => {
+  updateStoreStats(); // <-- ADD THIS HERE
   if (typeof renderHomeReviews === 'function') {
     renderHomeReviews('all');
   }
 }, 100);
+
 // BACK TO TOP LISTENER: Make the arrow appear when scrolling down
 window.addEventListener('scroll', () => {
   const btt = document.getElementById('btt');
@@ -1743,34 +1756,95 @@ function logout() {
   go('login');
 }
 
-/* GET REVIEWS FOR PRODUCT (restored) */
+
+/* ═══════════════ REVIEWS & REACTIONS ═══════════════ */
+let productReviewsData = {};
+
+function generateRevId() { return 'rev_' + Math.random().toString(36).substr(2, 9); }
+
+let homeReviewsData = [
+  { id: generateRevId(), stars: 5, text: "Absolutely in love with my facial treatment. My skin has never looked this radiant. The staff were so professional and welcoming — I'll be back every month!", author: "Sofia Reyes", authorEmail: null, verified: true, interactedBy: {} },
+  { id: generateRevId(), stars: 5, text: "The haircare products arrived beautifully packaged and the results are incredible. My hair feels healthier than ever. Already ordered again!", author: "Camille Torres", authorEmail: null, verified: true, interactedBy: {} },
+  { id: generateRevId(), stars: 5, text: "Booking my nail appointment online was so easy. The nail art is incredibly detailed. This is my go-to salon now!", author: "Anisa Mendoza", authorEmail: null, verified: true, interactedBy: {} },
+  { id: generateRevId(), stars: 4, text: "Lumière offers such a serene and luxurious environment. Purchasing my favorite skincare lines directly from their website after a spa day is incredibly convenient.", author: "Elena Cruz", authorEmail: null, verified: true, interactedBy: {} },
+  { id: generateRevId(), stars: 5, text: "Their customer service is unmatched. I had a question about which serum to use for my sensitive skin, and the team guided me perfectly.", author: "Diana Lim", authorEmail: null, verified: true, interactedBy: {} }
+];
+
+function getStarsHtml(rating) {
+  const rounded = Math.round(Number(rating));
+  return '★'.repeat(rounded) + '☆'.repeat(5 - rounded);
+}
+
+// Automatically update the hero stats based on real reviews
+function updateStoreStats() {
+  const satEl = document.getElementById('hero-sat-rate');
+  const avgEl = document.getElementById('hero-avg-rating');
+  
+  if (!homeReviewsData || homeReviewsData.length === 0) return;
+
+  // Add up all the stars
+  let totalStars = 0;
+  homeReviewsData.forEach(r => { totalStars += r.stars; });
+
+  // Calculate average out of 5 (e.g., 4.8)
+  const average = (totalStars / homeReviewsData.length).toFixed(1);
+  
+  // Calculate percentage (e.g., 4.8 / 5 = 96%)
+  const percentage = Math.round((totalStars / (homeReviewsData.length * 5)) * 100);
+
+  // Update the HTML
+  if (satEl) satEl.textContent = percentage + '%';
+  if (avgEl) avgEl.textContent = average + '★';
+}
+
 function getReviewsForProduct(id) {
   if (!productReviewsData[id]) {
     const p = products.find(x => x.id === id);
     if (!p) return [];
+
+    const type = p.subcat || p.cat || 'product';
     const brand = p.brand || 'this brand';
-    const name = p.name || 'this item';
-    const templates = {
+    const name = p.name || 'item';
+
+    const reviewTemplates = {
       skincare: [
-        { stars: 5, text: `My skin has never felt better since using this ${name}.`, author: 'Mae Santos' },
-        { stars: 4, text: `A solid product from ${brand}. Noticeable results.`, author: 'Claire Lim' }
+        { stars: 5, text: `My skin has never felt better since using this ${name}. The texture is amazing, it absorbs perfectly, and it really delivers on its promises.`, author: "Mae Santos" },
+        { stars: 5, text: `I highly recommend this from ${brand}. I have noticed a visible difference in my complexion and overall skin health.`, author: "Claire Lim" },
+        { stars: 4, text: `A bit pricey, but this ${type} is absolutely worth it for the glowing results. It has become a permanent part of my routine.`, author: "Dina Cruz" }
       ],
       makeup: [
-        { stars: 5, text: `${name} has amazing pigmentation and lasts all day.`, author: 'Liza Perez' },
-        { stars: 4, text: `Great finish, good value for money.`, author: 'Mia Tolentino' }
+        { stars: 5, text: `The pigmentation and finish on this ${name} are incredible. It lasts all day without fading or settling into fine lines.`, author: "Liza Perez" },
+        { stars: 5, text: `Beautiful application and very easy to blend. ${brand} really outdid themselves with this specific formula.`, author: "Chloe Garcia" },
+        { stars: 4, text: `This has become a staple in my daily makeup routine. The quality of this ${type} easily rivals high-end luxury brands.`, author: "Mia Tolentino" }
       ],
       haircare: [
-        { stars: 5, text: `This ${name} transformed my hair — so soft and shiny.`, author: 'Anna Bautista' },
-        { stars: 4, text: `Works well and smells nice.`, author: 'Bea Villanueva' }
+        { stars: 5, text: `This ${type} completely transformed my hair. It feels so much softer, manageable, and noticeably healthier after just a few uses.`, author: "Anna Bautista" },
+        { stars: 4, text: `Smells amazing and does not weigh my hair down at all. An absolute must-have product from ${brand}.`, author: "Sarah Reyes" },
+        { stars: 5, text: `I always struggle with frizz and dryness, but the ${name} smoothed everything out beautifully. Highly recommended!`, author: "Bea Villanueva" }
+      ],
+      sunscreen: [
+        { stars: 5, text: `Finally a ${type} that leaves absolutely no white cast! It feels so light on the face and blends seamlessly.`, author: "Katrina Ocampo" },
+        { stars: 5, text: `I wear this ${name} under my makeup every single day and it never pills or feels greasy.`, author: "Nina Alcantara" },
+        { stars: 4, text: `Great sun protection and it does not break out my sensitive skin. ${brand} is definitely my new go-to for SPF.`, author: "Pia Martinez" }
       ],
       default: [
-        { stars: 5, text: `Absolutely love this ${name}!`, author: 'Verified Buyer' },
-        { stars: 4, text: `Very good ${name}.`, author: 'Happy Customer' }
+        { stars: 5, text: `Absolutely love this ${name}! It has completely exceeded my expectations and the overall quality is fantastic.`, author: "Verified Buyer" },
+        { stars: 4, text: `Very good ${type}. It works exactly as described and feels very premium, though delivery took a day longer than expected.`, author: "Happy Customer" },
+        { stars: 5, text: `This is my third time repurchasing this item from ${brand}. I cannot recommend it enough to my friends and family.`, author: "Loyal Client" }
       ]
     };
-    const category = p.cat || 'default';
-    const chosen = templates[category] || templates.default;
-    productReviewsData[id] = chosen.map(t => ({ id: generateRevId(), stars: t.stars, text: t.text, author: t.author, authorEmail: null, verified: true, interactedBy: {} }));
+
+    const categoryReviews = reviewTemplates[p.cat] || reviewTemplates.default;
+    
+    productReviewsData[id] = categoryReviews.map(template => ({
+      id: generateRevId(),
+      stars: template.stars,
+      text: template.text,
+      author: template.author,
+      authorEmail: null,
+      verified: true,
+      interactedBy: {}
+    }));
   }
   return productReviewsData[id];
 }
@@ -1835,6 +1909,7 @@ function deleteReview(reviewId, context, productId) {
   if (context === 'home') {
     homeReviewsData = homeReviewsData.filter(r => r.id !== reviewId);
     renderHomeReviews(document.getElementById('home-review-filter').value);
+    updateStoreStats(); // <-- ADD THIS HERE
   } else {
     productReviewsData[productId] = productReviewsData[productId].filter(r => r.id !== reviewId);
     renderProductReviews(productId, document.getElementById('pdp-review-filter').value);
@@ -1865,14 +1940,11 @@ function submitProductReview() {
   if (!currentPdp) return;
   const user = getCurrentUser();
   
-  // 1. STRICT RULE: Must be logged in to review
   if (!user) { 
     toast('Please sign in to leave a review.', 'error'); 
-    // Optional: go('login'); 
     return; 
   }
 
-  // 2. ENFORCE 1 REVIEW PER USER FOR THIS SPECIFIC PRODUCT
   const existing = getReviewsForProduct(currentPdp.id).find(r => r.authorEmail === user.email);
   if (existing) { 
     toast('You have already reviewed this product. You can delete your old review to post a new one.', 'error'); 
@@ -1886,7 +1958,6 @@ function submitProductReview() {
   
   if (!text) { toast('Please write a review before submitting.', 'error'); return; }
   
-  // Use Anonymous if checked, otherwise use their typed name or account name
   const displayName = isAnon ? 'Anonymous' : (name || `${user.first} ${user.last}`);
   
   const reviews = getReviewsForProduct(currentPdp.id);
@@ -1895,12 +1966,11 @@ function submitProductReview() {
     stars: Number(rating), 
     text: text, 
     author: displayName, 
-    authorEmail: user.email, // Save their email to track them
+    authorEmail: user.email, 
     verified: true, 
     interactedBy: {} 
   });
   
-  // Reset form
   document.getElementById('new-pdp-name').value = `${user.first} ${user.last}`;
   document.getElementById('new-pdp-anon').checked = false;
   document.getElementById('new-pdp-rating').value = '5';
@@ -1931,13 +2001,11 @@ function renderHomeReviews(filterStar = 'all') {
 function submitHomeReview() {
   const user = getCurrentUser();
   
-  // 1. STRICT RULE: Must be logged in to review
   if (!user) { 
     toast('Please sign in to leave a store review.', 'error'); 
     return; 
   }
 
-  // 2. ENFORCE 1 REVIEW PER USER FOR THE HOMEPAGE
   const existing = homeReviewsData.find(r => r.authorEmail === user.email);
   if (existing) { 
     toast('You have already left a store review. You can delete your old review to post a new one.', 'error'); 
@@ -1951,7 +2019,6 @@ function submitHomeReview() {
   
   if (!text) { toast('Please write your feedback before submitting.', 'error'); return; }
   
-  // Use Anonymous if checked, otherwise use their typed name or account name
   const displayName = isAnon ? 'Anonymous' : (name || `${user.first} ${user.last}`);
   
   homeReviewsData.unshift({ 
@@ -1959,12 +2026,11 @@ function submitHomeReview() {
     stars: Number(rating), 
     text: text, 
     author: displayName, 
-    authorEmail: user.email, // Save their email to track them
+    authorEmail: user.email, 
     verified: true, 
     interactedBy: {} 
   });
   
-  // Reset form
   document.getElementById('new-home-name').value = `${user.first} ${user.last}`;
   document.getElementById('new-home-anon').checked = false;
   document.getElementById('new-home-rating').value = '5';
@@ -1972,6 +2038,7 @@ function submitHomeReview() {
   document.getElementById('home-review-filter').value = 'all';
   
   renderHomeReviews('all');
+  updateStoreStats(); // <-- PASTE IT RIGHT HERE
   toast('Thank you for sharing your experience!', 'info');
 }
 
