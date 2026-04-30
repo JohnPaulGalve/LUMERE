@@ -88,7 +88,9 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
 .nl{padding:8px 13px;border-radius:var(--r);font-size:13px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink);cursor:pointer;transition:all var(--ease);position:relative}
 .nl:hover{color:var(--ink);background:rgba(0,0,0,.04)}
 .nl.active{color:var(--ink);font-weight:600}
-.nl.active::after{content:'';position:absolute;bottom:-2px;left:13px;right:13px;height:2px;background:var(--ink);border-radius:1px}
+.nl::after{content:'';position:absolute;bottom:-4px;left:50%;width:0;height:2px;background:var(--ink);border-radius:1px;transform:translateX(-50%);transition:width .28s cubic-bezier(.4,0,.2,1),left .28s cubic-bezier(.4,0,.2,1),opacity .28s}
+.nl.active::after{width:70%}
+.nl:hover::after{width:30%;opacity:.6}
 .nav-right{display:flex;align-items:center;gap:6px}
 .nav-search-wrap{display:flex;align-items:center;border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;background:var(--warm);width:200px;transition:border-color var(--ease)}
 .nav-search-wrap:focus-within{border-color:var(--ink)}
@@ -227,8 +229,29 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
 }
 
 /* Reviews */
-.rev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-.rev-card{padding:28px;border-radius:var(--r);transition:box-shadow var(--ease)}
+/* Reviews - Horizontal Scroll Carousel */
+.rev-grid {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 24px; /* Space for the scrollbar */
+  scroll-snap-type: x mandatory; /* Makes it snap cleanly to each card */
+  scrollbar-width: thin;
+}
+
+/* Style the scrollbar to match your theme */
+.rev-grid::-webkit-scrollbar { height: 8px; }
+.rev-grid::-webkit-scrollbar-track { background: var(--pink-soft); border-radius: 10px; }
+.rev-grid::-webkit-scrollbar-thumb { background: var(--ink); border-radius: 10px; }
+
+.rev-card {
+  flex: 0 0 calc(33.333% - 14px); /* Shows exactly 3 cards at a time */
+  scroll-snap-align: start;
+  padding: 28px;
+  border-radius: var(--r);
+  transition: box-shadow var(--ease);
+  min-width: 280px; /* Prevents cards from getting too squished */
+}
 .rev-card:hover{box-shadow:var(--shadow-lg) !important;}
 .rev-stars{color:var(--ink);font-size:14px;margin-bottom:12px}
 .rev-text{font-size:14px;color:var(--ink);line-height:1.75;font-style:italic;margin-bottom:18px}
@@ -477,7 +500,7 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
 .pay-acts{display:flex;gap:7px}
 
 /* Wishlist */
-.wishlist-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;align-items:start;min-width:0;}
+.wishlist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px;align-items:start;min-width:0;}
 
 /* Addresses */
 
@@ -686,7 +709,7 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
   .hero-btns{flex-direction:column}
   .hero-btns .btn{width:100%;justify-content:center}
   .pg{grid-template-columns:1fr 1fr;gap:12px}
-  .rev-grid{grid-template-columns:1fr}
+  .rev-card { flex: 0 0 100%; }
   .footer-grid{grid-template-columns:1fr}
   .cat-tabs,.svc-tabs{padding:0 18px}
   .prod-layout{grid-template-columns:1fr}

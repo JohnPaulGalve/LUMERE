@@ -98,7 +98,7 @@ const services=[
   {emoji:'🛁',name:'Aromatherapy',cat:'spa',price:'from ₱1,500',desc:'Essential oil body treatment'},
 ];
 
-let cart=[], checkoutCart=[], isBuyNowCheckout=false, currentPdp=null, bkSvc='', bkSvcPrice='', sFilterType='all', coStep=1;
+let cart=[], checkoutCart=[], isBuyNowCheckout=false, currentPdp=null, bkSelectedServices = [], sFilterType='all', coStep=1, searchTimeout=null;
 let productFilters = {cat:'all', sub:null, minPrice:null, maxPrice:null, minRating:0};
 
 /* ═══════════════ NAVIGATION ═══════════════ */
@@ -134,9 +134,10 @@ function go(page) {
   }
 
   // FIX 3: Force a total data refresh the exact moment you enter the Account page!
-  if (page === 'account' && currentUser) {
-      if (typeof updateAccountUI === 'function') updateAccountUI();
-      if (typeof renderWishlist === 'function') renderWishlist();
+    if (page === 'account' && currentUser) {
+        if (typeof updateAccountCounts === 'function') updateAccountCounts();
+        if (typeof renderWishlist === 'function') renderWishlist();
+        setMinBookingDate();
   }
 
   // 4. Actual Page Routing
@@ -157,8 +158,8 @@ function go(page) {
 }
 function toggleMob(){document.getElementById('mob-menu').classList.toggle('open');document.getElementById('burger').classList.toggle('open')}
 function closeMob(){document.getElementById('mob-menu').classList.remove('open');document.getElementById('burger').classList.remove('open')}
-function navSearch(){const q=document.getElementById('nav-q').value.trim();if(q){document.getElementById('s-input').value=q;go('search');doSearch()}}
-function mobSearch(){const q=document.getElementById('mob-q').value.trim();if(q){document.getElementById('s-input').value=q;go('search');doSearch()}}
+function navSearch(){const q=document.getElementById('nav-q').value.trim();if(q){document.getElementById('s-input').value=q;go('search');executeSearch()}}
+function mobSearch(){const q=document.getElementById('mob-q').value.trim();if(q){document.getElementById('s-input').value=q;go('search');executeSearch()}}
 
 /* ═══════════════ PRODUCT CARD ═══════════════ */
 function pCard(p){
@@ -193,7 +194,8 @@ function pCard(p){
 }
 function updateCategoryCounts(){
   const counts = products.reduce((acc,p)=>{acc[p.cat]=(acc[p.cat]||0)+1;return acc},{})
-  // Update sidebar counts (data-cat)
+    // Update sidebar counts (data-cat) and set minimum booking date
+    setMinBookingDate();
   document.querySelectorAll('#cat-list .fo').forEach(el=>{
     const cat = el.getAttribute('data-cat');
     if(!cat || cat==='all'){ el.querySelector('.fo-cnt').textContent = products.length; }
@@ -365,7 +367,7 @@ function clearFilters(){
 }
 
 /* ═══════════════ SEARCH ═══════════════ */
-function doSearch(){
+function executeSearch(){
   const q=(document.getElementById('s-input').value||'').toLowerCase().trim();
   const sortSelect=document.getElementById('s-sort');
   const sort=sortSelect ? sortSelect.value : 'default';
@@ -420,6 +422,13 @@ function doSearch(){
   if(emptyState) emptyState.classList.toggle('hide', total>0);
 }
 
+function doSearch(){
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    executeSearch();
+  }, 300);
+}
+
 function qs(term){
   document.getElementById('s-input').value=term;
   doSearch();
@@ -445,9 +454,24 @@ function sFilter(type,btn){
   doSearch();
 }
 /* ═══════════════ SERVICES ═══════════════ */
-function showPanel(id){
-  document.querySelectorAll('.svc-panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.stab').forEach(t=>t.classList.remove('active'));
+function showPanel(id) {
+  // 1. Clear cart to prevent stacking across categories
+  if (typeof bkSelectedServices !== 'undefined') {
+      bkSelectedServices = [];
+      if (typeof updateBkTotal === 'function') updateBkTotal();
+  }
+  
+  // 2. Remove highlights from all service rows
+  document.querySelectorAll('.svc-mi').forEach(el => {
+      el.classList.remove('selected');
+      el.style.background = 'transparent';
+      el.style.borderLeft = 'none';
+      el.style.paddingLeft = '0';
+  });
+  
+  // 3. Standard tab switching
+  document.querySelectorAll('.svc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.stab').forEach(t => t.classList.remove('active'));
   document.getElementById('panel-'+id)?.classList.add('active');
   document.getElementById('st-'+id)?.classList.add('active');
 }
@@ -770,7 +794,8 @@ function placeOrder(){
        id: '#LUM-' + Math.floor(Math.random() * 10000).toString().padStart(4, '0'),
        date: new Date().toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'}),
        items: checkoutCart.map(i => `${i.name} (x${i.qty})`).join(', '),
-       total: sub + ship
+       total: sub + ship,
+       status: 'Processing' // <-- ADD THIS LINE
     };
     
     if(!user.orders) user.orders = [];
@@ -799,52 +824,244 @@ function placeOrder(){
 }
 
 /* ═══════════════ BOOKING ═══════════════ */
-function selectBkSvc(name,price){bkSvc=name;bkSvcPrice=price;document.querySelectorAll('.svc-opt').forEach(o=>o.classList.remove('selected'));document.querySelectorAll('.svc-opt').forEach(o=>{if(o.querySelector('.so-name').textContent===name.replace(/^[^ ]+ /,''))o.classList.add('selected')});bkNext(2)}
-function selOpt(el,name,price){document.querySelectorAll('.svc-opt').forEach(o=>o.classList.remove('selected'));el.classList.add('selected');bkSvc=name;bkSvcPrice=price}
-function bkNext(step){
-  if(step===2&&!bkSvc){toast('Please select a service','error');return}
-  if(step===3){const d=document.getElementById('bk-date').value;const t=document.getElementById('bk-time').value;const n=document.getElementById('bk-notes').value;document.getElementById('c-svc').textContent=bkSvc;document.getElementById('c-date').textContent=d||'Not selected';document.getElementById('c-time').textContent=t;document.getElementById('c-price').textContent=bkSvcPrice;document.getElementById('c-notes').textContent=n||'None'}
-  [1,2,3].forEach(s=>{document.getElementById('bk-'+s).classList.toggle('hide',s!==step);const bs=document.getElementById('bks-'+s);bs.classList.toggle('active',s===step);bs.classList.toggle('done',s<step)});
+
+// bkSelectedServices (array) is declared globally and holds selected service objects
+
+// 1. Prevent booking dates in the past
+function setMinBookingDate() {
+  const dateInput = document.getElementById('bk-date');
+  if (dateInput) {
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.min = today;
+    if (dateInput.value && dateInput.value < today) dateInput.value = today;
+  }
 }
-function confirmBk(){
-  const user = getCurrentUser();
-  if(!user) { 
-    toast('Please sign in to book an appointment.', 'error'); 
-    go('login'); 
-    return; 
+
+// 2. Render the specific services from the `services` data array
+// A complete dictionary of your services to populate the tabs
+const salonServicesMenu = {
+  'hair': [
+    {name: 'Haircut & Styling', price: 350, emoji: '✂️'},
+    {name: 'Hair Coloring', price: 1200, emoji: '✂️'},
+    {name: 'Keratin Treatment', price: 2500, emoji: '✂️'},
+    {name: 'Hair Spa', price: 800, emoji: '✂️'},
+    {name: 'Scalp Treatment', price: 650, emoji: '✂️'}
+  ],
+  'facial': [
+    {name: 'Classic Deep Cleanse', price: 600, emoji: '🌸'},
+    {name: 'Brightening Vitamin C', price: 950, emoji: '🌸'},
+    {name: 'Anti-Aging Collagen', price: 1400, emoji: '🌸'},
+    {name: 'Hydration Boost', price: 800, emoji: '🌸'},
+    {name: 'Acne Control', price: 750, emoji: '🌸'}
+  ],
+  'nails': [
+    {name: 'Classic Manicure', price: 250, emoji: '💅'},
+    {name: 'Gel Manicure', price: 550, emoji: '💅'},
+    {name: 'Pedicure & Foot Spa', price: 400, emoji: '💅'},
+    {name: 'Nail Art Design', price: 150, emoji: '💅'},
+    {name: 'Nail Extensions', price: 900, emoji: '💅'}
+  ],
+  'spa': [
+    {name: 'Swedish Massage', price: 1200, emoji: '🧖'},
+    {name: 'Aromatherapy', price: 1500, emoji: '🧖'},
+    {name: 'Body Scrub & Wrap', price: 1800, emoji: '🧖'},
+    {name: 'Hot Stone Therapy', price: 1600, emoji: '🧖'}
+  ]
+};
+
+let currentBookingCategory = 'hair';
+
+// 2. Toggle a service on or off
+function toggleBkSvc(name, priceStr, icon, el) {
+  const cleanName = name.replace(/^[^ ]+ /, ''); 
+  const numPrice = parseInt(String(priceStr).replace(/[^0-9]/g, '')) || 0;
+  
+  const existingIndex = bkSelectedServices.findIndex(s => s.name === cleanName);
+  
+  if (existingIndex > -1) {
+    bkSelectedServices.splice(existingIndex, 1); // Remove
+    if(el) {
+        el.classList.remove('selected');
+        if(el.classList.contains('svc-mi')) {
+            el.style.background = "transparent";
+            el.style.borderLeft = "none";
+            el.style.paddingLeft = "0";
+        }
+    }
+  } else {
+    bkSelectedServices.push({name: cleanName, price: numPrice, icon: icon}); // Add
+    if(el) {
+        el.classList.add('selected');
+        if(el.classList.contains('svc-mi')) {
+            el.style.background = "var(--pink-bg)";
+            el.style.borderLeft = "3px solid var(--ink)";
+            el.style.paddingLeft = "12px";
+            el.style.transition = "all 0.2s ease";
+        }
+    }
   }
   
+  updateBkTotal();
+  // Re-render the grid if we are on the booking page
+  if (document.getElementById('page-booking').classList.contains('active')) {
+      renderBookingServicesByCategory(currentBookingCategory); 
+  }
+}
+
+// 5. Render specific category in the Booking Grid
+// 5. Render specific category in the Booking Grid
+function renderBookingServicesByCategory(cat, el) {
+  if (el) {
+     // Swap active styling on tabs
+     document.querySelectorAll('#bk-cat-tabs .stab').forEach(t => t.classList.remove('active'));
+     el.classList.add('active');
+  }
+  
+  currentBookingCategory = cat || 'hair';
+  const grid = document.getElementById('bk-services-grid');
+  if(!grid) return;
+  
+  const servicesToShow = salonServicesMenu[currentBookingCategory] || [];
+  
+  grid.innerHTML = servicesToShow.map(s => {
+    // Check if the service is already in our cart array
+    const isSelected = bkSelectedServices.some(item => item.name === s.name);
+    return `
+      <div class="svc-opt ${isSelected ? 'selected' : ''}" onclick="toggleBkSvc('${s.name}', '${s.price}', '${s.emoji}', this)">
+        <div class="so-icon">${s.emoji}</div>
+        <div class="so-name">${s.name}</div>
+        <div class="so-price">₱${s.price.toLocaleString()}</div>
+      </div>
+    `;
+  }).join('');
+}
+// 4. Update the running total
+function updateBkTotal() {
+  const total = bkSelectedServices.reduce((sum, s) => sum + (s.price || 0), 0);
+  const totalEl = document.getElementById('bk-running-total');
+  if (totalEl) totalEl.textContent = '₱' + total.toLocaleString();
+
+  const cartList = document.getElementById('bk-cart-list');
+  if (cartList) {
+    if (bkSelectedServices.length === 0) {
+      cartList.innerHTML = '<div style="color: var(--muted); font-size: 14px;">No services selected yet.</div>';
+    } else {
+      cartList.innerHTML = bkSelectedServices.map(s => `
+        <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--pink-soft);">
+           <div style="font-weight: 600; color: var(--ink);">${s.icon} ${s.name}</div>
+           <div style="color: var(--ink); font-weight: 500;">₱${s.price.toLocaleString()}</div>
+        </div>
+      `).join('');
+    }
+  }
+}
+
+// Proceed from Services page to Booking page with current selections
+function proceedToBooking() {
+  if (bkSelectedServices.length === 0) {
+    toast('Please select at least one service first.', 'error');
+    return;
+  }
+  go('booking');
+  if (typeof renderBookingServices === 'function') renderBookingServices();
+  bkNext(1);
+}
+
+// 5. Deep Link Handler (from the Services page)
+function selectBkSvc(name, priceStr) {
+  // Clear current selection and add this single item
+  bkSelectedServices = [];
+  const raw = String(name || '').trim();
+  const cleanName = raw.replace(/^\s*[^\w\s]+\s*/, '');
+  const numPrice = parseInt(String(priceStr).replace(/[^0-9]/g, '')) || 0;
+  const icon = raw.match(/^\s*([^\w\s]+)/) ? raw.match(/^\s*([^\w\s]+)/)[1] : '✨';
+
+  bkSelectedServices.push({name: cleanName, price: numPrice, icon: icon});
+
+  renderBookingServices();
+  bkNext(2);
+}
+
+// 6. Navigation between steps
+function bkNext(step) {
+  if (step === 2 && bkSelectedServices.length === 0) {
+    toast('Please select at least one service', 'error');
+    return;
+  }
+  
+  if (step === 3) {
+    const d = document.getElementById('bk-date').value;
+    const t = document.getElementById('bk-time').value;
+    const s = document.getElementById('bk-stylist').value; 
+    const n = document.getElementById('bk-notes').value;
+    
+    if(!d) {
+        toast('Please select a preferred date.', 'error');
+        return;
+    }
+    
+    // Stack the selected services neatly for the UI
+    const svcHtml = bkSelectedServices.map(svc => `<div>${svc.icon} ${svc.name}</div>`).join('');
+    const total = bkSelectedServices.reduce((sum, svc) => sum + (svc.price || 0), 0);
+    
+    document.getElementById('c-svc').innerHTML = svcHtml;
+    document.getElementById('c-stylist').textContent = s; 
+    document.getElementById('c-date').textContent = new Date(d).toLocaleDateString('en-US', {weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'});
+    document.getElementById('c-time').textContent = t;
+    document.getElementById('c-price').textContent = '₱' + total.toLocaleString();
+    document.getElementById('c-notes').textContent = n || 'None';
+  }
+  
+  [1, 2, 3].forEach(s => {
+    const el = document.getElementById('bk-' + s);
+    const bs = document.getElementById('bks-' + s);
+    if(el) el.classList.toggle('hide', s !== step);
+    if(bs) { bs.classList.toggle('active', s === step); bs.classList.toggle('done', s < step); }
+  });
+}
+
+// 7. Save the Booking
+function confirmBk() {
+  const user = getCurrentUser();
+  if(!user) { toast('Please sign in to book an appointment.', 'error'); go('login'); return; }
+  
   const btn = document.getElementById('confirm-bk-btn');
-  btn.textContent = 'Confirming…';
-  btn.disabled = true;
+  if(btn){ btn.textContent = 'Confirming…'; btn.disabled = true; }
   
   setTimeout(() => {
-    // Generate Booking Data
     const dateInput = document.getElementById('bk-date').value;
-    const formattedDate = dateInput ? new Date(dateInput).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'}) : 'Not selected';
-    const time = document.getElementById('bk-time').value;
-    const icon = bkSvc.split(' ')[0] || '✨'; 
-    const serviceName = bkSvc.replace(/^[^ ]+ /, '') || 'Service'; 
+    const formattedDate = dateInput ? new Date(dateInput).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) : 'Not selected';
+    const time = document.getElementById('bk-time').value || 'Not selected';
+    const stylist = (document.getElementById('bk-stylist') || {}).value || 'No Preference';
+
+    // Join names with a comma for the dashboard view
+    const serviceNames = bkSelectedServices.map(s => s.name).join(', '); 
+    const mainIcon = bkSelectedServices[0]?.icon || '✨';
     
-    // Save to User
     if(!user.bookings) user.bookings = [];
-    user.bookings.push({ icon, service: serviceName, date: formattedDate, time });
+    user.bookings.push({ 
+        icon: mainIcon, 
+        service: serviceNames, 
+        date: formattedDate, 
+        time: time,
+        stylist: stylist
+    });
     saveUserData(user);
   
-    btn.textContent = 'Confirm Appointment';
-    btn.disabled = false;
+    if(btn){ btn.textContent = 'Confirm Appointment'; btn.disabled = false; }
     
     toast('Appointment confirmed! 🎉', 'info');
     go('account');
     
-    // Render the new booking on the dashboard
     renderDynamicAccountData(user);
     setTimeout(() => showTab('bookings'), 300);
     
-    // Reset booking form
-    bkSvc = ''; 
-    bkSvcPrice = '';
-    document.querySelectorAll('.svc-opt').forEach(o => o.classList.remove('selected'));
+    // Hard Reset
+    bkSelectedServices = []; 
+    renderBookingServices();
+    const dateEl = document.getElementById('bk-date'); if(dateEl) dateEl.value = '';
+    const notesEl = document.getElementById('bk-notes'); if(notesEl) notesEl.value = '';
+    const bs = document.getElementById('bk-stylist'); if(bs) bs.value = 'No Preference';
     bkNext(1);
   }, 1500);
 }
@@ -971,16 +1188,47 @@ function renderDynamicAccountData(user) {
     `;
   }
 
+
   // 2. Update Orders
   const ordersTbody = document.querySelector('#tab-orders tbody');
   const dashTbody = document.querySelector('#tab-dashboard tbody');
+  
   if(orders.length === 0) {
     if(ordersTbody) ordersTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted)">No orders found.</td></tr>';
     if(dashTbody) dashTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted)">No recent orders.</td></tr>';
   } else {
-    const rows = orders.map(o => `<tr><td style="font-weight: 500">${o.id}</td><td>${o.date}</td><td>${o.items}</td><td style="color: var(--terra)">₱${o.total.toLocaleString()}</td><td><span class="sp sp-proc">Processing</span></td><td><button class="detail-btn" onclick="toast('Order is being prepared', 'info')">Status</button></td></tr>`).reverse().join('');
+    // Logic for the main Orders table
+    const rows = orders.map(o => {
+      const status = o.status || 'Processing';
+      let spClass = 'sp-proc';
+      let actionHTML = '';
+
+      if (status === 'Processing') {
+        actionHTML = `<button class="btn btn-ghost btn-sm" onclick="cancelOrder('${o.id}')" style="color: var(--terra); padding: 4px 8px;">Cancel</button>`;
+      } else if (status === 'Cancelled') {
+        spClass = 'sp-ship'; 
+        actionHTML = `<span style="font-size: 11px; color: var(--muted);">Cancelled</span>`;
+      } else {
+        spClass = 'sp-done';
+        actionHTML = `<button class="reorder-btn" onclick="toast('Items added to cart!', 'info')">Re-order</button>`;
+      }
+
+      return `<tr><td style="font-weight: 500">${o.id}</td><td>${o.date}</td><td>${o.items}</td><td style="color: var(--terra)">₱${o.total.toLocaleString()}</td><td><span class="sp ${spClass}" ${status === 'Cancelled' ? 'style="background:var(--border);color:var(--muted);"' : ''}>${status.toUpperCase()}</span></td><td>${actionHTML}</td></tr>`;
+    }).reverse().join('');
+    
     if(ordersTbody) ordersTbody.innerHTML = rows;
-    const dashRows = orders.slice(-2).reverse().map(o => `<tr><td style="font-weight: 500">${o.id}</td><td>${o.date}</td><td style="color: var(--terra)">₱${o.total.toLocaleString()}</td><td><span class="sp sp-proc">Processing</span></td><td></td></tr>`).join('');
+
+    // FIXED: Dynamic status logic applied to the Dashboard table
+    const dashRows = orders.slice(-2).reverse().map(o => {
+      const status = o.status || 'Processing';
+      let spClass = 'sp-proc';
+      
+      if (status === 'Cancelled') spClass = 'sp-ship';
+      if (status === 'Delivered') spClass = 'sp-done';
+
+      return `<tr><td style="font-weight: 500">${o.id}</td><td>${o.date}</td><td style="color: var(--terra)">₱${o.total.toLocaleString()}</td><td><span class="sp ${spClass}" ${status === 'Cancelled' ? 'style="background:var(--border);color:var(--muted);"' : ''}>${status.toUpperCase()}</span></td><td></td></tr>`;
+    }).join('');
+    
     if(dashTbody) dashTbody.innerHTML = dashRows;
   }
 
@@ -1272,6 +1520,20 @@ renderProdGrid('prod-grid','all');
 renderCartPage();
 renderWishlist();
 updateAccountUI();
+// Ensure booking date cannot be set in the past and render booking services
+try{ if(typeof setMinBookingDate === 'function') setMinBookingDate(); if(typeof renderBookingServices === 'function') renderBookingServices(); }catch(e){}
+
+// Phone input masking for profile phone (09XX-XXX-XXXX)
+const phoneInput = document.getElementById('profile-phone');
+if (phoneInput) {
+  phoneInput.addEventListener('input', function(e){
+    let v = e.target.value.replace(/\D/g,'');
+    let x = v.match(/(\d{0,4})(\d{0,3})(\d{0,4})/);
+    if(!x) return;
+    if(!x[2]) e.target.value = x[1];
+    else e.target.value = x[1] + '-' + x[2] + (x[3] ? '-' + x[3] : '');
+  });
+}
 
 // Pre-fill homepage review form if logged in
 const homeNameInput = document.getElementById('new-home-name');
@@ -1281,10 +1543,11 @@ if (homeNameInput) {
 }
 
 // Render the initial home reviews
-if (typeof renderHomeReviews === 'function') {
-  renderHomeReviews('all');
-}
-
+setTimeout(() => {
+  if (typeof renderHomeReviews === 'function') {
+    renderHomeReviews('all');
+  }
+}, 100);
 // BACK TO TOP LISTENER: Make the arrow appear when scrolling down
 window.addEventListener('scroll', () => {
   const btt = document.getElementById('btt');
@@ -1304,7 +1567,20 @@ function saveUserData(user) {
 }
 
 
-
+function cancelOrder(orderId) {
+  if (!confirm('Are you sure you want to cancel this order?')) return;
+  
+  const user = getCurrentUser();
+  if (!user || !user.orders) return;
+  
+  const orderIndex = user.orders.findIndex(o => o.id === orderId);
+  if (orderIndex > -1) {
+    user.orders[orderIndex].status = 'Cancelled';
+    saveUserData(user);
+    toast('Order cancelled successfully.', 'info');
+    renderDynamicAccountData(user); // Refresh the table instantly
+  }
+}
 // Payment Handlers
 // NEW: Toggles between Bank and GCash fields
 function togglePayFields() {
@@ -1467,49 +1743,38 @@ function logout() {
   go('login');
 }
 
-/* ═══════════════ REVIEWS & REACTIONS ═══════════════ */
-let productReviewsData = {};
-
-// Helper to create unique IDs for reviews
-function generateRevId() { return 'rev_' + Math.random().toString(36).substr(2, 9); }
-
-// RESTORED: Your original homepage reviews!
-let homeReviewsData = [
-  { id: generateRevId(), stars: 5, text: "Absolutely in love with my facial treatment. My skin has never looked this radiant. The staff were so professional and welcoming — I'll be back every month!", author: "Sofia Reyes", authorEmail: null, verified: true, interactedBy: {} },
-  { id: generateRevId(), stars: 5, text: "The haircare products arrived beautifully packaged and the results are incredible. My hair feels healthier than ever. Already ordered again!", author: "Camille Torres", authorEmail: null, verified: true, interactedBy: {} },
-  { id: generateRevId(), stars: 5, text: "Booking my nail appointment online was so easy. The nail art is incredibly detailed. This is my go-to salon now!", author: "Anisa Mendoza", authorEmail: null, verified: true, interactedBy: {} }
-];
-
-function getStarsHtml(rating) {
-  const rounded = Math.round(Number(rating));
-  return '★'.repeat(rounded) + '☆'.repeat(5 - rounded);
-}
-
+/* GET REVIEWS FOR PRODUCT (restored) */
 function getReviewsForProduct(id) {
   if (!productReviewsData[id]) {
-    // RESTORED: Your original specific reviews for the Vitamin C Serum (ID: 1)
-    if (id === 1) {
-        productReviewsData[id] = [
-          { id: generateRevId(), stars: 5, text: "This serum transformed my skin in just 3 weeks. The glow is unreal!", author: "Mae Santos", authorEmail: null, verified: true, interactedBy: {} },
-          { id: generateRevId(), stars: 5, text: "Lightweight and absorbs instantly. Best product I've ever used.", author: "Claire Lim", authorEmail: null, verified: true, interactedBy: {} },
-          { id: generateRevId(), stars: 4, text: "Faded my hyperpigmentation noticeably. Highly recommend!", author: "Dina Cruz", authorEmail: null, verified: true, interactedBy: {} }
-        ];
-    } else {
-        // DYNAMIC FALLBACK: For the other 80+ products in your catalog
-        const p = products.find(x => x.id === id);
-        const type = p ? (p.subcat || p.cat) : 'product';
-        const brand = p ? p.brand : 'this brand';
-        productReviewsData[id] = [
-          { id: generateRevId(), stars: 5, text: `Absolutely love this ${type}! It has completely exceeded my expectations and the quality from ${brand} is amazing.`, author: "Verified Buyer", authorEmail: null, verified: true, interactedBy: {} },
-          { id: generateRevId(), stars: 4, text: `Very good ${type}. It works exactly as described and feels very premium, though delivery took a day longer than expected.`, author: "Happy Customer", authorEmail: null, verified: true, interactedBy: {} },
-          { id: generateRevId(), stars: 5, text: `This is my third time repurchasing this ${type}. I cannot recommend it enough to my friends.`, author: "Loyal Client", authorEmail: null, verified: true, interactedBy: {} }
-        ];
-    }
+    const p = products.find(x => x.id === id);
+    if (!p) return [];
+    const brand = p.brand || 'this brand';
+    const name = p.name || 'this item';
+    const templates = {
+      skincare: [
+        { stars: 5, text: `My skin has never felt better since using this ${name}.`, author: 'Mae Santos' },
+        { stars: 4, text: `A solid product from ${brand}. Noticeable results.`, author: 'Claire Lim' }
+      ],
+      makeup: [
+        { stars: 5, text: `${name} has amazing pigmentation and lasts all day.`, author: 'Liza Perez' },
+        { stars: 4, text: `Great finish, good value for money.`, author: 'Mia Tolentino' }
+      ],
+      haircare: [
+        { stars: 5, text: `This ${name} transformed my hair — so soft and shiny.`, author: 'Anna Bautista' },
+        { stars: 4, text: `Works well and smells nice.`, author: 'Bea Villanueva' }
+      ],
+      default: [
+        { stars: 5, text: `Absolutely love this ${name}!`, author: 'Verified Buyer' },
+        { stars: 4, text: `Very good ${name}.`, author: 'Happy Customer' }
+      ]
+    };
+    const category = p.cat || 'default';
+    const chosen = templates[category] || templates.default;
+    productReviewsData[id] = chosen.map(t => ({ id: generateRevId(), stars: t.stars, text: t.text, author: t.author, authorEmail: null, verified: true, interactedBy: {} }));
   }
   return productReviewsData[id];
 }
 
-// Reusable Review Card Builder (Handles Thumbs Up/Down and Delete)
 function buildReviewCardHTML(r, context, productId = null) {
   const user = getCurrentUser();
   let likes = 0, dislikes = 0, myReaction = null;
@@ -1544,7 +1809,6 @@ function buildReviewCardHTML(r, context, productId = null) {
   `;
 }
 
-// Interaction Handlers
 function handleReaction(reviewId, type, context, productId) {
   const user = getCurrentUser();
   if (!user) { toast('Please sign in to react to reviews.', 'error'); return; }
@@ -1555,7 +1819,6 @@ function handleReaction(reviewId, type, context, productId) {
 
   if (!review.interactedBy) review.interactedBy = {};
   
-  // Toggle off if they click the same button again, otherwise set it
   if (review.interactedBy[user.email] === type) {
     delete review.interactedBy[user.email]; 
   } else {
@@ -1579,7 +1842,6 @@ function deleteReview(reviewId, context, productId) {
   toast('Review deleted successfully.', 'info');
 }
 
-// Product Reviews Rendering & Submit
 function filterProductReviews() {
   if (!currentPdp) return;
   renderProductReviews(currentPdp.id, document.getElementById('pdp-review-filter').value);
@@ -1603,10 +1865,18 @@ function submitProductReview() {
   if (!currentPdp) return;
   const user = getCurrentUser();
   
-  // Enforce 1 review per user rule
-  if (user) {
-    const existing = getReviewsForProduct(currentPdp.id).find(r => r.authorEmail === user.email);
-    if (existing) { toast('You have already reviewed this product.', 'error'); return; }
+  // 1. STRICT RULE: Must be logged in to review
+  if (!user) { 
+    toast('Please sign in to leave a review.', 'error'); 
+    // Optional: go('login'); 
+    return; 
+  }
+
+  // 2. ENFORCE 1 REVIEW PER USER FOR THIS SPECIFIC PRODUCT
+  const existing = getReviewsForProduct(currentPdp.id).find(r => r.authorEmail === user.email);
+  if (existing) { 
+    toast('You have already reviewed this product. You can delete your old review to post a new one.', 'error'); 
+    return; 
   }
 
   let name = document.getElementById('new-pdp-name').value.trim();
@@ -1615,16 +1885,23 @@ function submitProductReview() {
   const text = document.getElementById('new-pdp-text').value.trim();
   
   if (!text) { toast('Please write a review before submitting.', 'error'); return; }
-  if (isAnon) name = 'Anonymous';
-  else if (!name) name = user ? `${user.first} ${user.last}` : 'Guest User';
+  
+  // Use Anonymous if checked, otherwise use their typed name or account name
+  const displayName = isAnon ? 'Anonymous' : (name || `${user.first} ${user.last}`);
   
   const reviews = getReviewsForProduct(currentPdp.id);
   reviews.unshift({ 
-    id: generateRevId(), stars: Number(rating), text: text, author: name, 
-    authorEmail: user ? user.email : null, verified: user ? true : false, interactedBy: {} 
+    id: generateRevId(), 
+    stars: Number(rating), 
+    text: text, 
+    author: displayName, 
+    authorEmail: user.email, // Save their email to track them
+    verified: true, 
+    interactedBy: {} 
   });
   
-  document.getElementById('new-pdp-name').value = user ? `${user.first} ${user.last}` : '';
+  // Reset form
+  document.getElementById('new-pdp-name').value = `${user.first} ${user.last}`;
   document.getElementById('new-pdp-anon').checked = false;
   document.getElementById('new-pdp-rating').value = '5';
   document.getElementById('new-pdp-text').value = '';
@@ -1634,7 +1911,6 @@ function submitProductReview() {
   toast('Thank you for your product review!', 'info');
 }
 
-// Homepage Reviews Rendering & Submit
 function filterHomeReviews() { renderHomeReviews(document.getElementById('home-review-filter').value); }
 
 function renderHomeReviews(filterStar = 'all') {
@@ -1655,10 +1931,17 @@ function renderHomeReviews(filterStar = 'all') {
 function submitHomeReview() {
   const user = getCurrentUser();
   
-  // Enforce 1 review per user rule
-  if (user) {
-    const existing = homeReviewsData.find(r => r.authorEmail === user.email);
-    if (existing) { toast('You have already left a store review.', 'error'); return; }
+  // 1. STRICT RULE: Must be logged in to review
+  if (!user) { 
+    toast('Please sign in to leave a store review.', 'error'); 
+    return; 
+  }
+
+  // 2. ENFORCE 1 REVIEW PER USER FOR THE HOMEPAGE
+  const existing = homeReviewsData.find(r => r.authorEmail === user.email);
+  if (existing) { 
+    toast('You have already left a store review. You can delete your old review to post a new one.', 'error'); 
+    return; 
   }
 
   let name = document.getElementById('new-home-name').value.trim();
@@ -1667,15 +1950,22 @@ function submitHomeReview() {
   const text = document.getElementById('new-home-text').value.trim();
   
   if (!text) { toast('Please write your feedback before submitting.', 'error'); return; }
-  if (isAnon) name = 'Anonymous';
-  else if (!name) name = user ? `${user.first} ${user.last}` : 'Guest User';
+  
+  // Use Anonymous if checked, otherwise use their typed name or account name
+  const displayName = isAnon ? 'Anonymous' : (name || `${user.first} ${user.last}`);
   
   homeReviewsData.unshift({ 
-    id: generateRevId(), stars: Number(rating), text: text, author: name, 
-    authorEmail: user ? user.email : null, verified: user ? true : false, interactedBy: {} 
+    id: generateRevId(), 
+    stars: Number(rating), 
+    text: text, 
+    author: displayName, 
+    authorEmail: user.email, // Save their email to track them
+    verified: true, 
+    interactedBy: {} 
   });
   
-  document.getElementById('new-home-name').value = user ? `${user.first} ${user.last}` : '';
+  // Reset form
+  document.getElementById('new-home-name').value = `${user.first} ${user.last}`;
   document.getElementById('new-home-anon').checked = false;
   document.getElementById('new-home-rating').value = '5';
   document.getElementById('new-home-text').value = '';
@@ -1685,7 +1975,6 @@ function submitHomeReview() {
   toast('Thank you for sharing your experience!', 'info');
 }
 
-// Auto-fill and Initial Render Trigger
 const originalOpenPdp = openPdp;
 openPdp = function(id) {
   originalOpenPdp(id);

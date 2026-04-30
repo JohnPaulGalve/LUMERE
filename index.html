@@ -89,94 +89,6 @@
       </div>
     </nav>
 
-    <!-- Mobile menu -->
-    <div class="mob-menu" id="mob-menu">
-      <div class="mob-search">
-        <input
-          id="mob-q"
-          type="text"
-          placeholder="Search products or services…"
-          onkeydown="if (event.key === 'Enter') mobSearch();"
-        /><button class="btn btn-primary btn-sm" onclick="mobSearch()">
-          Go
-        </button>
-      </div>
-      <div
-        class="mob-link"
-        onclick="
-          go('home');
-          closeMob();
-        "
-      >
-        Home
-      </div>
-      <div
-        class="mob-link"
-        onclick="
-          go('products');
-          closeMob();
-        "
-      >
-        Products
-      </div>
-      <div
-        class="mob-link"
-        onclick="
-          go('services');
-          closeMob();
-        "
-      >
-        Services
-      </div>
-      <div
-        class="mob-link"
-        onclick="
-          go('booking');
-          closeMob();
-        "
-      >
-        Book Appointment
-      </div>
-      <div
-        class="mob-link"
-        onclick="
-          go('account');
-          closeMob();
-        "
-      >
-        My Account
-      </div>
-      <div
-        class="mob-link"
-        onclick="
-          toggleCart();
-          closeMob();
-        "
-      >
-        Cart
-      </div>
-      <div class="mob-actions">
-        <button
-          class="btn btn-primary btn-full btn-lg"
-          onclick="
-            go('booking');
-            closeMob();
-          "
-        >
-          Book Now
-        </button>
-        <button
-          class="btn btn-outline btn-full btn-lg"
-          onclick="
-            go('products');
-            closeMob();
-          "
-        >
-          Shop Now
-        </button>
-      </div>
-    </div>
-
     <!-- ══════════════════════════════════════════
      HOME PAGE
      Nodes: Hero/Banner, Shop Now CTA, Book Service CTA,
@@ -1073,57 +985,45 @@
                 products.
               </p>
               <div class="svc-menu">
-                <div class="svc-mi">
+                <div class="svc-mi" style="cursor: pointer;" onclick="toggleBkSvc('Haircut & Styling', '350', '✂️', this)">
                   <div>
                     <div class="smi-n">Haircut &amp; Styling</div>
                     <div class="smi-d">Any length · 45–60 min</div>
                   </div>
                   <div class="smi-p">from ₱350</div>
                 </div>
-                <div class="svc-mi">
+                <div class="svc-mi" style="cursor: pointer;" onclick="toggleBkSvc('Hair Coloring', '1200', '✂️', this)">
                   <div>
                     <div class="smi-n">Hair Coloring</div>
-                    <div class="smi-d">
-                      Single color or highlights · 90–120 min
-                    </div>
+                    <div class="smi-d">Single color or highlights · 90–120 min</div>
                   </div>
                   <div class="smi-p">from ₱1,200</div>
                 </div>
-                <div class="svc-mi">
+                <div class="svc-mi" style="cursor: pointer;" onclick="toggleBkSvc('Keratin Treatment', '2500', '✂️', this)">
                   <div>
                     <div class="smi-n">Keratin Treatment</div>
-                    <div class="smi-d">
-                      Smoothing &amp; frizz control · 120–180 min
-                    </div>
+                    <div class="smi-d">Smoothing &amp; frizz control · 120–180 min</div>
                   </div>
                   <div class="smi-p">from ₱2,500</div>
                 </div>
-                <div class="svc-mi">
+                <div class="svc-mi" style="cursor: pointer;" onclick="toggleBkSvc('Hair Spa', '800', '✂️', this)">
                   <div>
                     <div class="smi-n">Hair Spa</div>
                     <div class="smi-d">Deep conditioning · 60 min</div>
                   </div>
                   <div class="smi-p">from ₱800</div>
                 </div>
-                <div class="svc-mi">
+                <div class="svc-mi" style="cursor: pointer;" onclick="toggleBkSvc('Scalp Treatment', '650', '✂️', this)">
                   <div>
                     <div class="smi-n">Scalp Treatment</div>
-                    <div class="smi-d">
-                      Hydrating &amp; dandruff control · 45 min
-                    </div>
+                    <div class="smi-d">Hydrating &amp; dandruff control · 45 min</div>
                   </div>
                   <div class="smi-p">from ₱650</div>
                 </div>
               </div>
-              <!-- Book Appointment CTA (sitemap node) -->
-              <button
-                class="btn btn-primary btn-lg"
-                onclick="
-                  go('booking');
-                  selectBkSvc('✂️ Hair', 'from ₱350');
-                "
-              >
-                Book Appointment
+              <!-- Updated Button -->
+              <button class="btn btn-primary btn-lg" onclick="proceedToBooking()">
+                Continue to Booking →
               </button>
             </div>
             <div class="svc-visual">✂️</div>
@@ -1140,51 +1040,28 @@
                 facials.
               </p>
               <div class="svc-menu">
-                <div class="svc-mi">
-                  <div>
-                    <div class="smi-n">Classic Deep Cleanse</div>
-                    <div class="smi-d">All skin types · 60 min</div>
-                  </div>
+                <div class="svc-mi" style="cursor: pointer;" onclick="toggleBkSvc('Classic Deep Cleanse', '600', '🌸', this)">
+                  <div><div class="smi-n">Classic Deep Cleanse</div><div class="smi-d">All skin types · 60 min</div></div>
                   <div class="smi-p">from ₱600</div>
                 </div>
-                <div class="svc-mi">
-                  <div>
-                    <div class="smi-n">Brightening Vitamin C</div>
-                    <div class="smi-d">Dull &amp; uneven skin · 75 min</div>
-                  </div>
+                <div class="svc-mi" style="cursor: pointer;" onclick="toggleBkSvc('Brightening Vitamin C', '950', '🌸', this)">
+                  <div><div class="smi-n">Brightening Vitamin C</div><div class="smi-d">Dull &amp; uneven skin · 75 min</div></div>
                   <div class="smi-p">from ₱950</div>
                 </div>
-                <div class="svc-mi">
-                  <div>
-                    <div class="smi-n">Anti-Aging Collagen</div>
-                    <div class="smi-d">Mature skin · 90 min</div>
-                  </div>
+                <div class="svc-mi" style="cursor: pointer;" onclick="toggleBkSvc('Anti-Aging Collagen', '1400', '🌸', this)">
+                  <div><div class="smi-n">Anti-Aging Collagen</div><div class="smi-d">Mature skin · 90 min</div></div>
                   <div class="smi-p">from ₱1,400</div>
                 </div>
-                <div class="svc-mi">
-                  <div>
-                    <div class="smi-n">Hydration Boost</div>
-                    <div class="smi-d">Dry &amp; sensitive skin · 60 min</div>
-                  </div>
+                <div class="svc-mi" style="cursor: pointer;" onclick="toggleBkSvc('Hydration Boost', '800', '🌸', this)">
+                  <div><div class="smi-n">Hydration Boost</div><div class="smi-d">Dry &amp; sensitive skin · 60 min</div></div>
                   <div class="smi-p">from ₱800</div>
                 </div>
-                <div class="svc-mi">
-                  <div>
-                    <div class="smi-n">Acne Control</div>
-                    <div class="smi-d">Oily &amp; acne-prone · 75 min</div>
-                  </div>
+                <div class="svc-mi" style="cursor: pointer;" onclick="toggleBkSvc('Acne Control', '750', '🌸', this)">
+                  <div><div class="smi-n">Acne Control</div><div class="smi-d">Oily &amp; acne-prone · 75 min</div></div>
                   <div class="smi-p">from ₱750</div>
                 </div>
               </div>
-              <button
-                class="btn btn-primary btn-lg"
-                onclick="
-                  go('booking');
-                  selectBkSvc('🌸 Facial', 'from ₱600');
-                "
-              >
-                Book Appointment
-              </button>
+              <button class="btn btn-primary btn-lg" onclick="proceedToBooking()">Continue to Booking →</button>
             </div>
             <div class="svc-visual">🌸</div>
           </div>
@@ -1199,51 +1076,28 @@
                 systems — for nails that are beautiful and long-lasting.
               </p>
               <div class="svc-menu">
-                <div class="svc-mi">
-                  <div>
-                    <div class="smi-n">Classic Manicure</div>
-                    <div class="smi-d">Shape, buff &amp; polish · 30 min</div>
-                  </div>
+                <div class="svc-mi" style="cursor: pointer;" onclick="toggleBkSvc('Classic Manicure', '250', '💅', this)">
+                  <div><div class="smi-n">Classic Manicure</div><div class="smi-d">Shape, buff &amp; polish · 30 min</div></div>
                   <div class="smi-p">from ₱250</div>
                 </div>
-                <div class="svc-mi">
-                  <div>
-                    <div class="smi-n">Gel Manicure</div>
-                    <div class="smi-d">Long-lasting gel · 45 min</div>
-                  </div>
+                <div class="svc-mi" style="cursor: pointer;" onclick="toggleBkSvc('Gel Manicure', '550', '💅', this)">
+                  <div><div class="smi-n">Gel Manicure</div><div class="smi-d">Long-lasting gel · 45 min</div></div>
                   <div class="smi-p">from ₱550</div>
                 </div>
-                <div class="svc-mi">
-                  <div>
-                    <div class="smi-n">Pedicure &amp; Foot Spa</div>
-                    <div class="smi-d">Relaxing foot treatment · 60 min</div>
-                  </div>
+                <div class="svc-mi" style="cursor: pointer;" onclick="toggleBkSvc('Pedicure & Foot Spa', '400', '💅', this)">
+                  <div><div class="smi-n">Pedicure &amp; Foot Spa</div><div class="smi-d">Relaxing foot treatment · 60 min</div></div>
                   <div class="smi-p">from ₱400</div>
                 </div>
-                <div class="svc-mi">
-                  <div>
-                    <div class="smi-n">Nail Art Design</div>
-                    <div class="smi-d">Custom designs · 20–30 min add-on</div>
-                  </div>
-                  <div class="smi-p">from ₱150/nail</div>
+                <div class="svc-mi" style="cursor: pointer;" onclick="toggleBkSvc('Nail Art Design', '150', '💅', this)">
+                  <div><div class="smi-n">Nail Art Design</div><div class="smi-d">Custom designs · 20–30 min add-on</div></div>
+                  <div class="smi-p">from ₱150</div>
                 </div>
-                <div class="svc-mi">
-                  <div>
-                    <div class="smi-n">Nail Extensions</div>
-                    <div class="smi-d">Acrylic or gel · 90 min</div>
-                  </div>
+                <div class="svc-mi" style="cursor: pointer;" onclick="toggleBkSvc('Nail Extensions', '900', '💅', this)">
+                  <div><div class="smi-n">Nail Extensions</div><div class="smi-d">Acrylic or gel · 90 min</div></div>
                   <div class="smi-p">from ₱900</div>
                 </div>
               </div>
-              <button
-                class="btn btn-primary btn-lg"
-                onclick="
-                  go('booking');
-                  selectBkSvc('💅 Nails', 'from ₱250');
-                "
-              >
-                Book Appointment
-              </button>
+              <button class="btn btn-primary btn-lg" onclick="proceedToBooking()">Continue to Booking →</button>
             </div>
             <div class="svc-visual">💅</div>
           </div>
@@ -1258,44 +1112,24 @@
                 rejuvenate and restore your inner glow.
               </p>
               <div class="svc-menu">
-                <div class="svc-mi">
-                  <div>
-                    <div class="smi-n">Swedish Massage</div>
-                    <div class="smi-d">Full body · 60–90 min</div>
-                  </div>
+                <div class="svc-mi" style="cursor: pointer;" onclick="toggleBkSvc('Swedish Massage', '1200', '🧖', this)">
+                  <div><div class="smi-n">Swedish Massage</div><div class="smi-d">Full body · 60–90 min</div></div>
                   <div class="smi-p">from ₱1,200</div>
                 </div>
-                <div class="svc-mi">
-                  <div>
-                    <div class="smi-n">Aromatherapy</div>
-                    <div class="smi-d">Essential oils · 90 min</div>
-                  </div>
+                <div class="svc-mi" style="cursor: pointer;" onclick="toggleBkSvc('Aromatherapy', '1500', '🧖', this)">
+                  <div><div class="smi-n">Aromatherapy</div><div class="smi-d">Essential oils · 90 min</div></div>
                   <div class="smi-p">from ₱1,500</div>
                 </div>
-                <div class="svc-mi">
-                  <div>
-                    <div class="smi-n">Body Scrub &amp; Wrap</div>
-                    <div class="smi-d">Exfoliate &amp; nourish · 75 min</div>
-                  </div>
+                <div class="svc-mi" style="cursor: pointer;" onclick="toggleBkSvc('Body Scrub & Wrap', '1800', '🧖', this)">
+                  <div><div class="smi-n">Body Scrub &amp; Wrap</div><div class="smi-d">Exfoliate &amp; nourish · 75 min</div></div>
                   <div class="smi-p">from ₱1,800</div>
                 </div>
-                <div class="svc-mi">
-                  <div>
-                    <div class="smi-n">Hot Stone Therapy</div>
-                    <div class="smi-d">Deep muscle relief · 90 min</div>
-                  </div>
+                <div class="svc-mi" style="cursor: pointer;" onclick="toggleBkSvc('Hot Stone Therapy', '1600', '🧖', this)">
+                  <div><div class="smi-n">Hot Stone Therapy</div><div class="smi-d">Deep muscle relief · 90 min</div></div>
                   <div class="smi-p">from ₱1,600</div>
                 </div>
               </div>
-              <button
-                class="btn btn-primary btn-lg"
-                onclick="
-                  go('booking');
-                  selectBkSvc('🧖 Spa', 'from ₱1,200');
-                "
-              >
-                Book Appointment
-              </button>
+              <button class="btn btn-primary btn-lg" onclick="proceedToBooking()">Continue to Booking →</button>
             </div>
             <div class="svc-visual">🧖</div>
           </div>
@@ -2345,67 +2179,40 @@
         </div>
         <!-- Step 1: Service Details -->
         <div id="bk-1" class="bk-step">
-          <h2>Choose a Service</h2>
-          <div class="svc-opt-grid">
-            <div class="svc-opt" onclick="selOpt(this, '✂️ Hair', 'from ₱350')">
-              <div class="so-icon">✂️</div>
-              <div class="so-name">Hair</div>
-              <div class="so-price">from ₱350</div>
-            </div>
-            <div
-              class="svc-opt"
-              onclick="selOpt(this, '🌸 Facial', 'from ₱600')"
-            >
-              <div class="so-icon">🌸</div>
-              <div class="so-name">Facial</div>
-              <div class="so-price">from ₱600</div>
-            </div>
-            <div
-              class="svc-opt"
-              onclick="selOpt(this, '💅 Nails', 'from ₱250')"
-            >
-              <div class="so-icon">💅</div>
-              <div class="so-name">Nails</div>
-              <div class="so-price">from ₱250</div>
-            </div>
-            <div
-              class="svc-opt"
-              onclick="selOpt(this, '🧖 Spa', 'from ₱1,200')"
-            >
-              <div class="so-icon">🧖</div>
-              <div class="so-name">Spa</div>
-              <div class="so-price">from ₱1,200</div>
-            </div>
-            <div
-              class="svc-opt"
-              onclick="selOpt(this, '💄 Makeup', 'from ₱900')"
-            >
-              <div class="so-icon">💄</div>
-              <div class="so-name">Makeup</div>
-              <div class="so-price">from ₱900</div>
-            </div>
-            <div
-              class="svc-opt"
-              onclick="selOpt(this, '🛁 Body Scrub', 'from ₱700')"
-            >
-              <div class="so-icon">🛁</div>
-              <div class="so-name">Body Scrub</div>
-              <div class="so-price">from ₱700</div>
-            </div>
+          <h2>Your Selected Services</h2>
+          
+          <div id="bk-cart-list" style="margin-bottom: 24px; border: 1px solid var(--pink-soft); padding: 16px 20px; border-radius: var(--r); background: var(--warm);">
+             <div style="color: var(--muted); font-size: 14px;">No services selected yet.</div>
           </div>
-          <div class="bk-nav">
-            <button class="btn btn-primary" onclick="bkNext(2)">
-              Continue →
-            </button>
+          
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
+             <div style="font-size: 14px; color: var(--muted); font-weight: 500;">
+               Estimated Total: <span id="bk-running-total" style="font-size: 24px; font-weight: 600; color: var(--ink); margin-left: 8px;">₱0</span>
+             </div>
+             <button class="btn btn-primary btn-lg" onclick="bkNext(2)">Proceed to Schedule →</button>
           </div>
+
+          <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 28px; margin-bottom: 20px;">Want to add another service?</h3>
+          
+          <!-- NEW: Category Tabs for Booking -->
+          <div class="svc-tabs" id="bk-cat-tabs" style="margin-bottom: 20px; padding: 0; background: transparent;">
+            <div class="stab active" onclick="renderBookingServicesByCategory('hair', this)"><span class="stab-em">✂️</span> Hair</div>
+            <div class="stab" onclick="renderBookingServicesByCategory('facial', this)"><span class="stab-em">🌸</span> Facial</div>
+            <div class="stab" onclick="renderBookingServicesByCategory('nails', this)"><span class="stab-em">💅</span> Nails</div>
+            <div class="stab" onclick="renderBookingServicesByCategory('spa', this)"><span class="stab-em">🧖</span> Spa</div>
+          </div>
+          
+          <!-- This grid now dynamically changes based on the tab clicked -->
+          <div class="svc-opt-grid" id="bk-services-grid"></div>
         </div>
         <!-- Step 2: Book Appointment (schedule) -->
         <div id="bk-2" class="bk-step hide">
           <h2>Schedule Your Appointment</h2>
           <div class="frow" style="margin-bottom: 16px">
             <div class="fg">
-              <label class="flabel">Preferred Date</label
-              ><input type="date" class="finput" id="bk-date" />
+              <label class="flabel">Preferred Date</label>
+              <!-- 'min' will be set via JS to prevent past bookings -->
+              <input type="date" class="finput" id="bk-date" />
             </div>
             <div class="fg">
               <label class="flabel">Preferred Time</label>
@@ -2420,68 +2227,65 @@
               </select>
             </div>
           </div>
+
+          <!-- Stylist Selection -->
+          <div class="fg" style="margin-bottom: 16px">
+            <label class="flabel">Preferred Professional</label>
+            <select class="finput" id="bk-stylist">
+              <option value="No Preference">No Preference (First Available)</option>
+              <option value="Ana (Master Stylist)">Ana (Master Stylist)</option>
+              <option value="Maria (Lead Esthetician)">Maria (Lead Esthetician)</option>
+              <option value="Sarah (Nail Tech)">Sarah (Nail Tech)</option>
+              <option value="David (Massage Therapist)">David (Massage Therapist)</option>
+            </select>
+          </div>
+
           <div class="fg" style="margin-bottom: 24px">
-            <label class="flabel">Special Requests</label
-            ><textarea
-              class="finput"
-              id="bk-notes"
-              rows="3"
-              placeholder="Any notes for your therapist…"
-              style="resize: vertical"
-            ></textarea>
+            <label class="flabel">Special Requests</label>
+            <textarea class="finput" id="bk-notes" rows="3" placeholder="Any notes for your therapist…" style="resize: vertical"></textarea>
           </div>
           <div class="bk-nav">
-            <button class="btn btn-ghost" onclick="bkNext(1)">← Back</button
-            ><button class="btn btn-primary" onclick="bkNext(3)">
-              Continue →
-            </button>
+            <button class="btn btn-ghost" onclick="bkNext(1)">← Back</button>
+            <button class="btn btn-primary" onclick="bkNext(3)">Continue →</button>
           </div>
         </div>
         <!-- Step 3: Confirm -->
         <div id="bk-3" class="bk-step hide">
           <h2>Confirm Appointment</h2>
           <div class="confirm-summary">
-            <div class="cr">
-              <span class="cr-l">Service</span
-              ><span class="cr-v" id="c-svc">—</span>
+            <div class="cr" style="align-items: flex-start;">
+              <span class="cr-l">Services</span>
+              <span class="cr-v" id="c-svc" style="text-align: right; line-height: 1.6;">—</span>
             </div>
             <div class="cr">
-              <span class="cr-l">Date</span
-              ><span class="cr-v" id="c-date">—</span>
+              <span class="cr-l">Professional</span><span class="cr-v" id="c-stylist">—</span>
             </div>
             <div class="cr">
-              <span class="cr-l">Time</span
-              ><span class="cr-v" id="c-time">—</span>
+              <span class="cr-l">Date</span><span class="cr-v" id="c-date">—</span>
             </div>
             <div class="cr">
-              <span class="cr-l">Location</span
-              ><span class="cr-v">Lumière Salon, BGC Taguig</span>
+              <span class="cr-l">Time</span><span class="cr-v" id="c-time">—</span>
             </div>
             <div class="cr">
-              <span class="cr-l">Estimated Price</span
-              ><span class="cr-v" style="color: var(--terra)" id="c-price"
-                >—</span
-              >
+              <span class="cr-l">Location</span><span class="cr-v">Lumière Salon, BGC Taguig</span>
             </div>
             <div class="cr">
-              <span class="cr-l">Special Requests</span
-              ><span
-                class="cr-v"
-                id="c-notes"
-                style="font-size: 13px; font-weight: 400; color: var(--mid)"
-                >None</span
-              >
+              <span class="cr-l">Estimated Price</span><span class="cr-v" style="color: var(--terra)" id="c-price">—</span>
+            </div>
+            <div class="cr">
+              <span class="cr-l">Special Requests</span>
+              <span class="cr-v" id="c-notes" style="font-size: 13px; font-weight: 400; color: var(--mid)">None</span>
             </div>
           </div>
+
+          <!-- Reassurance & Cancellation Policy -->
+          <div style="text-align: center; margin-bottom: 20px; font-size: 12px; color: var(--muted); background: var(--pink-bg); padding: 12px; border-radius: var(--r);">
+            <strong>Free Cancellation</strong> up to 24 hours before your appointment.
+          </div>
+
           <div class="bk-nav">
             <button class="btn btn-ghost" onclick="bkNext(2)">← Back</button>
-            <button
-              class="btn btn-primary btn-lg"
-              id="confirm-bk-btn"
-              onclick="confirmBk()"
-            >
-              Confirm Appointment
-            </button>
+            <button class="btn btn-primary btn-lg" id="confirm-bk-btn" onclick="confirmBk()">Confirm Appointment</button>
           </div>
         </div>
       </div>
