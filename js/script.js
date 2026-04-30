@@ -858,43 +858,49 @@ function renderDynamicAccountData(user) {
      paymentTab.innerHTML = html;
   }
 }
-function saveProfileChanges(){
+function saveProfileDetails() {
   const user = getCurrentUser();
   if(!user){ toast('No user is currently signed in.', 'error'); return; }
-  
+
   const first = document.getElementById('profile-first').value.trim();
   const last = document.getElementById('profile-last').value.trim();
   const phone = document.getElementById('profile-phone').value.trim();
   const birthday = document.getElementById('profile-birthday').value;
-  
+
+  if(!first || !last){ toast('Please enter your first and last name.', 'error'); return; }
+
+  const users = getUsers();
+  users[user.email] = { ...user, first, last, phone, birthday };
+  saveUsers(users);
+  setCurrentUser(user.email);
+  updateAccountUI();
+
+  toast('Profile details updated successfully!', 'info');
+}
+
+function updatePassword() {
+  const user = getCurrentUser();
+  if(!user){ toast('No user is currently signed in.', 'error'); return; }
+
   const currPass = document.getElementById('profile-curr-pass').value;
   const newPass = document.getElementById('profile-new-pass').value;
   const confPass = document.getElementById('profile-conf-pass').value;
 
-  if(!first || !last){ toast('Please enter your first and last name.', 'error'); return; }
-  
-  // Password change logic
-  let finalPassword = user.password;
-  if (currPass || newPass || confPass) {
-     if (currPass !== user.password) { toast('Current password is incorrect.', 'error'); return; }
-     if (newPass.length < 8) { toast('New password must be at least 8 characters.', 'error'); return; }
-     if (newPass !== confPass) { toast('New passwords do not match.', 'error'); return; }
-     finalPassword = newPass;
-  }
+  if (!currPass || !newPass || !confPass) { toast('Please fill in all password fields.', 'error'); return; }
+  if (currPass !== user.password) { toast('Current password is incorrect.', 'error'); return; }
+  if (newPass.length < 8) { toast('New password must be at least 8 characters.', 'error'); return; }
+  if (newPass !== confPass) { toast('New passwords do not match.', 'error'); return; }
 
   const users = getUsers();
-  // Save updated data including the potentially new password
-  users[user.email] = { ...user, first, last, phone, birthday, password: finalPassword };
+  users[user.email] = { ...user, password: newPass };
   saveUsers(users);
   setCurrentUser(user.email);
-  updateAccountUI();
-  
-  // Clear the password fields after saving
+
   document.getElementById('profile-curr-pass').value = '';
   document.getElementById('profile-new-pass').value = '';
   document.getElementById('profile-conf-pass').value = '';
 
-  toast('Profile updated successfully!', 'info');
+  toast('Password updated successfully!', 'info');
 }
 
 /* ═══════════════ ACCOUNT ═══════════════ */
