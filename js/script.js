@@ -460,32 +460,46 @@ function chQtyPage(id,d){const it=cart.find(i=>i.id===id);if(it){it.qty+=d;if(it
 function rmCartPage(id){cart=cart.filter(i=>i.id!==id);updateBadge();renderCartPage();toast('Item removed','error')}
 
 /* ═══════════════ CHECKOUT ═══════════════ */
-function coGoto(step){
-  coStep=step;
-  [1,2,3,4].forEach(s=>{
-    document.getElementById('co-step-'+s)?.classList.toggle('hide',s!==step);
-    const cs=document.getElementById('cos-'+s);if(!cs)return;
-    cs.classList.toggle('active',s===step);cs.classList.toggle('done',s<step);
+function coGoto(step) {
+  coStep = step;
+  
+  // Handle the visual steps and hiding/showing the sections
+  [1, 2, 3, 4].forEach(s => {
+    const stepEl = document.getElementById('co-step-' + s);
+    if (stepEl) stepEl.classList.toggle('hide', s !== step);
+    
+    const cs = document.getElementById('cos-' + s);
+    if (cs) {
+      cs.classList.toggle('active', s === step);
+      cs.classList.toggle('done', s < step);
+    }
   });
 
-  // Step 1: Auto-fill Billing Details from the user's account
-  if(step === 1) {
-    const user = getCurrentUser();
-    if(user) {
-      const billingInputs = document.querySelectorAll('#co-step-1 .finput');
-      // The first 4 inputs in Step 1 are First Name, Last Name, Email, and Phone
-      if(billingInputs.length >= 4) {
-        billingInputs[0].value = user.first || '';
-        billingInputs[1].value = user.last || '';
-        billingInputs[2].value = user.email || '';
-        billingInputs[3].value = user.phone || '';
-      }
+  const user = getCurrentUser();
+
+  // STEP 1: Auto-fill the Billing Details
+  if (step === 1 && user) {
+    const billingInputs = document.querySelectorAll('#co-step-1 .finput');
+    
+    // The first 4 inputs in your HTML are First Name, Last Name, Email, and Phone
+    if (billingInputs.length >= 4) {
+      billingInputs[0].value = user.first || '';
+      billingInputs[1].value = user.last || '';
+      billingInputs[2].value = user.email || '';
+      billingInputs[3].value = user.phone || '';
+      
+      // Make the email field read-only (grayed out) so they don't accidentally change it
+      billingInputs[2].readOnly = true;
+      billingInputs[2].style.opacity = '0.6';
+      billingInputs[2].style.cursor = 'not-allowed';
     }
   }
 
-  // Step 3: Render dynamic payments when the user reaches Step 3
-  if(step === 3) {
-    renderCheckoutPayments();
+  // STEP 3: Load the custom payment methods we built earlier
+  if (step === 3) {
+    if (typeof renderCheckoutPayments === 'function') {
+      renderCheckoutPayments();
+    }
   }
 }
 
