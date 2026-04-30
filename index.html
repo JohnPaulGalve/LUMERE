@@ -424,61 +424,51 @@
         </div>
       </section>
 
-      <!-- Reviews -->
       <section class="sec" style="background: var(--cream)">
         <div class="wrap">
-          <div class="sec-hdr">
-            <div class="eyebrow">Happy Clients</div>
-            <h2 class="sec-title">Our <em>Reviews</em></h2>
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 44px;">
+            <div>
+              <div class="eyebrow">Store Experience</div>
+              <h2 class="sec-title">Our <em>Reviews</em></h2>
+            </div>
+            <select id="home-review-filter" class="finput" style="width: auto; padding: 8px 12px; background: var(--warm);" onchange="filterHomeReviews()">
+              <option value="all">All Ratings</option>
+              <option value="5">5 Stars</option>
+              <option value="4">4 Stars</option>
+              <option value="3">3 Stars</option>
+              <option value="2">2 Stars</option>
+              <option value="1">1 Star</option>
+            </select>
           </div>
-          <div class="rev-grid">
-            <div class="rev-card">
-              <div class="rev-stars">★★★★★</div>
-              <p class="rev-text">
-                "Absolutely in love with my facial treatment. My skin has never
-                looked this radiant. The staff were so professional and
-                welcoming — I'll be back every month!"
-              </p>
-              <div class="rev-author">
-                <div class="rev-av">👩</div>
-                <div>
-                  <div class="rev-name">Sofia Reyes</div>
-                  <div class="rev-meta">March 2025</div>
-                  <div class="rev-verified">✓ Verified Client</div>
-                </div>
+          
+          <div class="rev-grid" id="home-reviews-container"></div>
+          
+          <div style="margin-top: 40px; background: var(--warm); padding: 24px; border-radius: var(--r); border: 1px solid var(--border); max-width: 600px; margin-left: auto; margin-right: auto;">
+            <div style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: var(--ink);">Share Your Experience</div>
+            <div class="frow">
+              <div class="fg">
+                <label class="flabel">Your Name</label>
+                <input type="text" id="new-home-name" class="finput" placeholder="Your Name">
+                <label style="display:flex; align-items:center; gap:8px; margin-top:8px; font-size:13px; cursor:pointer;">
+                  <input type="checkbox" id="new-home-anon" style="accent-color: var(--ink);"> Post anonymously
+                </label>
+              </div>
+              <div class="fg">
+                <label class="flabel">Rating</label>
+                <select id="new-home-rating" class="finput">
+                  <option value="5">★★★★★ (5/5)</option>
+                  <option value="4">★★★★☆ (4/5)</option>
+                  <option value="3">★★★☆☆ (3/5)</option>
+                  <option value="2">★★☆☆☆ (2/5)</option>
+                  <option value="1">★☆☆☆☆ (1/5)</option>
+                </select>
               </div>
             </div>
-            <div class="rev-card">
-              <div class="rev-stars">★★★★★</div>
-              <p class="rev-text">
-                "The haircare products arrived beautifully packaged and the
-                results are incredible. My hair feels healthier than ever.
-                Already ordered again!"
-              </p>
-              <div class="rev-author">
-                <div class="rev-av">👱‍♀️</div>
-                <div>
-                  <div class="rev-name">Camille Torres</div>
-                  <div class="rev-meta">February 2025</div>
-                  <div class="rev-verified">✓ Verified Purchase</div>
-                </div>
-              </div>
+            <div class="fg">
+              <label class="flabel">Your Feedback</label>
+              <textarea id="new-home-text" class="finput" rows="3" placeholder="Tell us about your visit or overall shopping experience..." style="resize: vertical;"></textarea>
             </div>
-            <div class="rev-card">
-              <div class="rev-stars">★★★★★</div>
-              <p class="rev-text">
-                "Booking my nail appointment online was so easy. The nail art is
-                incredibly detailed. This is my go-to salon now!"
-              </p>
-              <div class="rev-author">
-                <div class="rev-av">🧕</div>
-                <div>
-                  <div class="rev-name">Anisa Mendoza</div>
-                  <div class="rev-meta">January 2025</div>
-                  <div class="rev-verified">✓ Verified Client</div>
-                </div>
-              </div>
-            </div>
+            <button class="btn btn-primary btn-full" onclick="submitHomeReview()">Submit Feedback</button>
           </div>
         </div>
       </section>
@@ -989,53 +979,48 @@
           </div>
         </div>
         <!-- Reviews -->
-        <div class="sec-sm" style="border-top: 1px solid var(--border)">
+        <div class="sec-sm" style="border-top: 1px solid var(--border)" id="pdp-reviews-section">
           <div class="eyebrow">Product Reviews</div>
-          <h2 class="sec-title" style="margin-bottom: 28px">
-            What <em>Clients Say</em>
-          </h2>
-          <div class="rev-grid">
-            <div class="rev-card">
-              <div class="rev-stars">★★★★★</div>
-              <p class="rev-text">
-                "This serum transformed my skin in just 3 weeks. The glow is
-                unreal!"
-              </p>
-              <div class="rev-author">
-                <div class="rev-av">👩</div>
-                <div>
-                  <div class="rev-name">Mae Santos</div>
-                  <div class="rev-verified">✓ Verified Purchase</div>
-                </div>
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 28px;">
+            <h2 class="sec-title">What <em>Clients Say</em></h2>
+            <select id="pdp-review-filter" class="finput" style="width: auto; padding: 8px 12px;" onchange="filterProductReviews()">
+              <option value="all">All Ratings</option>
+              <option value="5">5 Stars</option>
+              <option value="4">4 Stars</option>
+              <option value="3">3 Stars</option>
+              <option value="2">2 Stars</option>
+              <option value="1">1 Star</option>
+            </select>
+          </div>
+          
+          <div class="rev-grid" id="pdp-reviews-container"></div>
+          
+          <div style="margin-top: 40px; background: var(--cream); padding: 24px; border-radius: var(--r); border: 1px solid var(--border);">
+            <div style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: var(--ink);">Leave a Review</div>
+            <div class="frow">
+              <div class="fg">
+                <label class="flabel">Your Name</label>
+                <input type="text" id="new-pdp-name" class="finput" placeholder="Your Name">
+                <label style="display:flex; align-items:center; gap:8px; margin-top:8px; font-size:13px; cursor:pointer;">
+                  <input type="checkbox" id="new-pdp-anon" style="accent-color: var(--ink);"> Post anonymously
+                </label>
+              </div>
+              <div class="fg">
+                <label class="flabel">Rating</label>
+                <select id="new-pdp-rating" class="finput">
+                  <option value="5">★★★★★ (5/5)</option>
+                  <option value="4">★★★★☆ (4/5)</option>
+                  <option value="3">★★★☆☆ (3/5)</option>
+                  <option value="2">★★☆☆☆ (2/5)</option>
+                  <option value="1">★☆☆☆☆ (1/5)</option>
+                </select>
               </div>
             </div>
-            <div class="rev-card">
-              <div class="rev-stars">★★★★★</div>
-              <p class="rev-text">
-                "Lightweight and absorbs instantly. Best product I've ever
-                used."
-              </p>
-              <div class="rev-author">
-                <div class="rev-av">👱‍♀️</div>
-                <div>
-                  <div class="rev-name">Claire Lim</div>
-                  <div class="rev-verified">✓ Verified Purchase</div>
-                </div>
-              </div>
+            <div class="fg">
+              <label class="flabel">Your Review</label>
+              <textarea id="new-pdp-text" class="finput" rows="3" placeholder="Share your thoughts about this product..." style="resize: vertical;"></textarea>
             </div>
-            <div class="rev-card">
-              <div class="rev-stars">★★★★☆</div>
-              <p class="rev-text">
-                "Faded my hyperpigmentation noticeably. Highly recommend!"
-              </p>
-              <div class="rev-author">
-                <div class="rev-av">🧕</div>
-                <div>
-                  <div class="rev-name">Dina Cruz</div>
-                  <div class="rev-verified">✓ Verified Purchase</div>
-                </div>
-              </div>
-            </div>
+            <button class="btn btn-primary" onclick="submitProductReview()">Submit Review</button>
           </div>
         </div>
         <!-- Related Items -->
@@ -1386,7 +1371,7 @@
                 id="register-first"
                 type="text"
                 class="finput"
-                placeholder="Sofia"
+                placeholder="First Name"
               />
             </div>
             <div class="fg">
@@ -1395,7 +1380,7 @@
                 id="register-last"
                 type="text"
                 class="finput"
-                placeholder="Reyes"
+                placeholder="Last Name"
               />
             </div>
           </div>
@@ -1890,7 +1875,7 @@
               </div>
               <div class="fg">
                 <label class="flabel">Cardholder Name</label
-                ><input type="text" class="finput" placeholder="Sofia Reyes" />
+                ><input type="text" class="finput" placeholder="Cardholder Name" />
               </div>
               <button
                 class="btn btn-primary btn-full"
@@ -1904,89 +1889,8 @@
           <!-- Addresses: Add Address, Edit Address -->
           <div class="acc-pg" id="tab-addresses">
             <div class="acc-pg-title">My Addresses</div>
-            <div class="addr-card">
-              <div class="addr-default">Default Address</div>
-              <div class="addr-text">
-                Sofia Reyes<br />123 Sampaguita St., Diliman<br />Quezon City,
-                Metro Manila 1100<br />+63 912 345 6789
-              </div>
-              <div class="addr-acts">
-                <!-- Edit Address -->
-                <button
-                  class="btn btn-ghost btn-sm"
-                  onclick="toast('Edit address form opened', 'info')"
-                >
-                  Edit Address
-                </button>
-                <button
-                  class="btn btn-ghost btn-sm"
-                  onclick="toast('Address removed', 'error')"
-                >
-                  Remove
-                </button>
-              </div>
-            </div>
-            <!-- Add Address -->
-            <br />
-            <div
-              style="
-                background: var(--cream);
-                padding: 24px;
-                border-radius: var(--r);
-                max-width: 480px;
-                border: 1px solid var(--border);
-              "
-            >
-              <div
-                style="
-                  font-size: 13px;
-                  font-weight: 500;
-                  color: var(--ink);
-                  margin-bottom: 16px;
-                "
-              >
-                Add New Address
-              </div>
-              <div class="fg">
-                <label class="flabel">Full Name</label
-                ><input type="text" class="finput" placeholder="Sofia Reyes" />
-              </div>
-              <div class="fg">
-                <label class="flabel">Street Address</label
-                ><input
-                  type="text"
-                  class="finput"
-                  placeholder="Street, unit/floor"
-                />
-              </div>
-              <div class="frow">
-                <div class="fg">
-                  <label class="flabel">City</label
-                  ><input
-                    type="text"
-                    class="finput"
-                    placeholder="Quezon City"
-                  />
-                </div>
-                <div class="fg">
-                  <label class="flabel">Postal Code</label
-                  ><input type="text" class="finput" placeholder="1100" />
-                </div>
-              </div>
-              <div class="fg">
-                <label class="flabel">Phone</label
-                ><input
-                  type="tel"
-                  class="finput"
-                  placeholder="+63 9XX XXX XXXX"
-                />
-              </div>
-              <button
-                class="btn btn-primary btn-full"
-                onclick="toast('Address saved!', 'info')"
-              >
-                Add Address
-              </button>
+            <div id="tab-addresses-content">
+              <div style="padding:30px;text-align:center;color:var(--muted);border:1px dashed var(--pink-soft);border-radius:var(--r);margin-bottom:20px;">No addresses saved.</div>
             </div>
           </div>
 
@@ -2014,7 +1918,7 @@
               >
                 Edit Profile
               </div>
-              <!-- Personal Information Box -->
+              <!-- 1. Personal Information Box -->
 <div style="background: var(--cream); padding: 24px; border-radius: var(--r); border: 1px solid var(--border); margin-bottom: 24px;">
   <div style="font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 16px;">Personal Information</div>
   <div class="frow">
@@ -2040,7 +1944,7 @@
   <button class="btn btn-primary" onclick="saveProfileDetails()">Save Profile Details</button>
 </div>
 
-<!-- Change Password Box -->
+<!-- 2. Change Password Box -->
 <div style="background: var(--cream); padding: 24px; border-radius: var(--r); border: 1px solid var(--border);">
   <div style="font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 16px;">Change Password</div>
   <div class="fg">
@@ -2141,7 +2045,7 @@
             </div>
             <button
               class="btn btn-primary btn-full btn-lg"
-              onclick="go('checkout')"
+              onclick="standardCheckout()"
               style="margin-bottom: 8px"
             >
               Checkout →
@@ -2200,25 +2104,30 @@
               </h2>
               <div class="frow">
                 <div class="fg">
-  <label class="flabel">First Name</label>
-  <!-- Add id="co-first" -->
-  <input type="text" id="co-first" class="finput" placeholder="First Name">
-</div>
-<div class="fg">
-  <label class="flabel">Last Name</label>
-  <!-- Add id="co-last" -->
-  <input type="text" id="co-last" class="finput" placeholder="Last Name">
-</div>
-<div class="fg">
-  <label class="flabel">Email Address</label>
-  <!-- Add id="co-email" -->
-  <input type="email" id="co-email" class="finput" placeholder="you@example.com">
-</div>
-<div class="fg">
-  <label class="flabel">Phone Number</label>
-  <!-- Add id="co-phone" -->
-  <input type="tel" id="co-phone" class="finput" placeholder="09XX XXX XXXX">
-</div>
+                  <label class="flabel">First Name</label
+                  ><input type="text" class="finput" placeholder="First Name" />
+                </div>
+                <div class="fg">
+                  <label class="flabel">Last Name</label
+                  ><input type="text" class="finput" placeholder="Last Name" />
+                </div>
+              </div>
+              <div class="fg">
+                <label class="flabel">Email Address</label
+                ><input
+                  type="email"
+                  class="finput"
+                  placeholder="you@example.com"
+                />
+              </div>
+              <div class="fg">
+                <label class="flabel">Phone Number</label
+                ><input
+                  type="tel"
+                  class="finput"
+                  placeholder="+63 9XX XXX XXXX"
+                />
+              </div>
               <div class="co-step-btns">
                 <button class="btn btn-primary btn-lg" onclick="coNext(2)">
                   Continue to Shipping →
@@ -2355,97 +2264,38 @@
             </div>
             <!-- Step 4: Order Summary / Review -->
             <div id="co-step-4" class="hide">
-              <h2
-                style="
-                  font-family: &quot;Cormorant Garamond&quot;, serif;
-                  font-size: 32px;
-                  font-weight: 300;
-                  margin-bottom: 24px;
-                "
-              >
-                Your Order
-              </h2>
-              <div
-                style="
-                  background: var(--cream);
-                  padding: 22px;
-                  border-radius: var(--r);
-                  margin-bottom: 20px;
-                "
-                id="co-review-items"
-              ></div>
-              <div
-                style="
-                  background: var(--cream);
-                  padding: 22px;
-                  border-radius: var(--r);
-                  margin-bottom: 20px;
-                "
-              >
-                <div
-                  style="
-                    font-size: 12px;
-                    letter-spacing: 0.1em;
-                    text-transform: uppercase;
-                    color: var(--muted);
-                    margin-bottom: 12px;
-                  "
-                >
-                  Order Total
-                </div>
-                <div
-                  style="
-                    display: flex;
-                    justify-content: space-between;
-                    font-size: 14px;
-                    color: var(--mid);
-                    margin-bottom: 8px;
-                  "
-                >
-                  <span>Subtotal</span><span id="co-rev-sub">₱0</span>
-                </div>
-                <div
-                  style="
-                    display: flex;
-                    justify-content: space-between;
-                    font-size: 14px;
-                    color: var(--mid);
-                    margin-bottom: 8px;
-                  "
-                >
-                  <span>Shipping</span><span>₱150</span>
-                </div>
-                <div
-                  style="
-                    display: flex;
-                    justify-content: space-between;
-                    font-size: 17px;
-                    font-weight: 500;
-                    color: var(--ink);
-                    border-top: 1px solid var(--border);
-                    padding-top: 10px;
-                    margin-top: 6px;
-                  "
-                >
-                  <span>Total</span><span id="co-rev-total">₱150</span>
-                </div>
-              </div>
-              <!-- Place Order CTA -->
-              <div class="co-step-btns">
-                <button class="btn btn-ghost" onclick="coNext(3)">
-                  ← Back
-                </button>
-                <button
-                  class="btn btn-primary btn-lg"
-                  id="place-order-btn"
-                  onclick="placeOrder()"
-                >
-                  Place Order →
-                </button>
-              </div>
-              <div class="secure-note" style="margin-top: 12px">
-                🔒 Secured &amp; encrypted checkout
-              </div>
+              <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 300; margin-bottom: 24px;">Your Order</h2>
+
+<!-- The Items Box -->
+<div id="review-item-list" style="background: #fff; padding: 24px; border-radius: 8px; border: 1px solid #eaeaea; margin-bottom: 24px;">
+  <div style="color: #888; font-size: 14px;">Loading your order...</div>
+</div>
+
+<!-- The Totals Box -->
+<div style="background: #fafafa; padding: 24px; border-radius: 8px; margin-bottom: 32px;">
+  <div style="font-size: 12px; letter-spacing: 1px; font-weight: 600; color: #888; margin-bottom: 16px;">ORDER TOTAL</div>
+  
+  <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;">
+    <span style="color: #666;">Subtotal</span>
+    <span id="review-sub" style="color: #111;">₱0</span>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; margin-bottom: 16px; font-size: 14px;">
+    <span style="color: #666;">Shipping</span>
+    <span style="color: #111;">₱150</span>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; font-weight: 600; font-size: 18px;">
+    <span style="color: #111;">Total</span>
+    <span id="review-total" style="color: #111;">₱150</span>
+  </div>
+</div>
+
+<!-- The Buttons -->
+<div style="display: flex; gap: 16px;">
+  <button class="btn" style="background: transparent; border: 1px solid #eaeaea; padding: 12px 24px; border-radius: 4px; cursor: pointer;" onclick="coGoto(3)">← Back</button>
+  <button class="btn" style="background: #111; color: #fff; border: none; padding: 12px 24px; border-radius: 4px; cursor: pointer; font-weight: 500;" onclick="placeOrder()">Place Order →</button>
+</div>
             </div>
           </div>
           <!-- Order sidebar -->
@@ -2702,7 +2552,7 @@
         >
           <div class="fg">
             <label class="flabel">Your Name</label
-            ><input type="text" class="finput" placeholder="Sofia Reyes" />
+            ><input type="text" class="finput" placeholder="Your Name" />
           </div>
           <div class="fg">
             <label class="flabel">Email</label
@@ -2922,7 +2772,7 @@
             class="btn btn-primary btn-full"
             onclick="
               toggleCart();
-              go('checkout');
+              standardCheckout();
             "
           >
             Checkout →

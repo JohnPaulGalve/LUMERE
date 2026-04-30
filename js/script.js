@@ -98,7 +98,7 @@ const services=[
   {emoji:'🛁',name:'Aromatherapy',cat:'spa',price:'from ₱1,500',desc:'Essential oil body treatment'},
 ];
 
-let cart=[], currentPdp=null, bkSvc='', bkSvcPrice='', sFilterType='all', coStep=1;
+let cart=[], checkoutCart=[], isBuyNowCheckout=false, currentPdp=null, bkSvc='', bkSvcPrice='', sFilterType='all', coStep=1;
 let productFilters = {cat:'all', sub:null, minPrice:null, maxPrice:null, minRating:0};
 
 /* ═══════════════ NAVIGATION ═══════════════ */
@@ -113,7 +113,7 @@ function go(page) {
     } else {
       toast('Please sign in to continue with your transaction.', 'error');
     }
-    page = 'login'; // Reroute to login
+    page = 'login'; 
   }
   
   // 2. Enforce complete profile before checkout
@@ -121,23 +121,38 @@ function go(page) {
      if (!currentUser.first || !currentUser.last || !currentUser.phone) {
          toast('Please add your phone number in your profile before checking out.', 'error');
          page = 'account';
-         setTimeout(() => showTab('profile'), 100); // Auto-open the profile tab
+         setTimeout(() => showTab('profile'), 100); 
+     } else {
+         // Explicitly trigger Step 1 so the auto-fill actually runs!
+         setTimeout(() => { if(typeof coGoto === 'function') coGoto(1); }, 50);
      }
   }
 
   // 3. Prevent logged-in users from seeing the login/register screens
   if ((page === 'login' || page === 'register') && currentUser) {
-      page = 'home'; // Send them back home
+      page = 'home'; 
   }
 
-  // 4. Actual Page Routing (Hides old page, shows new page)
+  // FIX 3: Force a total data refresh the exact moment you enter the Account page!
+  if (page === 'account' && currentUser) {
+      if (typeof updateAccountUI === 'function') updateAccountUI();
+      if (typeof renderWishlist === 'function') renderWishlist();
+  }
+
+  // 4. Actual Page Routing
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const targetPage = document.getElementById('page-' + page);
   if (targetPage) {
      targetPage.classList.add('active');
   }
   
-  // Scroll to top of the new page
+  // 5. NEW: Update the Main Nav Bar "Active" Line
+  document.querySelectorAll('.nl').forEach(link => link.classList.remove('active'));
+  const activeNav = document.getElementById('nl-' + page);
+  if (activeNav) {
+      activeNav.classList.add('active');
+  }
+  
   window.scrollTo(0,0);
 }
 function toggleMob(){document.getElementById('mob-menu').classList.toggle('open');document.getElementById('burger').classList.toggle('open')}
@@ -218,6 +233,16 @@ function openPdp(id){
   const og=document.getElementById('pdp-orig');
   if(p.orig){og.textContent='₱'+p.orig;og.classList.remove('hide')}else og.classList.add('hide');
   document.getElementById('pdp-related').innerHTML=products.filter(x=>x.id!==id&&x.cat===p.cat).slice(0,4).map(pCard).join('');
+  
+  // NEW: Instantly check if this product is in our wishlist when opening the page
+  const user = getCurrentUser();
+  const wishBtn = document.querySelector('.pdp-btns .btn-ghost');
+  if (wishBtn) {
+     const isWished = user && user.wishlist && user.wishlist.includes(p.id);
+     wishBtn.innerHTML = isWished ? '♥ Saved to Wishlist' : '♡ Save to Wishlist';
+     wishBtn.onclick = function() { toggleWishlist(p.id); };
+  }
+  
   go('pdp');
 }
 function setThumb(el,e){document.querySelectorAll('.pdp-thumb').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.getElementById('pdp-main-img').textContent=e}
@@ -243,14 +268,22 @@ function pdpBuyNow() {
   if (!currentPdp) return;
   const qty = +document.getElementById('pdp-qty').value;
   
-  // Silently add the item to the cart
-  const ex = cart.find(i => i.id === currentPdp.id);
-  if (ex) ex.qty += qty;
-  else cart.push({ ...currentPdp, qty });
+  // 1. Isolate this specific item for checkout (Do NOT add to main cart)
+  checkoutCart = [{ ...currentPdp, qty }];
+  isBuyNowCheckout = true;
   
-  updateBadge();
-  
-  // Redirect directly to checkout WITHOUT the toast pop-up
+  go('checkout');
+}
+// NEW: Function for regular cart checkouts
+function standardCheckout() {
+  if (cart.length === 0) {
+    toast('Your cart is empty!', 'error');
+    return;
+  }
+  // 2. Copy all items from the main cart into the checkout cart
+  checkoutCart = cart.map(i => ({ ...i }));
+  isBuyNowCheckout = false;
+
   go('checkout');
 }
 function toggleAcc(hdr){hdr.closest('.acc-item').classList.toggle('open')}
@@ -460,10 +493,54 @@ function chQtyPage(id,d){const it=cart.find(i=>i.id===id);if(it){it.qty+=d;if(it
 function rmCartPage(id){cart=cart.filter(i=>i.id!==id);updateBadge();renderCartPage();toast('Item removed','error')}
 
 /* ═══════════════ CHECKOUT ═══════════════ */
+// NEW: Calculates and draws the items on the final Review step
+function renderReviewStep() {
+  const list = document.getElementById('review-item-list');
+  const subEl = document.getElementById('review-sub');
+  const totEl = document.getElementById('review-total');
+
+  if (!list || !subEl || !totEl) return;
+
+  // Use checkoutCart instead of cart
+  if (checkoutCart.length === 0) {
+    list.innerHTML = '<div style="color: var(--muted); font-size: 14px;">No items to review</div>';
+    subEl.textContent = '₱0';
+    totEl.textContent = '₱150';
+    return;
+  }
+
+  let subtotal = 0;
+  let html = '';
+
+  // Loop through checkoutCart to build the review list
+  checkoutCart.forEach(item => {
+    const itemTotal = (item.price || 0) * item.qty;
+    subtotal += itemTotal;
+    
+    html += `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 16px;">
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <div>
+            <div style="font-weight: 600; color: var(--ink); font-size: 16px;">${item.name}</div>
+            <div style="color: var(--muted); font-size: 14px; margin-top: 4px;">Qty: ${item.qty}</div>
+          </div>
+        </div>
+        <div style="font-weight: 600; color: var(--ink); font-size: 16px;">₱${itemTotal.toLocaleString()}</div>
+      </div>
+    `;
+  });
+
+  list.innerHTML = html;
+  subEl.textContent = `₱${subtotal.toLocaleString()}`;
+  totEl.textContent = `₱${(subtotal + 150).toLocaleString()}`;
+}
+
+// UPDATED: Triggers all the steps properly
+// UPDATED: Triggers all steps and ALWAYS updates the right sidebar
+// UPDATED: Now calls the correct "renderCheckoutSidebar" function
 function coGoto(step) {
   coStep = step;
   
-  // Handle the visual steps and hiding/showing the sections
   [1, 2, 3, 4].forEach(s => {
     const stepEl = document.getElementById('co-step-' + s);
     if (stepEl) stepEl.classList.toggle('hide', s !== step);
@@ -477,33 +554,95 @@ function coGoto(step) {
 
   const user = getCurrentUser();
 
-  // STEP 1: Auto-fill the Billing Details using strict IDs
-  if (step === 1 && user) {
-    const firstInput = document.getElementById('co-first');
-    const lastInput = document.getElementById('co-last');
-    const emailInput = document.getElementById('co-email');
-    const phoneInput = document.getElementById('co-phone');
+  // STEP 2: Enforce Address Rule & Render Choices
+  if (step === 2) {
+    if (!user.addresses || user.addresses.length === 0) {
+        toast('Please add a shipping address before continuing.', 'error');
+        go('account');
+        setTimeout(() => showTab('addresses'), 100);
+        return; // Stops them from going to step 2!
+    }
     
-    // Only auto-fill if the elements actually exist on the page
-    if (firstInput && lastInput && emailInput && phoneInput) {
-      firstInput.value = user.first || '';
-      lastInput.value = user.last || '';
-      emailInput.value = user.email || '';
-      phoneInput.value = user.phone || '';
-      
-      // Make the email field read-only
-      emailInput.readOnly = true;
-      emailInput.style.opacity = '0.6';
-      emailInput.style.cursor = 'not-allowed';
+    // If they DO have an address, draw the choices!
+    if (typeof renderCheckoutAddresses === 'function') renderCheckoutAddresses();
+  }
+
+  // FIX: Calling the correct function name to update the Right Sidebar!
+  if (typeof renderCheckoutSidebar === 'function') {
+      renderCheckoutSidebar();
+  }
+
+  // STEP 1
+  if (step === 1) {
+    if (user) {
+      const inputs = document.querySelectorAll('#co-step-1 .finput');
+      if (inputs.length >= 4) {
+        inputs[0].value = user.first || '';
+        inputs[1].value = user.last || '';
+        inputs[2].value = user.email || '';
+        inputs[3].value = user.phone || '';
+        inputs[2].readOnly = true;
+        inputs[2].style.opacity = '0.6';
+      }
     }
   }
 
-  // STEP 3: Load the custom payment methods
+  // STEP 3
   if (step === 3) {
-    if (typeof renderCheckoutPayments === 'function') {
-      renderCheckoutPayments();
-    }
+    if (typeof renderCheckoutPayments === 'function') renderCheckoutPayments();
   }
+
+  // STEP 4
+  if (step === 4) {
+    renderReviewStep();
+  }
+}
+// NEW: Draws the saved addresses in Checkout Step 2
+function renderCheckoutAddresses() {
+  const user = getCurrentUser();
+  const container = document.getElementById('co-step-2');
+  if (!user || !container) return;
+
+  let html = `<h2 style="font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 300; margin-bottom: 24px;">Shipping Address</h2>`;
+
+  if (user.addresses && user.addresses.length > 0) {
+    html += `<div style="display:flex; flex-direction:column; gap:12px; margin-bottom: 24px;">`;
+    
+    // Loop through the user's saved addresses
+    user.addresses.forEach((a, i) => {
+      // Auto-select the default address, or the first one if no default is set
+      const isChecked = a.isDefault || (!user.addresses.some(addr => addr.isDefault) && i === 0);
+      
+      html += `
+        <label class="pay-opt ${isChecked ? 'selected' : ''}" style="display:flex; align-items:flex-start; cursor:pointer;" onclick="selAddress(this)">
+          <input type="radio" name="checkout_address" value="${a.id}" ${isChecked ? 'checked' : ''} style="margin-top: 4px; margin-right: 12px; accent-color: var(--ink);">
+          <div style="flex: 1;">
+            <div style="font-size: 14px; color: var(--ink); line-height: 1.6;">${a.text}</div>
+            ${a.isDefault ? '<div style="font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-top: 8px;">Default Address</div>' : ''}
+          </div>
+        </label>
+      `;
+    });
+    
+    html += `</div>`;
+  }
+
+  html += `
+    <div class="co-step-btns">
+      <button class="btn btn-ghost" onclick="coNext(1)">← Back</button>
+      <button class="btn btn-primary btn-lg" onclick="coNext(3)">Continue to Payment →</button>
+    </div>
+  `;
+
+  // This completely replaces the old HTML form!
+  container.innerHTML = html;
+}
+
+// NEW: Helper to visually highlight the selected address
+function selAddress(el) {
+  document.querySelectorAll('#co-step-2 .pay-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  el.querySelector('input').checked = true;
 }
 
 function renderCheckoutPayments() {
@@ -575,17 +714,36 @@ function toggleCheckoutPay(type) {
    document.getElementById('co-gcash-list').style.display = (type === 'gcash') ? 'block' : 'none';
 }
 function coNext(step){coGoto(step)}
+// UPDATED: Cleaned up sidebar function
 function renderCheckoutSidebar(){
-  const el=document.getElementById('co-sidebar-items');
-  if(!cart.length){el.innerHTML='<p style="font-size:13px;color:var(--muted)">No items</p>';return}
-  el.innerHTML=cart.map(i=>`<div class="os-item"><div class="os-img">${i.emoji}</div><div><div class="os-name">${i.name}</div><div class="os-qty">×${i.qty}</div></div><div class="os-price">₱${(i.price*i.qty).toLocaleString()}</div></div>`).join('');
-  const sub=cart.reduce((s,i)=>s+(i.price*i.qty),0);const ship=sub>=1500?0:150;
-  document.getElementById('cos-sub').textContent='₱'+sub.toLocaleString();
-  document.getElementById('cos-total').textContent='₱'+(sub+ship).toLocaleString();
-  // review step
-  const rv=document.getElementById('co-review-items');if(rv)rv.innerHTML=cart.map(i=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px"><span>${i.emoji} ${i.name} ×${i.qty}</span><span style="color:var(--terra);font-weight:500">₱${(i.price*i.qty).toLocaleString()}</span></div>`).join('');
-  const rs=document.getElementById('co-rev-sub');const rt=document.getElementById('co-rev-total');
-  if(rs)rs.textContent='₱'+sub.toLocaleString();if(rt)rt.textContent='₱'+(sub+150).toLocaleString();
+  const el = document.getElementById('co-sidebar-items');
+  if(!el) return;
+  
+  // Use checkoutCart instead of cart
+  if(!checkoutCart.length){
+      el.innerHTML='<p style="font-size:13px;color:var(--muted)">No items</p>';
+      return;
+  }
+  
+  el.innerHTML = checkoutCart.map(i => `
+    <div class="os-item">
+      <div class="os-img">${i.emoji}</div>
+      <div>
+        <div class="os-name">${i.name}</div>
+        <div class="os-qty">×${i.qty}</div>
+      </div>
+      <div class="os-price">₱${(i.price * i.qty).toLocaleString()}</div>
+    </div>
+  `).join('');
+  
+  const sub = checkoutCart.reduce((s,i) => s + (i.price * i.qty), 0);
+  const ship = sub >= 1500 ? 0 : 150;
+  
+  const subEl = document.getElementById('cos-sub');
+  const totEl = document.getElementById('cos-total');
+  
+  if(subEl) subEl.textContent = '₱' + sub.toLocaleString();
+  if(totEl) totEl.textContent = '₱' + (sub + ship).toLocaleString();
 }
 function selPay(el){document.querySelectorAll('.pay-opt').forEach(o=>o.classList.remove('selected'));el.classList.add('selected');el.querySelector('input').checked=true;document.getElementById('card-fields').style.display=el.textContent.includes('Card')?'block':'none'}
 function placeOrder(){
@@ -596,37 +754,45 @@ function placeOrder(){
     return; 
   }
   
-  const btn = document.getElementById('place-order-btn');
-  btn.textContent = 'Processing…';
-  btn.disabled = true;
+  // Safely find the place order button and disable it
+  const btn = document.getElementById('place-order-btn') || document.querySelector('button[onclick="placeOrder()"]');
+  if(btn) {
+      btn.textContent = 'Processing…';
+      btn.disabled = true;
+  }
   
   setTimeout(() => {
-    const sub = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+    // Use checkoutCart instead of cart
+    const sub = checkoutCart.reduce((s, i) => s + (i.price * i.qty), 0);
     const ship = sub >= 1500 ? 0 : 150;
     
-    // Generate Order Data
     const newOrder = {
        id: '#LUM-' + Math.floor(Math.random() * 10000).toString().padStart(4, '0'),
        date: new Date().toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'}),
-       items: cart.map(i => `${i.name} (x${i.qty})`).join(', '),
+       items: checkoutCart.map(i => `${i.name} (x${i.qty})`).join(', '),
        total: sub + ship
     };
     
-    // Save to User
     if(!user.orders) user.orders = [];
     user.orders.push(newOrder);
     saveUserData(user); 
     
-    // Reset Cart & Redirect
-    cart = []; 
+    // Empty the checkout cart
+    checkoutCart = []; 
+    // ONLY empty the main shopping cart if we actually checked it out!
+    if (!isBuyNowCheckout) {
+        cart = []; 
+    }
+    
     updateBadge(); 
-    btn.textContent = 'Place Order →'; 
-    btn.disabled = false; 
+    if(btn) {
+        btn.textContent = 'Place Order →'; 
+        btn.disabled = false; 
+    }
     
     toast('Order placed! Thank you 🎉', 'info');
     go('account');
     
-    // Render the new order on the dashboard
     renderDynamicAccountData(user);
     setTimeout(() => showTab('orders'), 300);
   }, 1500);
@@ -874,6 +1040,45 @@ function renderDynamicAccountData(user) {
      </div>`;
      paymentTab.innerHTML = html;
   }
+
+    // 5. Update Addresses dynamically (Replaces the hardcoded HTML)
+    const addressTab = document.getElementById('tab-addresses');
+    if(addressTab) {
+      let html = `<div class="acc-pg-title">My Addresses</div>`;
+      if(!addresses || addresses.length === 0) {
+        html += `<div style="padding:30px;text-align:center;color:var(--muted);border:1px dashed var(--pink-soft);border-radius:var(--r);margin-bottom:20px;">No addresses saved.</div>`;
+      } else {
+        html += addresses.map(a => `
+          <div class="addr-card">
+             ${a.isDefault ? '<div class="addr-default">Default Address</div>' : ''}
+             <div class="addr-text">${a.text}</div>
+             <div class="addr-acts">
+                ${!a.isDefault ? `<button class="btn btn-ghost btn-sm" onclick="setAsDefault('addresses', ${a.id})">Make Default</button>` : ''}
+                <button class="btn btn-ghost btn-sm" onclick="removeAddress(${a.id})">Remove</button>
+             </div>
+          </div>
+        `).join('');
+      }
+     
+      // Add the strict form at the bottom (numeric-only inputs + helpful placeholders)
+      html += `
+      <br><div style="background: var(--cream); padding: 24px; border-radius: var(--r); max-width: 480px; border: 1px solid var(--border);">
+       <div style="font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 16px;">Add New Address</div>
+       <div class="fg"><label class="flabel">Full Name</label><input type="text" id="new-addr-name" class="finput" placeholder="e.g., Juan Dela Cruz"></div>
+       <div class="fg"><label class="flabel">Street Address</label><input type="text" id="new-addr-street" class="finput" placeholder="House/Unit No., Street Name, Barangay"></div>
+       <div class="frow">
+        <div class="fg"><label class="flabel">City/Municipality</label><input type="text" id="new-addr-city" class="finput" placeholder="e.g., Rodriguez"></div>
+        <div class="fg"><label class="flabel">Postal Code</label>
+          <input type="text" id="new-addr-zip" class="finput" placeholder="e.g., 1860" maxlength="4" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+        </div>
+       </div>
+       <div class="fg"><label class="flabel">Phone Number</label>
+         <input type="tel" id="new-addr-phone" class="finput" placeholder="09XXXXXXXXX" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+       </div>
+       <button class="btn btn-primary btn-full" onclick="addAddress()" style="margin-top: 8px;">Save Address</button>
+      </div>`;
+      addressTab.innerHTML = html;
+    }
 }
 function saveProfileDetails() {
   const user = getCurrentUser();
@@ -921,7 +1126,21 @@ function updatePassword() {
 }
 
 /* ═══════════════ ACCOUNT ═══════════════ */
-function showTab(tab){document.querySelectorAll('.acc-pg').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.ani').forEach(n=>n.classList.remove('active'));document.getElementById('tab-'+tab)?.classList.add('active');document.getElementById('an-'+tab)?.classList.add('active')}
+function showTab(tab) {
+  document.querySelectorAll('.acc-pg').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ani').forEach(n=>n.classList.remove('active'));
+  document.getElementById('tab-'+tab)?.classList.add('active');
+  document.getElementById('an-'+tab)?.classList.add('active');
+
+  // FIX 2: Force a fresh data pull every time you click a sidebar tab!
+  const user = getCurrentUser();
+  if (user) {
+      if (typeof renderDynamicAccountData === 'function') renderDynamicAccountData(user);
+      if (tab === 'wishlist' && typeof renderWishlist === 'function') {
+          renderWishlist();
+      }
+  }
+}
 function renderWishlist() {
   const el = document.getElementById('wishlist-grid');
   if(!el) return;
@@ -954,34 +1173,7 @@ function renderWishlist() {
   }).join('');
 }
 
-/* ═══════════════ TOAST ═══════════════ */
-function toast(msg,type='info'){
-  const c=document.getElementById('toast-wrap');
-  const t=document.createElement('div');t.className=`toast t-${type}`;
-  t.innerHTML=`<span class="toast-ico">${type==='info'?'✓':type==='error'?'✕':'★'}</span><span class="toast-msg">${msg}</span><button class="toast-x" onclick="this.parentElement.remove()">×</button>`;
-  c.appendChild(t);requestAnimationFrame(()=>requestAnimationFrame(()=>t.classList.add('show')));
-  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),400)},3400);
-}
-
-/* ═══════════════ INIT ═══════════════ */
-document.getElementById('home-bestsellers').innerHTML=products.filter(p=>p.badge==='best').map(pCard).join('');
-document.getElementById('min-price').oninput = function() { productFilters.minPrice = this.value ? +this.value : null; renderProdGrid('prod-grid'); };
-document.getElementById('max-price').oninput = function() { productFilters.maxPrice = this.value ? +this.value : Infinity; renderProdGrid('prod-grid'); };
-document.getElementById('min-rating').onchange = function() { productFilters.minRating = this.value ? +this.value : 0; renderProdGrid('prod-grid'); };
-document.getElementById('home-featured').innerHTML=products.filter(p=>p.badge==='new').map(pCard).join('');
-document.getElementById('deals-grid').innerHTML=products.filter(p=>p.badge==='sale'||p.orig).map(pCard).join('');
-updateCategoryCounts();
-renderProdGrid('prod-grid','all');
-renderCartPage();
-renderWishlist();
-updateAccountUI();
-/* ═══════════════ DYNAMIC ACCOUNT HANDLERS ═══════════════ */
-function saveUserData(user) {
-  const users = getUsers();
-  users[user.email] = user;
-  saveUsers(users);
-}
-
+// Updated: Toggle Wishlist now updates UI everywhere instantly
 function toggleWishlist(id) {
   const user = getCurrentUser();
   if (!user) { toast('Please sign in to save items.', 'error'); go('login'); return; }
@@ -994,15 +1186,124 @@ function toggleWishlist(id) {
     toast('Removed from wishlist', 'error');
   } else {
     user.wishlist.push(id);
-    toast('Added to wishlist ♡', 'info');
+    toast('Added to wishlist ♥', 'info');
   }
   
   saveUserData(user);
-  if (document.getElementById('page-account').classList.contains('active')) {
-    renderDynamicAccountData(user);
-    renderWishlist();
+  
+  // FIX 1: ALWAYS update the Wishlist HTML in the background!
+  if (typeof renderWishlist === 'function') renderWishlist();
+  if (typeof renderDynamicAccountData === 'function') renderDynamicAccountData(user);
+  
+  // Instantly refresh all the product grids so the heart icon immediately turns black!
+  renderProdGrid('prod-grid', productFilters.cat);
+  const bs = document.getElementById('home-bestsellers');
+  if (bs) bs.innerHTML = products.filter(p=>p.badge==='best').slice(0, 8).map(pCard).join('');
+  const hf = document.getElementById('home-featured');
+  if (hf) hf.innerHTML = products.filter(p=>p.badge==='new').slice(0, 8).map(pCard).join('');
+  const dg = document.getElementById('deals-grid');
+  if (dg) dg.innerHTML = products.filter(p=>p.badge==='sale'||p.orig).slice(0, 8).map(pCard).join('');
+  
+  // Update the button on the Product Detail Page if we are currently looking at it
+  if (currentPdp && currentPdp.id === id) {
+      const pdpBtn = document.querySelector('.pdp-btns .btn-ghost');
+      if (pdpBtn) {
+          const isWished = user.wishlist.includes(id);
+          pdpBtn.innerHTML = isWished ? '♥ Saved to Wishlist' : '♡ Save to Wishlist';
+      }
   }
 }
+
+/* ═══════════════ TOAST ═══════════════ */
+/* ═══════════════ TOAST ═══════════════ */
+function toast(msg, type='info') {
+  const c = document.getElementById('toast-wrap');
+  if (!c) return;
+
+  // 1. ANTI-SPAM: Check if this exact message is already on the screen
+  const existingMessages = c.querySelectorAll('.toast-msg');
+  for (let i = 0; i < existingMessages.length; i++) {
+      if (existingMessages[i].textContent === msg) {
+          // If it exists, just give the existing toast a tiny "shake" effect and cancel the new one
+          const existingToast = existingMessages[i].closest('.toast');
+          existingToast.style.transform = 'translateX(8px)';
+          setTimeout(() => { existingToast.style.transform = 'translateX(0)'; }, 150);
+          return; 
+      }
+  }
+
+  // 2. MAX LIMIT: Only allow 3 toasts on the screen at a time
+  if (c.children.length >= 3) {
+      c.children[0].remove(); // Instantly remove the oldest one
+  }
+
+  // Create the new toast
+  const t = document.createElement('div');
+  t.className = `toast t-${type}`;
+  t.innerHTML = `<span class="toast-ico">${type==='info'?'✓':type==='error'?'✕':'★'}</span><span class="toast-msg">${msg}</span><button class="toast-x" onclick="this.parentElement.remove()">×</button>`;
+  
+  c.appendChild(t);
+  
+  // Animate it in
+  requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add('show')));
+  
+  // Remove it after 3.4 seconds
+  setTimeout(() => {
+      t.classList.remove('show');
+      setTimeout(() => t.remove(), 400);
+  }, 3400);
+}
+
+/* ═══════════════ INIT ═══════════════ */
+// Limit homepage grids to 8 items max
+const hb = document.getElementById('home-bestsellers');
+if (hb) hb.innerHTML = products.filter(p=>p.badge==='best').slice(0, 8).map(pCard).join('');
+const hfInit = document.getElementById('home-featured');
+if (hfInit) hfInit.innerHTML = products.filter(p=>p.badge==='new').slice(0, 8).map(pCard).join('');
+const dgInit = document.getElementById('deals-grid');
+if (dgInit) dgInit.innerHTML = products.filter(p=>p.badge==='sale'||p.orig).slice(0, 8).map(pCard).join('');
+
+document.getElementById('min-price').oninput = function() { productFilters.minPrice = this.value ? +this.value : null; renderProdGrid('prod-grid'); };
+document.getElementById('max-price').oninput = function() { productFilters.maxPrice = this.value ? +this.value : Infinity; renderProdGrid('prod-grid'); };
+document.getElementById('min-rating').onchange = function() { productFilters.minRating = this.value ? +this.value : 0; renderProdGrid('prod-grid'); };
+
+updateCategoryCounts();
+renderProdGrid('prod-grid','all');
+renderCartPage();
+renderWishlist();
+updateAccountUI();
+
+// Pre-fill homepage review form if logged in
+const homeNameInput = document.getElementById('new-home-name');
+if (homeNameInput) {
+  const usr = getCurrentUser();
+  homeNameInput.value = usr ? `${usr.first} ${usr.last}` : '';
+}
+
+// Render the initial home reviews
+if (typeof renderHomeReviews === 'function') {
+  renderHomeReviews('all');
+}
+
+// BACK TO TOP LISTENER: Make the arrow appear when scrolling down
+window.addEventListener('scroll', () => {
+  const btt = document.getElementById('btt');
+  if (btt) {
+    if (window.scrollY > 400) {
+      btt.classList.add('visible');
+    } else {
+      btt.classList.remove('visible');
+    }
+  }
+});
+/* ═══════════════ DYNAMIC ACCOUNT HANDLERS ═══════════════ */
+function saveUserData(user) {
+  const users = getUsers();
+  users[user.email] = user;
+  saveUsers(users);
+}
+
+
 
 // Payment Handlers
 // NEW: Toggles between Bank and GCash fields
@@ -1063,19 +1364,62 @@ function removePayment(id) {
 function addAddress() {
   const user = getCurrentUser();
   if(!user) return;
-  const street = document.getElementById('new-addr-street').value;
-  if(!street) { toast('Please enter a street address', 'error'); return; }
+  
+  // Grab values from our dynamically generated form
+  const name = (document.getElementById('new-addr-name') || {}).value?.trim() || '';
+  const street = (document.getElementById('new-addr-street') || {}).value?.trim() || '';
+  const city = (document.getElementById('new-addr-city') || {}).value?.trim() || '';
+  const zip = (document.getElementById('new-addr-zip') || {}).value?.trim() || '';
+  const phone = (document.getElementById('new-addr-phone') || {}).value?.trim() || '';
+  
+  // 1. STRICT: All fields are required
+  if(!name || !street || !city || !zip || !phone) { 
+      toast('Please fill in all address fields.', 'error'); 
+      return; 
+  }
+
+  // 2. STRICT: Postal Code must be exactly 4 digits
+  if(!/^[0-9]{4}$/.test(zip)) {
+      toast('Postal Code must be exactly 4 digits.', 'error');
+      return;
+  }
+
+  // 3. STRICT: Phone must be exactly 11 digits and start with 09
+  if(!/^09[0-9]{9}$/.test(phone)) {
+      toast('Phone must be an 11-digit number starting with 09.', 'error');
+      return;
+  }
   
   if(!user.addresses) user.addresses = [];
-  user.addresses.push({ id: Date.now(), text: `${user.first} ${user.last}<br>${street}<br>Philippines` });
+  
+  // Make the first address the default automatically
+  const isFirst = user.addresses.length === 0;
+  
+  user.addresses.push({ 
+    id: Date.now(), 
+    isDefault: isFirst, 
+    text: `${escapeHtml(name)}<br>${escapeHtml(street)}<br>${escapeHtml(city)} ${escapeHtml(zip)}<br>${escapeHtml(phone)}` 
+  });
+  
   saveUserData(user);
-  toast('Address saved!', 'info');
+  toast('Address saved successfully!', 'info');
   renderDynamicAccountData(user);
+}
+
+// Small helper to avoid accidental HTML injection from inputs
+function escapeHtml(str) {
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 function removeAddress(id) {
   const user = getCurrentUser();
   user.addresses = user.addresses.filter(a => a.id !== id);
+  
+  // FIX: Auto-assign a new default if the old default was deleted
+  if (user.addresses.length > 0 && !user.addresses.some(a => a.isDefault)) {
+      user.addresses[0].isDefault = true;
+  }
+  
   saveUserData(user);
   toast('Address removed', 'error');
   renderDynamicAccountData(user);
@@ -1084,15 +1428,21 @@ function removeAddress(id) {
 // Set Default Function
 function setAsDefault(type, id) {
   const user = getCurrentUser();
-  // Move the selected item to the top of the array (index 0) so it acts as the default
-  const index = user[type].findIndex(item => item.id === id);
-  if (index > -1) {
-    const item = user[type].splice(index, 1)[0];
-    user[type].unshift(item);
-    saveUserData(user);
-    toast('Default updated!', 'info');
-    renderDynamicAccountData(user);
+  
+  // FIX: Handle addresses correctly by toggling the "isDefault" flag
+  if (type === 'addresses') {
+      user.addresses.forEach(a => a.isDefault = (a.id === id));
+  } else {
+      const index = user[type].findIndex(item => item.id === id);
+      if (index > -1) {
+        const item = user[type].splice(index, 1)[0];
+        user[type].unshift(item);
+      }
   }
+  
+  saveUserData(user);
+  toast('Default updated!', 'info');
+  renderDynamicAccountData(user);
 }
 // NEW & UPGRADED LOGOUT FUNCTION
 function logout() {
@@ -1116,3 +1466,235 @@ function logout() {
   toast('You have been logged out.', 'info');
   go('login');
 }
+
+/* ═══════════════ REVIEWS & REACTIONS ═══════════════ */
+let productReviewsData = {};
+
+// Helper to create unique IDs for reviews
+function generateRevId() { return 'rev_' + Math.random().toString(36).substr(2, 9); }
+
+// RESTORED: Your original homepage reviews!
+let homeReviewsData = [
+  { id: generateRevId(), stars: 5, text: "Absolutely in love with my facial treatment. My skin has never looked this radiant. The staff were so professional and welcoming — I'll be back every month!", author: "Sofia Reyes", authorEmail: null, verified: true, interactedBy: {} },
+  { id: generateRevId(), stars: 5, text: "The haircare products arrived beautifully packaged and the results are incredible. My hair feels healthier than ever. Already ordered again!", author: "Camille Torres", authorEmail: null, verified: true, interactedBy: {} },
+  { id: generateRevId(), stars: 5, text: "Booking my nail appointment online was so easy. The nail art is incredibly detailed. This is my go-to salon now!", author: "Anisa Mendoza", authorEmail: null, verified: true, interactedBy: {} }
+];
+
+function getStarsHtml(rating) {
+  const rounded = Math.round(Number(rating));
+  return '★'.repeat(rounded) + '☆'.repeat(5 - rounded);
+}
+
+function getReviewsForProduct(id) {
+  if (!productReviewsData[id]) {
+    // RESTORED: Your original specific reviews for the Vitamin C Serum (ID: 1)
+    if (id === 1) {
+        productReviewsData[id] = [
+          { id: generateRevId(), stars: 5, text: "This serum transformed my skin in just 3 weeks. The glow is unreal!", author: "Mae Santos", authorEmail: null, verified: true, interactedBy: {} },
+          { id: generateRevId(), stars: 5, text: "Lightweight and absorbs instantly. Best product I've ever used.", author: "Claire Lim", authorEmail: null, verified: true, interactedBy: {} },
+          { id: generateRevId(), stars: 4, text: "Faded my hyperpigmentation noticeably. Highly recommend!", author: "Dina Cruz", authorEmail: null, verified: true, interactedBy: {} }
+        ];
+    } else {
+        // DYNAMIC FALLBACK: For the other 80+ products in your catalog
+        const p = products.find(x => x.id === id);
+        const type = p ? (p.subcat || p.cat) : 'product';
+        const brand = p ? p.brand : 'this brand';
+        productReviewsData[id] = [
+          { id: generateRevId(), stars: 5, text: `Absolutely love this ${type}! It has completely exceeded my expectations and the quality from ${brand} is amazing.`, author: "Verified Buyer", authorEmail: null, verified: true, interactedBy: {} },
+          { id: generateRevId(), stars: 4, text: `Very good ${type}. It works exactly as described and feels very premium, though delivery took a day longer than expected.`, author: "Happy Customer", authorEmail: null, verified: true, interactedBy: {} },
+          { id: generateRevId(), stars: 5, text: `This is my third time repurchasing this ${type}. I cannot recommend it enough to my friends.`, author: "Loyal Client", authorEmail: null, verified: true, interactedBy: {} }
+        ];
+    }
+  }
+  return productReviewsData[id];
+}
+
+// Reusable Review Card Builder (Handles Thumbs Up/Down and Delete)
+function buildReviewCardHTML(r, context, productId = null) {
+  const user = getCurrentUser();
+  let likes = 0, dislikes = 0, myReaction = null;
+
+  if (r.interactedBy) {
+    for (let email in r.interactedBy) {
+      if (r.interactedBy[email] === 'up') likes++;
+      if (r.interactedBy[email] === 'down') dislikes++;
+      if (user && email === user.email) myReaction = r.interactedBy[email];
+    }
+  }
+
+  const isOwner = user && user.email === r.authorEmail;
+
+  return `
+    <div class="rev-card" style="position: relative;">
+      ${isOwner ? `<button onclick="deleteReview('${r.id}', '${context}', ${productId})" style="position:absolute; top:16px; right:16px; background:none; border:none; cursor:pointer; color:var(--muted); font-size:16px;" title="Delete Review">🗑️</button>` : ''}
+      <div class="rev-stars">${getStarsHtml(r.stars)}</div>
+      <p class="rev-text">"${r.text}"</p>
+      <div class="rev-author" style="margin-bottom: 16px;">
+        <div class="rev-av">${r.author.charAt(0).toUpperCase()}</div>
+        <div>
+          <div class="rev-name">${r.author}</div>
+          ${r.verified ? '<div class="rev-verified">✓ Verified</div>' : ''}
+        </div>
+      </div>
+      <div style="display:flex; gap:12px; border-top: 1px solid var(--pink-soft); padding-top: 12px;">
+         <button onclick="handleReaction('${r.id}', 'up', '${context}', ${productId})" style="background:none; border:none; cursor:pointer; font-size:13px; color: ${myReaction === 'up' ? 'var(--ink)' : 'var(--muted)'}; font-weight: ${myReaction === 'up' ? '600' : '400'}; transition: color 0.2s;">👍 ${likes}</button>
+         <button onclick="handleReaction('${r.id}', 'down', '${context}', ${productId})" style="background:none; border:none; cursor:pointer; font-size:13px; color: ${myReaction === 'down' ? 'var(--ink)' : 'var(--muted)'}; font-weight: ${myReaction === 'down' ? '600' : '400'}; transition: color 0.2s;">👎 ${dislikes}</button>
+      </div>
+    </div>
+  `;
+}
+
+// Interaction Handlers
+function handleReaction(reviewId, type, context, productId) {
+  const user = getCurrentUser();
+  if (!user) { toast('Please sign in to react to reviews.', 'error'); return; }
+
+  let reviews = context === 'home' ? homeReviewsData : productReviewsData[productId];
+  let review = reviews.find(r => r.id === reviewId);
+  if (!review) return;
+
+  if (!review.interactedBy) review.interactedBy = {};
+  
+  // Toggle off if they click the same button again, otherwise set it
+  if (review.interactedBy[user.email] === type) {
+    delete review.interactedBy[user.email]; 
+  } else {
+    review.interactedBy[user.email] = type; 
+  }
+
+  if (context === 'home') renderHomeReviews(document.getElementById('home-review-filter').value);
+  else renderProductReviews(productId, document.getElementById('pdp-review-filter').value);
+}
+
+function deleteReview(reviewId, context, productId) {
+  if (!confirm("Are you sure you want to delete your review?")) return;
+
+  if (context === 'home') {
+    homeReviewsData = homeReviewsData.filter(r => r.id !== reviewId);
+    renderHomeReviews(document.getElementById('home-review-filter').value);
+  } else {
+    productReviewsData[productId] = productReviewsData[productId].filter(r => r.id !== reviewId);
+    renderProductReviews(productId, document.getElementById('pdp-review-filter').value);
+  }
+  toast('Review deleted successfully.', 'info');
+}
+
+// Product Reviews Rendering & Submit
+function filterProductReviews() {
+  if (!currentPdp) return;
+  renderProductReviews(currentPdp.id, document.getElementById('pdp-review-filter').value);
+}
+
+function renderProductReviews(id, filterStar = 'all') {
+  const container = document.getElementById('pdp-reviews-container');
+  if (!container) return;
+  
+  let reviews = getReviewsForProduct(id);
+  if (filterStar !== 'all') reviews = reviews.filter(r => Math.round(r.stars) === Number(filterStar));
+  
+  if (reviews.length === 0) {
+    container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--muted); padding: 20px;">No reviews match this rating.</div>';
+    return;
+  }
+  container.innerHTML = reviews.map(r => buildReviewCardHTML(r, 'product', id)).join('');
+}
+
+function submitProductReview() {
+  if (!currentPdp) return;
+  const user = getCurrentUser();
+  
+  // Enforce 1 review per user rule
+  if (user) {
+    const existing = getReviewsForProduct(currentPdp.id).find(r => r.authorEmail === user.email);
+    if (existing) { toast('You have already reviewed this product.', 'error'); return; }
+  }
+
+  let name = document.getElementById('new-pdp-name').value.trim();
+  const isAnon = document.getElementById('new-pdp-anon').checked;
+  const rating = document.getElementById('new-pdp-rating').value;
+  const text = document.getElementById('new-pdp-text').value.trim();
+  
+  if (!text) { toast('Please write a review before submitting.', 'error'); return; }
+  if (isAnon) name = 'Anonymous';
+  else if (!name) name = user ? `${user.first} ${user.last}` : 'Guest User';
+  
+  const reviews = getReviewsForProduct(currentPdp.id);
+  reviews.unshift({ 
+    id: generateRevId(), stars: Number(rating), text: text, author: name, 
+    authorEmail: user ? user.email : null, verified: user ? true : false, interactedBy: {} 
+  });
+  
+  document.getElementById('new-pdp-name').value = user ? `${user.first} ${user.last}` : '';
+  document.getElementById('new-pdp-anon').checked = false;
+  document.getElementById('new-pdp-rating').value = '5';
+  document.getElementById('new-pdp-text').value = '';
+  document.getElementById('pdp-review-filter').value = 'all';
+  
+  renderProductReviews(currentPdp.id, 'all');
+  toast('Thank you for your product review!', 'info');
+}
+
+// Homepage Reviews Rendering & Submit
+function filterHomeReviews() { renderHomeReviews(document.getElementById('home-review-filter').value); }
+
+function renderHomeReviews(filterStar = 'all') {
+  const container = document.getElementById('home-reviews-container');
+  if (!container) return;
+  
+  let reviews = homeReviewsData;
+  if (filterStar !== 'all') reviews = reviews.filter(r => Math.round(r.stars) === Number(filterStar));
+  
+  if (reviews.length === 0) {
+    container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--muted); padding: 20px;">No store reviews match this rating.</div>';
+    return;
+  }
+  
+  container.innerHTML = reviews.map(r => buildReviewCardHTML(r, 'home', null)).join('');
+}
+
+function submitHomeReview() {
+  const user = getCurrentUser();
+  
+  // Enforce 1 review per user rule
+  if (user) {
+    const existing = homeReviewsData.find(r => r.authorEmail === user.email);
+    if (existing) { toast('You have already left a store review.', 'error'); return; }
+  }
+
+  let name = document.getElementById('new-home-name').value.trim();
+  const isAnon = document.getElementById('new-home-anon').checked;
+  const rating = document.getElementById('new-home-rating').value;
+  const text = document.getElementById('new-home-text').value.trim();
+  
+  if (!text) { toast('Please write your feedback before submitting.', 'error'); return; }
+  if (isAnon) name = 'Anonymous';
+  else if (!name) name = user ? `${user.first} ${user.last}` : 'Guest User';
+  
+  homeReviewsData.unshift({ 
+    id: generateRevId(), stars: Number(rating), text: text, author: name, 
+    authorEmail: user ? user.email : null, verified: user ? true : false, interactedBy: {} 
+  });
+  
+  document.getElementById('new-home-name').value = user ? `${user.first} ${user.last}` : '';
+  document.getElementById('new-home-anon').checked = false;
+  document.getElementById('new-home-rating').value = '5';
+  document.getElementById('new-home-text').value = '';
+  document.getElementById('home-review-filter').value = 'all';
+  
+  renderHomeReviews('all');
+  toast('Thank you for sharing your experience!', 'info');
+}
+
+// Auto-fill and Initial Render Trigger
+const originalOpenPdp = openPdp;
+openPdp = function(id) {
+  originalOpenPdp(id);
+  document.getElementById('pdp-review-filter').value = 'all';
+  renderProductReviews(id, 'all');
+  
+  const user = getCurrentUser();
+  const nameInput = document.getElementById('new-pdp-name');
+  if (nameInput) nameInput.value = user ? `${user.first} ${user.last}` : '';
+  const anonCheck = document.getElementById('new-pdp-anon');
+  if (anonCheck) anonCheck.checked = false;
+};

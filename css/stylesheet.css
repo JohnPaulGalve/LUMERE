@@ -566,11 +566,17 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
 .checkout-steps{display:flex;align-items:center;margin-bottom:40px;background:var(--warm); border:1px solid var(--pink-soft);padding:20px 24px;border-radius:var(--r)}
 .cs-step{flex:1;display:flex;flex-direction:column;align-items:center;position:relative}
 .cs-step:not(:last-child)::after{content:'';position:absolute;top:16px;left:50%;width:100%;height:2px;background:var(--pink-soft);z-index:0}
-.cs-step.done:not(:last-child)::after,.cs-step.active:not(:last-child)::after{background:var(--ink)}
-.cs-dot{width:32px;height:32px;border-radius:50%;border:2px solid var(--pink-soft);background:var(--warm);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--ink);z-index:1;position:relative;transition:all .35s; font-weight:600;}
+/* Only draw the dark connector when a step is completed */
+.cs-step.done:not(:last-child)::after{background:var(--ink)}
+
+/* Dim inactive dots; active/done steps remain highlighted */
+.cs-dot{width:32px;height:32px;border-radius:50%;border:2px solid var(--pink-soft);background:var(--warm);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);z-index:1;position:relative;transition:all .35s; font-weight:600;}
 .cs-step.active .cs-dot{border-color:var(--ink);background:var(--ink);color:var(--warm)}
 .cs-step.done .cs-dot{border-color:var(--ink);background:var(--ink);color:var(--warm)}
-.cs-lbl{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink);margin-top:7px; font-weight:600;}
+
+/* Dim inactive labels; active/done labels become dark */
+.cs-lbl{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-top:7px; font-weight:600; transition: color var(--ease);}
+.cs-step.active .cs-lbl, .cs-step.done .cs-lbl{color:var(--ink);}
 .checkout-layout{display:grid;grid-template-columns:1fr 360px;gap:36px;padding-bottom:60px}
 .co-form-section{margin-bottom:28px}
 .co-sec-title{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink); font-weight:600;margin-bottom:18px;padding-bottom:9px;border-bottom:1px solid var(--pink-soft)}
