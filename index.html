@@ -468,7 +468,7 @@
             placeholder="Search products, services, brands…"
             oninput="doSearch()"
           />
-          <button onclick="doSearch()">Search</button>
+          <button type="button" onclick="executeSearch(); document.getElementById('s-input').blur();">Search</button>
         </div>
         <!-- Suggestions -->
         <div class="search-chips">

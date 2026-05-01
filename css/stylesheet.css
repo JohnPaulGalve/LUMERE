@@ -47,6 +47,11 @@ button,input,select,textarea{font-family:inherit}
   background: var(--ink) !important;
   color: #fff !important;
 }
+.search-box button {
+  cursor: pointer;
+  position: relative;
+  z-index: 10;
+}
 .btn-primary:hover {
   background: var(--deep) !important;
   transform: translateY(-1px);
@@ -698,6 +703,9 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
   .order-sidebar{position:static}
 }
 @media(max-width:768px){
+  .search-hero { padding: 44px 20px; }
+  .search-box { margin-bottom: 24px; width: 100%; }
+  .search-chips { gap: 10px; padding: 0 10px; }
   :root{--nav:60px}
   .wrap{padding:0 20px}
   .nav-inner{padding:0 18px}
@@ -731,4 +739,24 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
 @media(max-width:480px){
   .svc-grid{grid-template-columns:1fr 1fr}
   .pg{grid-template-columns:1fr 1fr}
+}
+/* 1. Push the whole page down so it clears the white header */
+#page-search {
+  padding-top: 90px; /* Adjust this slightly if it still overlaps your specific header */
+  width: 100%;
+}
+
+/* 2. Let the black banner stretch and give the text inside plenty of room */
+.search-hero {
+  width: 100%;
+  padding: 80px 20px; /* Top/Bottom padding ensures the text is never cut off */
+  box-sizing: border-box;
+  text-align: center;
+}
+
+/* 3. Only constrain the results grid and tabs below the banner */
+#page-search > div:not(.search-hero) {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px 40px; 
 }

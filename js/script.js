@@ -87,15 +87,33 @@ const products=[
   {id:83,emoji:'🌞',img:'https://picsum.photos/seed/p83/800/800',name:'SPF 40 Stick',brand:'StickSun',cat:'sunscreen',subcat:'sunscreen',price:350,orig:null,badge:null,rating:4.1,desc:'For face'},
 ];
 
-const services=[
-  {emoji:'✂️',name:'Haircut & Styling',cat:'hair',price:'from ₱350',desc:'Precision cuts by expert stylists'},
-  {emoji:'🎨',name:'Hair Coloring',cat:'hair',price:'from ₱1,200',desc:'Single color, highlights & balayage'},
-  {emoji:'🌸',name:'Classic Facial',cat:'facial',price:'from ₱600',desc:'Deep cleansing for all skin types'},
-  {emoji:'✨',name:'Brightening Facial',cat:'facial',price:'from ₱950',desc:'Vitamin C brightening treatment'},
-  {emoji:'💅',name:'Gel Manicure',cat:'nails',price:'from ₱550',desc:'Long-lasting gel color'},
-  {emoji:'🦶',name:'Pedicure & Foot Spa',cat:'nails',price:'from ₱400',desc:'Relaxing foot treatment'},
-  {emoji:'🧖',name:'Swedish Massage',cat:'spa',price:'from ₱1,200',desc:'Full body relaxation'},
-  {emoji:'🛁',name:'Aromatherapy',cat:'spa',price:'from ₱1,500',desc:'Essential oil body treatment'},
+const services = [
+  // Hair
+  {emoji:'✂️', name:'Haircut & Styling', cat:'hair', price:'from ₱350', desc:'Any length · 45–60 min'},
+  {emoji:'✂️', name:'Hair Coloring', cat:'hair', price:'from ₱1,200', desc:'Single color or highlights · 90–120 min'},
+  {emoji:'✂️', name:'Keratin Treatment', cat:'hair', price:'from ₱2,500', desc:'Smoothing & frizz control · 120–180 min'},
+  {emoji:'✂️', name:'Hair Spa', cat:'hair', price:'from ₱800', desc:'Deep conditioning · 60 min'},
+  {emoji:'✂️', name:'Scalp Treatment', cat:'hair', price:'from ₱650', desc:'Hydrating & dandruff control · 45 min'},
+  
+  // Facial
+  {emoji:'🌸', name:'Classic Deep Cleanse', cat:'facial', price:'from ₱600', desc:'All skin types · 60 min'},
+  {emoji:'🌸', name:'Brightening Vitamin C', cat:'facial', price:'from ₱950', desc:'Dull & uneven skin · 75 min'},
+  {emoji:'🌸', name:'Anti-Aging Collagen', cat:'facial', price:'from ₱1,400', desc:'Mature skin · 90 min'},
+  {emoji:'🌸', name:'Hydration Boost', cat:'facial', price:'from ₱800', desc:'Dry & sensitive skin · 60 min'},
+  {emoji:'🌸', name:'Acne Control', cat:'facial', price:'from ₱750', desc:'Oily & acne-prone · 75 min'},
+  
+  // Nails
+  {emoji:'💅', name:'Classic Manicure', cat:'nails', price:'from ₱250', desc:'Shape, buff & polish · 30 min'},
+  {emoji:'💅', name:'Gel Manicure', cat:'nails', price:'from ₱550', desc:'Long-lasting gel · 45 min'},
+  {emoji:'💅', name:'Pedicure & Foot Spa', cat:'nails', price:'from ₱400', desc:'Relaxing foot treatment · 60 min'},
+  {emoji:'💅', name:'Nail Art Design', cat:'nails', price:'from ₱150', desc:'Custom designs · 20–30 min add-on'},
+  {emoji:'💅', name:'Nail Extensions', cat:'nails', price:'from ₱900', desc:'Acrylic or gel · 90 min'},
+  
+  // Spa
+  {emoji:'🧖', name:'Swedish Massage', cat:'spa', price:'from ₱1,200', desc:'Full body · 60–90 min'},
+  {emoji:'🧖', name:'Aromatherapy', cat:'spa', price:'from ₱1,500', desc:'Essential oils · 90 min'},
+  {emoji:'🧖', name:'Body Scrub & Wrap', cat:'spa', price:'from ₱1,800', desc:'Exfoliate & nourish · 75 min'},
+  {emoji:'🧖', name:'Hot Stone Therapy', cat:'spa', price:'from ₱1,600', desc:'Deep muscle relief · 90 min'}
 ];
 
 let cart=[], checkoutCart=[], isBuyNowCheckout=false, currentPdp=null, bkSelectedServices = [], sFilterType='all', coStep=1, searchTimeout=null;
