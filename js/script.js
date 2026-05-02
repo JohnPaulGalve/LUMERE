@@ -86,9 +86,7 @@ const products=[
   {id:82,emoji:'🌞',img:'https://picsum.photos/seed/p82/800/800',name:'SPF 50 Spray',brand:'SpraySun',cat:'sunscreen',subcat:'sunscreen',price:450,orig:null,badge:'new',rating:4.3,desc:'Easy application'},
   {id:83,emoji:'🌞',img:'https://picsum.photos/seed/p83/800/800',name:'SPF 40 Stick',brand:'StickSun',cat:'sunscreen',subcat:'sunscreen',price:350,orig:null,badge:null,rating:4.1,desc:'For face'},
 ];
-products.forEach(p => {
-  p.img = 'https://placehold.co/800x800/e5e5e5/888888?text=Product+Image';
-});
+
 const services = [
   // Hair
   {emoji:'✂️', name:'Haircut & Styling', cat:'hair', price:'from ₱350', desc:'Any length · 45–60 min'},
