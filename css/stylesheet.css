@@ -1,25 +1,25 @@
 :root {
-  /* 60% Dominant: Pink */
-  --pink-bg: #fdf2f5; 
-  --pink-soft: #fce6eb;
-  --blush: #fce6eb;
+  /* Wireframe Backgrounds */
+  --pink-bg: #f7f7f7;   /* Light gray background */
+  --pink-soft: #e5e5e5; /* Medium gray for borders and accents */
+  --blush: #e5e5e5;
   
-  /* 30% Secondary: White */
+  /* Containers */
   --warm: #ffffff;
   --cream: #ffffff;
   --white-glass: rgba(255, 255, 255, 0.95);
   
-  /* 10% Accent: Black */
-  --ink: #000000;
-  --terra: #000000; 
-  --deep: #1a1a1a;
-  --gold: #000000;
+  /* Text & Accents */
+  --ink: #111111;
+  --terra: #111111; 
+  --deep: #000000;
+  --gold: #111111;
+  --rose: #111111;
   
-  /*Kept neutral/transparent for readability and depth*/
-  --rose: #000000;
-  --mid: #333333;
-  --muted: #666666;
-  --border: rgba(0,0,0,0.08);
+  /* Neutrals */
+  --mid: #555555;
+  --muted: #888888;
+  --border: #d4d4d4;
   --shadow: 0 4px 20px rgba(0,0,0,0.04);
   --shadow-lg: 0 8px 48px rgba(0,0,0,0.08);
   --r: 4px;
@@ -32,7 +32,7 @@ html { scroll-behavior: smooth; }
 
 body {
   font-family: 'DM Sans', sans-serif;
-  background: var(--pink-bg); /* Setting the 60% dominant color */
+  background: var(--pink-bg); 
   color: var(--ink);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
@@ -41,20 +41,20 @@ button,input,select,textarea{font-family:inherit}
 .serif{font-family:'Cormorant Garamond',serif}
 .hide{display:none!important}
 
-/* ── BUTTONS (10% Black) ── */
+/* ── BUTTONS ── */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 26px;border:none;cursor:pointer;border-radius:var(--r);font-size:13px;letter-spacing:.07em;text-transform:uppercase;font-weight:500;transition:all var(--ease);white-space:nowrap}
 .btn-primary, .pca-cart, .search-box button {
   background: var(--ink) !important;
   color: #fff !important;
 }
+.btn-primary:hover {
+  background: var(--deep) !important;
+  transform: translateY(-1px);
+}
 .search-box button {
   cursor: pointer;
   position: relative;
   z-index: 10;
-}
-.btn-primary:hover {
-  background: var(--deep) !important;
-  transform: translateY(-1px);
 }
 .btn-secondary{background:var(--ink);color:#fff}.btn-secondary:hover{background:#111111;transform:translateY(-1px)}
 .btn-outline{background:var(--warm);color:var(--ink);border:1.5px solid var(--ink)}.btn-outline:hover{background:var(--ink);color:#fff}
@@ -65,7 +65,7 @@ button,input,select,textarea{font-family:inherit}
 .icon-btn:hover{background:var(--cream);color:var(--ink)}
 .icon-btn svg{width:20px;height:20px}
 
-/* ── FORMS (30% White) ── */
+/* ── FORMS ── */
 .fg{display:flex;flex-direction:column;gap:5px;margin-bottom:16px}
 .flabel{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:500}
 .finput{padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--r);background: var(--warm);font-size:14px;color:var(--ink);outline:none;transition:border-color var(--ease),box-shadow var(--ease);width:100%}
@@ -75,7 +75,7 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .fhint{font-size:11px;color:var(--muted);margin-top:3px}
 
-/* ── NAV (30% White) ── */
+/* ── NAV ── */
 .nav {
   position: fixed;
   top: 0; left: 0; right: 0;
@@ -87,8 +87,21 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
 }
 .nav.shadow{box-shadow:var(--shadow-lg)}
 .nav-inner{max-width:1440px;margin:0 auto;height:100%;display:flex;align-items:center;justify-content:space-between;padding:0 40px;gap:20px}
-.logo{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;letter-spacing:.06em;cursor:pointer;flex-shrink:0;transition:color var(--ease)}
-.logo:hover{color:var(--ink)}.logo span{color:var(--ink)}
+.logo {
+  display: flex;
+  align-items: center;
+  height: 100%; 
+  text-decoration: none;
+}
+.logo img {
+  height: 40px;    
+  width: auto;     
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+.logo:hover img {
+  transform: scale(1.05); 
+}
 .nav-links{display:flex;gap:2px;list-style:none}
 .nl{padding:8px 13px;border-radius:var(--r);font-size:13px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink);cursor:pointer;transition:all var(--ease);position:relative}
 .nl:hover{color:var(--ink);background:rgba(0,0,0,.04)}
@@ -119,7 +132,6 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
 .mob-search{display:flex;gap:8px;margin-bottom:16px}
 .mob-search input{flex:1;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--r);background:var(--cream);font-size:14px;outline:none}
 .mob-search input:focus{border-color:var(--ink)}
-.mob-actions{display:flex;flex-direction:column;gap:10px;margin-top:28px}
 
 /* ── BREADCRUMB ── */
 .bc{display:flex;align-items:center;gap:8px;padding:12px 0 20px;font-size:12px;color:var(--muted)}
@@ -142,7 +154,6 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
 /* ══════════════════════════════════
    HOME PAGE
 ══════════════════════════════════ */
-/* Hero */
 .hero{display:grid;grid-template-columns:1fr 1fr;min-height:calc(100vh - var(--nav))}
 .hero-l{display:flex;flex-direction:column;justify-content:center;padding:72px 56px 72px 40px}
 .hero-tag{display:inline-flex;align-items:center;gap:10px;margin-bottom:24px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink);font-weight:600;}
@@ -155,14 +166,8 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
 .hs-num{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;color:var(--ink)}
 .hs-lbl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .hero-r{position:relative;background:var(--pink-soft);overflow:hidden}
-.hero-r::before, .hero-r::after, .img-ph::before, .img-ph::after {
-  display: none !important;
-}
-.hero-r {
-  background-image: url('https://media.istockphoto.com/id/1444339602/photo/black-woman-african-beauty-and-skincare-health-of-luxury-spa-model-with-a-smile-on-an-orange.jpg?s=612x612&w=0&k=20&c=cwNbqTAyZdi57HBV_J7_9XxKA4rT-DtwvTMqvEJS0gs=');
-  background-size: cover;
-  background-position: center;
-}
+.hero-r::before, .hero-r::after, .img-ph::before, .img-ph::after { display: none !important; }
+.hero-r { background: #e5e5e5 url('https://placehold.co/800x1200/e5e5e5/888888?text=Hero+Image') center/cover no-repeat; }
 .hero-big{display:none}
 .hero-float{display:none}
 .svc-ov{background:transparent}
@@ -172,10 +177,7 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
 .hf-num{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:600;color:var(--ink)}
 .hf-lbl{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 
-/* Image Placeholder */
-.img-ph{position:relative;background:var(--pink-soft);overflow:hidden}
-
-/* Promo bar (10% Black) */
+/* Promo bar */
 .promo-bar{background:var(--ink);overflow:hidden;padding:0}
 .promo-track{display:flex;white-space:nowrap;animation:marquee 30s linear infinite}
 .promo-track:hover{animation-play-state:paused}
@@ -183,7 +185,7 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
 .pb{font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:2px; background:var(--warm); color:var(--ink); font-weight:600;}
 .pt{font-size:12px;color:rgba(255,255,255,.8)}.pt strong{color:#fff}
 
-/* Service cards (30% White containers) */
+/* Service cards */
 .svc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
 .svc-card{position:relative;overflow:hidden;aspect-ratio:3/4;cursor:pointer}
 .svc-bg{position:absolute;inset:0;transition:transform .6s cubic-bezier(.25,.46,.45,.94)}
@@ -198,17 +200,11 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
 .svc-cta{display:inline-flex;align-items:center;gap:5px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);font-weight:600;opacity:0;transform:translateY(6px);transition:all .3s .1s}
 .svc-card:hover .svc-cta{opacity:1;transform:translateY(0)}
 
-/* Product grid (30% White Cards) */
+/* Product grid */
 .pg{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
 .pc{cursor:pointer;border-radius:var(--r);overflow:hidden;background:var(--warm) !important; border:1px solid var(--pink-soft) !important; transition:border-color var(--ease),box-shadow var(--ease),transform var(--ease);min-width:0;}
 .pc:hover{border-color:var(--ink) !important;box-shadow:var(--shadow-lg) !important;transform:translateY(-3px)}
- .pc-img {
-  background: var(--pink-soft) !important;
-  border-bottom: 1px solid var(--pink-soft);
-  position:relative;
-  overflow:hidden;
-  aspect-ratio:1;
-}
+.pc-img {background: var(--pink-soft) !important; border-bottom: 1px solid var(--pink-soft); position:relative; overflow:hidden; aspect-ratio:1;}
 .pc-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
 .pc-actions{position:absolute;bottom:0;left:0;right:0;display:flex;transform:translateY(100%);opacity:0;transition:transform .28s cubic-bezier(.4,0,.2,1),opacity .28s;}
 .pc:hover .pc-actions{transform:translateY(0);opacity:1;}
@@ -226,36 +222,31 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
 .pc-orig{font-size:12px;color:var(--muted);text-decoration:line-through}
 .pc-stars{color:var(--ink);font-size:11px;margin-top:3px}
 
-/* Global Reusable Containers (30% White) */
-.rev-card, .svc-ct, .hero-float, .f-chip, .sort-select {
-  background: var(--warm) !important;
-  border: 1px solid var(--pink-soft) !important;
-  box-shadow: var(--shadow) !important;
-}
-
-/* Reviews */
-/* Reviews - Horizontal Scroll Carousel */
+/* Reviews Carousel */
 .rev-grid {
   display: flex;
   gap: 20px;
   overflow-x: auto;
-  padding-bottom: 24px; /* Space for the scrollbar */
-  scroll-snap-type: x mandatory; /* Makes it snap cleanly to each card */
+  padding-bottom: 24px; 
+  scroll-snap-type: x mandatory; 
   scrollbar-width: thin;
 }
-
-/* Style the scrollbar to match your theme */
 .rev-grid::-webkit-scrollbar { height: 8px; }
 .rev-grid::-webkit-scrollbar-track { background: var(--pink-soft); border-radius: 10px; }
 .rev-grid::-webkit-scrollbar-thumb { background: var(--ink); border-radius: 10px; }
 
 .rev-card {
-  flex: 0 0 calc(33.333% - 14px); /* Shows exactly 3 cards at a time */
+  flex: 0 0 calc(33.333% - 14px); 
   scroll-snap-align: start;
   padding: 28px;
   border-radius: var(--r);
   transition: box-shadow var(--ease);
-  min-width: 280px; /* Prevents cards from getting too squished */
+  min-width: 280px; 
+}
+.rev-card, .svc-ct, .hero-float, .f-chip, .sort-select {
+  background: var(--warm) !important;
+  border: 1px solid var(--pink-soft) !important;
+  box-shadow: var(--shadow) !important;
 }
 .rev-card:hover{box-shadow:var(--shadow-lg) !important;}
 .rev-stars{color:var(--ink);font-size:14px;margin-bottom:12px}
@@ -263,10 +254,9 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
 .rev-author{display:flex;align-items:center;gap:10px}
 .rev-av{width:40px;height:40px;border-radius:50%;background:var(--pink-soft);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
 .rev-name{font-size:14px;font-weight:600;color:var(--ink)}
-.rev-meta{font-size:11px;color:var(--muted)}
 .rev-verified{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);font-weight:600;}
 
-/* Footer (10% Black) */
+/* Footer */
 .footer{background:var(--ink);padding:64px 0 0}
 .footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:44px;margin-bottom:48px}
 .f-logo{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;color:var(--warm);margin-bottom:12px}
@@ -288,13 +278,28 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
 /* ══════════════════════════════════
    SEARCH
 ══════════════════════════════════ */
-.search-hero{background:var(--ink);padding:56px 40px;text-align:center}
+#page-search {
+  padding-top: 90px;
+  width: 100%;
+}
+.search-hero {
+  width: 100%;
+  padding: 80px 20px;
+  box-sizing: border-box;
+  text-align: center;
+  background: var(--ink);
+}
+#page-search > div:not(.search-hero) {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px 40px; 
+}
 .search-hero h1{font-family:'Cormorant Garamond',serif;font-size:46px;font-weight:300;color:var(--warm);margin-bottom:24px}
 .search-box{display:flex;max-width:580px;margin:0 auto 18px;border-radius:var(--r);overflow:hidden;border:2px solid rgba(255,255,255,.2);transition:border-color var(--ease)}
 .search-box:focus-within{border-color:var(--warm)}
 .search-box input{flex:1;padding:15px 18px;background:var(--warm);border:none;color:var(--ink);font-size:15px;outline:none}
 .search-box input::placeholder{color:var(--muted)}
-.search-box button{padding:15px 22px;background:var(--ink);border:none;color:var(--warm);cursor:pointer;font-size:13px;letter-spacing:.07em;text-transform:uppercase;transition:background var(--ease)}
+.search-box button{padding:15px 22px;background:var(--ink);border:none;color:var(--warm);font-size:13px;letter-spacing:.07em;text-transform:uppercase;transition:background var(--ease)}
 .search-box button:hover{background:var(--deep)}
 .search-chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .s-chip{padding:5px 14px;border:1px solid rgba(255,255,255,.2);border-radius:20px;color:rgba(255,255,255,.8);font-size:12px;cursor:pointer;transition:all var(--ease)}
@@ -406,10 +411,7 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
 .smi-d{font-size:12px;color:var(--muted);margin-top:2px}
 .smi-p{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--ink);font-weight:600;flex-shrink:0;margin-left:14px}
 .svc-visual{background:var(--pink-soft);aspect-ratio:4/5;display:flex;align-items:center;justify-content:center;font-size:0;border-radius:var(--r);position:sticky;top:calc(var(--nav)+20px);overflow:hidden}
-.svc-visual {
-  background-image: url('https://media.istockphoto.com/id/1444339602/photo/black-woman-african-beauty-and-skincare-health-of-luxury-spa-model-with-a-smile-on-an-orange.jpg?s=612x612&w=0&k=20&c=cwNbqTAyZdi57HBV_J7_9XxKA4rT-DtwvTMqvEJS0gs=');
-  background-size: cover;
-}
+.svc-visual { background: #e5e5e5 url('https://placehold.co/600x800/e5e5e5/888888?text=Service+Image') center/cover no-repeat; }
 
 /* ══════════════════════════════════
    AUTH
@@ -423,8 +425,6 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
 .auth-footer{text-align:center;margin-top:20px;font-size:13px;color:var(--muted)}
 .auth-footer a{color:var(--ink);cursor:pointer;font-weight:600}
 .auth-footer a:hover{text-decoration:underline}
-.google-btn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:12px;border:1.5px solid var(--pink-soft);border-radius:var(--r);background:var(--warm);cursor:pointer;font-size:13px;color:var(--ink);font-weight:600;transition:all var(--ease)}
-.google-btn:hover{border-color:var(--ink);background:rgba(0,0,0,.02)}
 
 /* ── ACCOUNT DROPDOWN ── */
 .acc-dropdown-wrap{position:relative}
@@ -444,7 +444,7 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
 .acc-drop-overlay.open{display:block}
 
 /* ══════════════════════════════════
-   MY ACCOUNT (Dashboard)
+   MY ACCOUNT
 ══════════════════════════════════ */
 .acc-layout{display:grid;grid-template-columns:250px 1fr;min-height:calc(100vh - var(--nav))}
 .acc-sidebar{background:var(--warm);border-right:1px solid var(--pink-soft);position:sticky;top:var(--nav);height:calc(100vh - var(--nav));overflow-y:auto}
@@ -461,14 +461,10 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
 .acc-main{padding:36px 40px;background:var(--pink-bg)}
 .acc-pg{display:none}.acc-pg.active{display:block}
 .acc-pg-title{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:600;color:var(--ink);margin-bottom:24px}
-
-/* Dashboard stats */
 .dash-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px}
 .ds{background:var(--warm);padding:22px;border-radius:var(--r); border:1px solid var(--pink-soft);}
 .ds-num{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:600;color:var(--ink);margin-bottom:3px}
 .ds-lbl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted); font-weight:600;}
-
-/* Orders table */
 .otbl{width:100%;border-collapse:collapse;background:var(--warm); border:1px solid var(--pink-soft); border-radius:var(--r); overflow:hidden; display:block;}
 .otbl thead {display:table; width:100%;}
 .otbl tbody {display:table; width:100%;}
@@ -485,8 +481,6 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
 .reorder-btn:hover{text-decoration:underline}
 .detail-btn{font-size:12px;color:var(--muted);background:none;border:none;cursor:pointer}
 .detail-btn:hover{color:var(--ink)}
-
-/* Bookings */
 .bk-card{background:var(--warm);border-radius:var(--r);padding:18px 22px;display:flex;align-items:center;gap:14px;margin-bottom:10px;border:1px solid var(--pink-soft);transition:box-shadow var(--ease)}
 .bk-card:hover{box-shadow:var(--shadow)}
 .bk-icon{width:46px;height:46px;background:var(--pink-soft);border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
@@ -494,8 +488,6 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
 .bk-name{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:2px}
 .bk-meta{font-size:12px;color:var(--muted)}
 .bk-acts{display:flex;gap:7px}
-
-/* Payment Methods */
 .pay-card{background:var(--warm);border-radius:var(--r);padding:18px 22px;border:1px solid var(--pink-soft);display:flex;align-items:center;gap:14px;margin-bottom:10px}
 .pay-icon{font-size:24px;width:48px;height:48px;background:var(--pink-soft);border-radius:var(--r);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .pay-info{flex:1}
@@ -503,19 +495,7 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
 .pay-meta{font-size:12px;color:var(--muted)}
 .pay-default{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);font-weight:600;}
 .pay-acts{display:flex;gap:7px}
-
-/* Wishlist */
 .wishlist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px;align-items:start;min-width:0;}
-
-/* Addresses */
-
-/* Responsive: stack filter panel on small screens */
-@media (max-width:900px){
-   .prod-layout{grid-template-columns:1fr;}
-   .filter-panel{position:static;top:auto;width:100%;margin-bottom:18px;padding:16px}
-   .filter-panel .sub-cats, #sub-cats-top{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px}
-   .filter-panel .sub-cat, .sub-cats .sub-cat{white-space:nowrap}
-}
 .addr-card{background:var(--warm);padding:22px;border-radius:var(--r);border:1px solid var(--pink-soft);max-width:420px;margin-bottom:12px}
 .addr-default{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);margin-bottom:7px;font-weight:600}
 .addr-text{font-size:14px;color:var(--ink);line-height:1.7}
@@ -558,7 +538,7 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
 .view-cart-btn:hover{background:var(--ink);color:var(--warm)}
 
 /* ══════════════════════════════════
-   CART PAGE (full page — Your Cart Page)
+   CART PAGE
 ══════════════════════════════════ */
 .cart-page-layout{display:grid;grid-template-columns:1fr 360px;gap:36px;padding:36px 0}
 .cart-page-items{background:var(--warm); border-radius:var(--r); border:1px solid var(--pink-soft); overflow:hidden;}
@@ -589,20 +569,15 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
 .continue-shop:hover{text-decoration:underline;}
 
 /* ══════════════════════════════════
-   CHECKOUT (Billing → Shipping → Payment → Order Summary → Place Order)
+   CHECKOUT
 ══════════════════════════════════ */
 .checkout-steps{display:flex;align-items:center;margin-bottom:40px;background:var(--warm); border:1px solid var(--pink-soft);padding:20px 24px;border-radius:var(--r)}
 .cs-step{flex:1;display:flex;flex-direction:column;align-items:center;position:relative}
 .cs-step:not(:last-child)::after{content:'';position:absolute;top:16px;left:50%;width:100%;height:2px;background:var(--pink-soft);z-index:0}
-/* Only draw the dark connector when a step is completed */
 .cs-step.done:not(:last-child)::after{background:var(--ink)}
-
-/* Dim inactive dots; active/done steps remain highlighted */
 .cs-dot{width:32px;height:32px;border-radius:50%;border:2px solid var(--pink-soft);background:var(--warm);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);z-index:1;position:relative;transition:all .35s; font-weight:600;}
 .cs-step.active .cs-dot{border-color:var(--ink);background:var(--ink);color:var(--warm)}
 .cs-step.done .cs-dot{border-color:var(--ink);background:var(--ink);color:var(--warm)}
-
-/* Dim inactive labels; active/done labels become dark */
 .cs-lbl{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-top:7px; font-weight:600; transition: color var(--ease);}
 .cs-step.active .cs-lbl, .cs-step.done .cs-lbl{color:var(--ink);}
 .checkout-layout{display:grid;grid-template-columns:1fr 360px;gap:36px;padding-bottom:60px}
@@ -739,24 +714,4 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
 @media(max-width:480px){
   .svc-grid{grid-template-columns:1fr 1fr}
   .pg{grid-template-columns:1fr 1fr}
-}
-/* 1. Push the whole page down so it clears the white header */
-#page-search {
-  padding-top: 90px; /* Adjust this slightly if it still overlaps your specific header */
-  width: 100%;
-}
-
-/* 2. Let the black banner stretch and give the text inside plenty of room */
-.search-hero {
-  width: 100%;
-  padding: 80px 20px; /* Top/Bottom padding ensures the text is never cut off */
-  box-sizing: border-box;
-  text-align: center;
-}
-
-/* 3. Only constrain the results grid and tabs below the banner */
-#page-search > div:not(.search-hero) {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 20px 40px; 
 }
