@@ -749,12 +749,14 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
   width: 100%;
 }
 
-/* 2. Let the black banner stretch and give the text inside plenty of room */
+/* 2. Let the banner stretch, give it room, and add a beautiful background image */
 .search-hero {
   width: 100%;
-  padding: 80px 20px; /* Top/Bottom padding ensures the text is never cut off */
+  padding: 100px 20px; /* Gives the content nice breathing room */
   box-sizing: border-box;
   text-align: center;
+  /* Adds a dark gradient overlay on top of an aesthetic image */
+  background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
 }
 
 /* 3. Only constrain the results grid and tabs below the banner */
