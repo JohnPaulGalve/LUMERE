@@ -807,7 +807,9 @@ function renderCheckoutSidebar(){
   
   el.innerHTML = checkoutCart.map(i => `
     <div class="os-item">
-      <div class="os-img">${i.emoji}</div>
+      <div class="os-img" style="overflow:hidden;">
+        <img src="${i.img}" alt="${i.name}" style="width:100%;height:100%;object-fit:cover;">
+      </div>
       <div>
         <div class="os-name">${i.name}</div>
         <div class="os-qty">×${i.qty}</div>
