@@ -157,6 +157,11 @@ function go(page) {
         setMinBookingDate();
   }
 
+  // ADD THIS NEW FIX: Force Cart to refresh when opened
+  if (page === 'cart') {
+      if (typeof renderCartPage === 'function') renderCartPage();
+  }
+
   // 4. Actual Page Routing
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const targetPage = document.getElementById('page-' + page);
@@ -270,13 +275,13 @@ function pdpAddCart() {
   if (!currentPdp) return;
   const qty = +document.getElementById('pdp-qty').value;
   
-  // Add correct quantity all at once (fixes the multiple pop-up bug)
   const ex = cart.find(i => i.id === currentPdp.id);
   if (ex) ex.qty += qty;
   else cart.push({ ...currentPdp, qty });
   
   updateBadge();
-  toast(`${currentPdp.name} added to cart!`, 'info'); // Show toast for normal cart adds
+  renderCartPage(); // <--- This forces the main page to update immediately
+  toast(`${currentPdp.name} added to cart!`, 'info'); 
   
   const b = document.getElementById('pdp-atc');
   b.textContent = '✓ Added!';
@@ -493,45 +498,79 @@ function showPanel(id) {
   document.getElementById('st-'+id)?.classList.add('active');
 }
 
-/* ═══════════════ CART ═══════════════ */
-function addToCart(p){const ex=cart.find(i=>i.id===p.id);if(ex)ex.qty++;else cart.push({...p,qty:1});updateBadge();toast(`${p.name} added to cart!`,'info')}
+/* ═══════════════ CART — SIDE PANEL ═══════════════ */
+function addToCart(p){const ex=cart.find(i=>i.id===p.id);if(ex)ex.qty++;else cart.push({...p,qty:1});updateBadge();renderCartPage();toast(`${p.name} added to cart!`,'info')}
 function quickAdd(id){const p=products.find(x=>x.id===id);if(p)addToCart(p)}
 function updateBadge(){const n=cart.reduce((s,i)=>s+i.qty,0);const b=document.getElementById('cart-badge');b.textContent=n;b.classList.add('pop');setTimeout(()=>b.classList.remove('pop'),400)}
 function toggleCart(){document.getElementById('cart-panel').classList.toggle('open');document.getElementById('cart-overlay').classList.toggle('open');renderCartPanel()}
+
 function renderCartPanel(){
   const body=document.getElementById('cart-panel-body');
   const ft=document.getElementById('cart-panel-ft');
   const hc=document.getElementById('cart-hd-count');
   const total=cart.reduce((s,i)=>s+i.qty,0);
   hc.textContent=total+' item'+(total!==1?'s':'');
+  
   if(!cart.length){body.innerHTML=`<div class="cart-empty-state"><div class="ces-icon">🛍</div><div class="ces-title">Cart is empty</div><div class="ces-sub">Add something beautiful.</div><button class="btn btn-primary" onclick="toggleCart();go('products')">Shop Now</button></div>`;ft.style.display='none';return}
+  
   ft.style.display='block';
-  body.innerHTML=cart.map(i=>`<div class="ci"><div class="ci-img">${i.emoji}</div><div class="ci-info"><div class="ci-name">${i.name}</div><div class="ci-brand">${i.brand}</div>
-    <!-- Product Info: Price, Quantity -->
-    <div class="ci-row"><div class="ci-qty-ctrl"><button class="cqb" onclick="chQty(${i.id},-1)">−</button><div class="cqn">${i.qty}</div><button class="cqb" onclick="chQty(${i.id},1)">+</button></div><div class="ci-price">₱${(i.price*i.qty).toLocaleString()}</div></div>
-    <!-- Remove -->
-    <button class="ci-rm" onclick="rmCart(${i.id})">Remove</button></div></div>`).join('');
+  body.innerHTML=cart.map(i=>`<div class="ci">
+    <div class="ci-img" style="overflow:hidden;"><img src="${i.img}" alt="${i.name}" style="width:100%;height:100%;object-fit:cover;"></div>
+    <div class="ci-info">
+      <div class="ci-name">${i.name}</div>
+      <div class="ci-brand">${i.brand}</div>
+      <div class="ci-row">
+        <div class="ci-qty-ctrl">
+          <button class="cqb" onclick="chQty(${i.id},-1)">−</button>
+          <div class="cqn">${i.qty}</div>
+          <button class="cqb" onclick="chQty(${i.id},1)">+</button>
+        </div>
+        <div class="ci-price">₱${(i.price*i.qty).toLocaleString()}</div>
+      </div>
+      <button class="ci-rm" onclick="rmCart(${i.id})">Remove</button>
+    </div>
+  </div>`).join('');
+  
   const sub=cart.reduce((s,i)=>s+(i.price*i.qty),0);
   const ship=sub>=1500?0:150;
   document.getElementById('cp-sub2').textContent='₱'+sub.toLocaleString();
   document.getElementById('cp-ship2').textContent=ship===0?'Free':'₱150';
   document.getElementById('cp-total2').textContent='₱'+(sub+ship).toLocaleString();
 }
-function chQty(id,d){const it=cart.find(i=>i.id===id);if(it){it.qty+=d;if(it.qty<=0)cart=cart.filter(i=>i.id!==id)}updateBadge();renderCartPanel()}
-function rmCart(id){cart=cart.filter(i=>i.id!==id);updateBadge();renderCartPanel();renderCartPage()}
 
-/* ═══════════════ CART PAGE ═══════════════ */
+function chQty(id,d){const it=cart.find(i=>i.id===id);if(it){it.qty+=d;if(it.qty<=0)cart=cart.filter(i=>i.id!==id)}updateBadge();renderCartPanel();renderCartPage();}
+function rmCart(id){cart=cart.filter(i=>i.id!==id);updateBadge();renderCartPanel();renderCartPage();}
+
+/* ═══════════════ CART PAGE (full page) ═══════════════ */
 function renderCartPage(){
   const el=document.getElementById('cart-page-items');
   if(!cart.length){el.innerHTML=`<div style="text-align:center;padding:56px 20px;color:var(--muted)"><div style="font-size:40px;margin-bottom:12px">🛍</div><div style="font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;margin-bottom:8px">Your cart is empty</div><button class="btn btn-primary" onclick="go('products')" style="margin-top:8px">Start Shopping</button></div>`;document.getElementById('cp-sub').textContent='₱0';document.getElementById('cp-ship').textContent='₱150';document.getElementById('cp-total').textContent='₱150';return}
-  el.innerHTML=cart.map(i=>`<div class="cpi-row"><div class="cpi-product"><div class="cpi-img">${i.emoji}</div><div><div class="cpi-name">${i.name}</div><div class="cpi-brand">${i.brand}</div></div></div><div class="cpi-price">₱${i.price.toLocaleString()}</div><div><div class="cpi-qty2"><button class="cqb2" onclick="chQtyPage(${i.id},-1)">−</button><div class="cqn2">${i.qty}</div><button class="cqb2" onclick="chQtyPage(${i.id},1)">+</button></div></div><div class="cpi-subtotal">₱${(i.price*i.qty).toLocaleString()}</div><button class="cpi-rm" onclick="rmCartPage(${i.id})">✕</button></div>`).join('');
+  
+  el.innerHTML=cart.map(i=>`<div class="cpi-row">
+    <div class="cpi-product">
+      <div class="cpi-img" style="overflow:hidden;"><img src="${i.img}" alt="${i.name}" style="width:100%;height:100%;object-fit:cover;"></div>
+      <div><div class="cpi-name">${i.name}</div><div class="cpi-brand">${i.brand}</div></div>
+    </div>
+    <div class="cpi-price">₱${i.price.toLocaleString()}</div>
+    <div>
+      <div class="cpi-qty2">
+        <button class="cqb2" onclick="chQtyPage(${i.id},-1)">−</button>
+        <div class="cqn2">${i.qty}</div>
+        <button class="cqb2" onclick="chQtyPage(${i.id},1)">+</button>
+      </div>
+    </div>
+    <div class="cpi-subtotal">₱${(i.price*i.qty).toLocaleString()}</div>
+    <button class="cpi-rm" onclick="rmCartPage(${i.id})">✕</button>
+  </div>`).join('');
+  
   const sub=cart.reduce((s,i)=>s+(i.price*i.qty),0);const ship=sub>=1500?0:150;
   document.getElementById('cp-sub').textContent='₱'+sub.toLocaleString();
   document.getElementById('cp-ship').textContent=ship===0?'Free ✓':'₱150';
   document.getElementById('cp-total').textContent='₱'+(sub+ship).toLocaleString();
 }
-function chQtyPage(id,d){const it=cart.find(i=>i.id===id);if(it){it.qty+=d;if(it.qty<=0)cart=cart.filter(i=>i.id!==id)}updateBadge();renderCartPage()}
-function rmCartPage(id){cart=cart.filter(i=>i.id!==id);updateBadge();renderCartPage();toast('Item removed','error')}
+
+function chQtyPage(id,d){const it=cart.find(i=>i.id===id);if(it){it.qty+=d;if(it.qty<=0)cart=cart.filter(i=>i.id!==id)}updateBadge();renderCartPage();renderCartPanel();}
+function rmCartPage(id){cart=cart.filter(i=>i.id!==id);updateBadge();renderCartPage();renderCartPanel();toast('Item removed','error')}
 
 /* ═══════════════ CHECKOUT ═══════════════ */
 // NEW: Calculates and draws the items on the final Review step
