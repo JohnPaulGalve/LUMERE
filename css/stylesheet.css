@@ -188,10 +188,10 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
 .svc-card{position:relative;overflow:hidden;aspect-ratio:3/4;cursor:pointer}
 .svc-bg{position:absolute;inset:0;transition:transform .6s cubic-bezier(.25,.46,.45,.94)}
 .svc-card:hover .svc-bg{transform:scale(1.07)}
-.bg1 { background: url('https://hesstudios.com/wp-content/uploads/2022/08/hair-straightening-1-edited.jpg') center/cover; }
-.bg2 { background: url('https://cdn.create.vista.com/api/media/small/213688304/stock-photo-woman-various-facial-treatment-equipment-spa-center') center/cover; }
-.bg3 { background: url('https://socialfilespa.com/wp-content/uploads/2022/07/SOCIAL-FILE-NAILS-SPA-service-33325.jpg') center/cover; }
-.bg4 { background: url('https://www.barnesvillagespa.co.uk/images/bg-main.jpg?dpl=dpl_4fjRxr6rQTdZN5bET31Yx4z3MWuH') center/cover; }
+.bg1 { background: url('../images/service images/hair.jpg') center/cover; }
+.bg2 { background: url('../images/service images/facial.jpeg') center/cover; }
+.bg3 { background: url('../images/service images/nails.jpg') center/cover; }
+.bg4 { background: url('../images/service images/spa.jpg') center/cover; }
 .svc-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.5) 0%,transparent 60%)}
 .svc-ct{position:absolute;bottom:0;left:0;right:0;padding:24px;background:var(--white-glass);z-index:2; border-top: 1px solid var(--pink-soft);}
 .svc-emoji{font-size:30px;margin-bottom:10px;display:block}
@@ -745,7 +745,7 @@ select.finput{cursor:pointer;appearance:none;background-image:url("data:image/sv
 }
 /* 1. Push the whole page down so it clears the white header */
 #page-search {
-  padding-top: 90px; /* Adjust this slightly if it still overlaps your specific header */
+  padding-top: var(--nav); /* This dynamically matches the exact height of your navigation bar */
   width: 100%;
 }
 
