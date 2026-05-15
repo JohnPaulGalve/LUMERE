@@ -90,6 +90,29 @@
       </div>
     </nav>
 
+    <div class="mob-menu" id="mob-menu">
+      <div class="mob-search">
+        <input
+          type="text"
+          id="mob-q"
+          placeholder="Search products, services..."
+          onkeydown="if (event.key === 'Enter') mobSearch();"
+        />
+        <button class="btn btn-primary" style="padding: 11px 16px;" onclick="mobSearch()">🔍</button>
+      </div>
+      
+      <div class="mob-link" onclick="closeMob(); go('home')">Home</div>
+      <div class="mob-link" onclick="closeMob(); go('products')">Products</div>
+      <div class="mob-link" onclick="closeMob(); go('services')">Services</div>
+      <div class="mob-link" onclick="closeMob(); go('account')">My Account</div>
+      
+      <div class="mob-actions">
+        <button class="btn btn-primary btn-full btn-lg" onclick="closeMob(); go('booking')">
+          Book Appointment
+        </button>
+      </div>
+    </div>
+
     <!-- ══════════════════════════════════════════
      HOME PAGE
      Nodes: Hero/Banner, Shop Now CTA, Book Service CTA,
