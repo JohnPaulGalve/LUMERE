@@ -741,7 +741,8 @@ function renderCheckoutPayments() {
   html += `
     <label class="pay-opt" style="display:flex; cursor:pointer; align-items:center;" onclick="toggleCheckoutPay('card')">
        <input type="radio" name="pay_main" id="pay_main_card" style="margin-right:12px; accent-color: var(--ink);">
-       <span class="pay-opt-icon">💳</span> <span style="font-weight:600; color:var(--ink);">Credit / Debit Card</span>
+       <img src="images/atm-card.png" alt="Card" style="width: 24px; height: 24px; object-fit: contain; margin-right: 8px;"> 
+       <span style="font-weight:600; color:var(--ink);">Credit / Debit Card</span>
     </label>
     <div id="co-cards-list" style="display:none; margin-left: 46px; margin-bottom: 24px; padding-top: 8px;">
   `;
@@ -756,7 +757,8 @@ function renderCheckoutPayments() {
   html += `
     <label class="pay-opt" style="display:flex; cursor:pointer; margin-top:12px; align-items:center;" onclick="toggleCheckoutPay('gcash')">
        <input type="radio" name="pay_main" id="pay_main_gcash" style="margin-right:12px; accent-color: var(--ink);">
-       <span class="pay-opt-icon">📱</span> <span style="font-weight:600; color:var(--ink);">GCash / Maya</span>
+       <img src="images/gcash.png" alt="GCash" style="width: 24px; height: 24px; object-fit: contain; margin-right: 8px;"> 
+       <span style="font-weight:600; color:var(--ink);">GCash / Maya</span>
     </label>
     <div id="co-gcash-list" style="display:none; margin-left: 46px; margin-bottom: 24px; padding-top: 8px;">
   `;
@@ -771,10 +773,10 @@ function renderCheckoutPayments() {
   html += `
     <label class="pay-opt selected" style="display:flex; cursor:pointer; margin-top:12px; align-items:center;" onclick="toggleCheckoutPay('cod')">
        <input type="radio" name="pay_main" id="pay_main_cod" checked style="margin-right:12px; accent-color: var(--ink);">
-       <span class="pay-opt-icon">💵</span> <span style="font-weight:600; color:var(--ink);">Cash on Delivery</span>
+       <img src="images/cash-on-delivery.png" alt="COD" style="width: 24px; height: 24px; object-fit: contain; margin-right: 8px;"> 
+       <span style="font-weight:600; color:var(--ink);">Cash on Delivery</span>
     </label>
   `;
-
   html += `
     <div class="co-step-btns" style="margin-top:32px;">
       <button class="btn btn-ghost" onclick="coNext(2)">← Back</button>
@@ -1320,7 +1322,11 @@ function renderDynamicAccountData(user) {
            if (pType === 'card' && !hasDefaultCard) { isDef = true; hasDefaultCard = true; }
            if (pType === 'gcash' && !hasDefaultGcash) { isDef = true; hasDefaultGcash = true; }
            
-           return `<div class="pay-card"><div class="pay-icon">${p.icon || '💳'}</div><div class="pay-info"><div class="pay-name">${p.name}</div>${isDef ? '<div class="pay-default">Default</div>' : ''}</div><div class="pay-acts">${!isDef ? `<button class="btn btn-ghost btn-sm" onclick="setAsDefault('payments', ${p.id})">Make Default</button>` : ''}<button class="btn btn-ghost btn-sm" onclick="removePayment(${p.id})">Remove</button></div></div>`;
+           // 1. Force the correct image based on the payment type
+           const iconImg = pType === 'gcash' ? 'images/gcash.png' : 'images/atm-card.png';
+           
+           // 2. Render the card ignoring the old saved emoji
+           return `<div class="pay-card"><div class="pay-icon"><img src="${iconImg}" alt="${pType}" style="width: 28px; height: 28px; object-fit: contain;"></div><div class="pay-info"><div class="pay-name">${p.name}</div>${isDef ? '<div class="pay-default">Default</div>' : ''}</div><div class="pay-acts">${!isDef ? `<button class="btn btn-ghost btn-sm" onclick="setAsDefault('payments', ${p.id})">Make Default</button>` : ''}<button class="btn btn-ghost btn-sm" onclick="removePayment(${p.id})">Remove</button></div></div>`;
         }).join('');
      }
      html += `<br><div style="background: var(--cream); padding: 24px; border-radius: var(--r); max-width: 420px; border: 1px solid var(--border);">
@@ -1676,7 +1682,7 @@ function addPayment() {
     const num = rawNum.slice(-4);
     
     // Notice the new type property added here
-    user.payments.push({ id: Date.now(), type: 'card', name: `${bank} ending in ${num}`, icon: '💳' });
+    user.payments.push({ id: Date.now(), type: 'card', name: `${bank} ending in ${num}`, icon: '<img src="images/atm-card.png" alt="Card" style="width: 28px; height: 28px; object-fit: contain;">' });
     
   } else {
     const gname = document.getElementById('new-gcash-name').value.trim();
@@ -1686,7 +1692,7 @@ function addPayment() {
     const gnum = rawGnum.slice(-4);
     
     // Notice the new type property added here
-    user.payments.push({ id: Date.now(), type: 'gcash', name: `GCash ending in ${gnum}`, icon: '📱' });
+    user.payments.push({ id: Date.now(), type: 'gcash', name: `GCash ending in ${gnum}`, icon: '<img src="images/gcash.png" alt="GCash" style="width: 28px; height: 28px; object-fit: contain;">' });
   }
   
   saveUserData(user);

@@ -1644,7 +1644,7 @@
           <div class="acc-pg" id="tab-payment">
             <div class="acc-pg-title">Payment Methods</div>
             <div class="pay-card">
-              <div class="pay-icon">💳</div>
+              <<div class="pay-icon"><img src="images/atm-card.png" alt="Card" style="width: 28px; height: 28px; object-fit: contain;"></div>
               <div class="pay-info">
                 <div class="pay-name">Visa ending in 4242</div>
                 <div class="pay-meta">Expires 08/27</div>
@@ -1661,7 +1661,7 @@
               </div>
             </div>
             <div class="pay-card">
-              <div class="pay-icon">💳</div>
+              <div class="pay-icon"><img src="images/atm-card.png" alt="Card" style="width: 28px; height: 28px; object-fit: contain;"></div>
               <div class="pay-info">
                 <div class="pay-name">Mastercard ending in 8810</div>
                 <div class="pay-meta">Expires 12/26</div>
@@ -2061,20 +2061,19 @@
                 Payment Method
               </h2>
               <div class="pay-opt selected" onclick="selPay(this)">
-                <input type="radio" name="pay" checked /><span
-                  class="pay-opt-icon"
-                  >💳</span
-                >Credit / Debit Card
+                <input type="radio" name="pay" checked />
+                <img src="images/atm-card.png" alt="Card" style="width: 24px; height: 24px; object-fit: contain; margin-right: 8px;">
+                Credit / Debit Card
               </div>
               <div class="pay-opt" onclick="selPay(this)">
-                <input type="radio" name="pay" /><span class="pay-opt-icon"
-                  >📱</span
-                >GCash / Maya
+                <input type="radio" name="pay" />
+                <img src="images/gcash.png" alt="GCash" style="width: 24px; height: 24px; object-fit: contain; margin-right: 8px;">
+                GCash / Maya
               </div>
               <div class="pay-opt" onclick="selPay(this)">
-                <input type="radio" name="pay" /><span class="pay-opt-icon"
-                  >💵</span
-                >Cash on Delivery
+                <input type="radio" name="pay" />
+                <img src="images/cash-on-delivery.png" alt="COD" style="width: 24px; height: 24px; object-fit: contain; margin-right: 8px;">
+                Cash on Delivery
               </div>
               <div id="card-fields" style="margin-top: 16px">
                 <div class="fg">
@@ -2302,36 +2301,42 @@
     <div id="page-about" class="page">
       <div class="wrap" style="padding-top: 48px; padding-bottom: 80px">
         <div class="bc">
-          <a onclick="go('home')">Home</a><span class="bc-sep">/</span
-          ><span>About</span>
+          <a onclick="go('home')">Home</a><span class="bc-sep">/</span><span>About Us</span>
         </div>
-        <h1
-          style="
-            font-family: &quot;Cormorant Garamond&quot;, serif;
-            font-size: 52px;
-            font-weight: 300;
-            margin-bottom: 20px;
-          "
-        >
-          About <em style="font-style: italic; color: var(--terra)">Lumière</em>
-        </h1>
-        <p
-          style="
-            font-size: 15px;
-            color: var(--mid);
-            line-height: 1.8;
-            max-width: 640px;
-          "
-        >
-          Lumière was founded in 2018 with a single vision: to make luxury
-          beauty accessible. We combine expert salon services with a curated
-          selection of premium beauty products, all in a serene and welcoming
-          environment. Our team of certified professionals is dedicated to
-          helping every client look and feel their absolute best.
-        </p>
-        <br /><button class="btn btn-primary" onclick="go('booking')">
-          Book an Appointment
-        </button>
+        
+        <div class="about-grid">
+          <div>
+            <div class="eyebrow">Our Story</div>
+            <h1 style="font-family: 'Cormorant Garamond', serif; font-size: 52px; font-weight: 300; margin-bottom: 24px; line-height: 1.1;">
+              Elevating beauty to an <em style="font-style: italic; color: var(--terra)">art form.</em>
+            </h1>
+            
+            <p style="font-size: 15px; color: var(--mid); line-height: 1.8; margin-bottom: 16px;">
+              Founded in 2018, Lumière began with a singular, unwavering vision: to make luxury beauty accessible without compromising on quality. What started as a boutique salon has blossomed into a comprehensive sanctuary for self-care, where every detail is designed with your elegance in mind.
+            </p>
+            
+            <p style="font-size: 15px; color: var(--mid); line-height: 1.8; margin-bottom: 16px;">
+              We believe that true beauty radiates from within, enhanced by expert care and exceptional ingredients. That’s why we seamlessly bridge the gap between premium cosmetic retail and world-class salon treatments. 
+            </p>
+            
+            <p style="font-size: 15px; color: var(--mid); line-height: 1.8; margin-bottom: 32px;">
+              Whether you are indulging in our curated skincare and makeup collections at home or experiencing a transformative session with our certified professionals, Lumière provides a serene, welcoming environment tailored to help you reveal your finest self.
+            </p>
+            
+            <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+              <button class="btn btn-primary btn-lg" onclick="go('booking')">
+                Book an Appointment
+              </button>
+              <button class="btn btn-outline btn-lg" onclick="go('products')">
+                Shop Now
+              </button>
+            </div>
+          </div>
+          
+          <div class="about-img" style="border-radius: var(--r); overflow: hidden; height: 100%; min-height: 450px; background-image: url('images/about.webp'); background-size: cover; background-position: center;">
+          </div>
+        </div>
+
       </div>
     </div>
     <div id="page-contact" class="page">
